@@ -1,0 +1,37 @@
+? 📧 Please enter an email address to setup an account ayushalokdubey@gmail.com
+⁂ Agent was authorized by did:mailto:gmail.com:ayushalokdubey
+✨ Billing account is set
+⛓️ To manage space across devices we need to authorize an account
+✨ Account is authorized
+⁂ Space created: did:key:z6Mko79RRg8oUrbFvQ3ABJjgjhhQLpVh3QECQEmpwFV47FHq
+PS J:\Users\ayush\Desktop\rocket\backend> w3 space use
+
+  ERROR
+    Insufficient arguments!
+
+  Run `$ w3 space use --help` for more info.
+
+PS J:\Users\ayush\Desktop\rocket\backend> npx ucan-key ed
+PS J:\Users\ayush\Desktop\rocket\backend> w3 space use did:key:z6Mko79RRg8oUrbFvQ3ABJjgjhhQLpVh3QECQEmpwFV47FHq
+did:key:z6Mko79RRg8oUrbFvQ3ABJjgjhhQLpVh3QECQEmpwFV47FHq
+PS J:\Users\ayush\Desktop\rocket\backend> npx ucan-key ed
+Need to install the following packages:
+ucan-key@1.0.2
+Ok to proceed? (y) y
+
+# did:key:z6MkfLc83Z6cZqbZQAnoSngFPagKoJmGdaGa5KjLEa2X9xbK
+MgCb+3IaLlb39USI28C1eY7pSA6b67y5Fi+C00QMDIFhiju0BDSdSeOGVQJPrauseFFXgOq9dOMVyNS0E3neAORu+jwI=
+PS J:\Users\ayush\Desktop\rocket\backend>
+
+
+
+
+
+
+
+
+
+
+
+
+
