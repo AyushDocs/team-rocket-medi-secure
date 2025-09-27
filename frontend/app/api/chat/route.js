@@ -1,4 +1,4 @@
-import { OpenAIStream, StreamingTextResponse } from '@vercel/ai';
+import { OpenAIStream, StreamingTextResponse } from 'ai';
 import OpenAI from 'openai';
 
 // Create an OpenAI API client

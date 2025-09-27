@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { logout } from "@/lib/auth"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import MessagingSystem from "@/components/messaging-system"
@@ -131,7 +132,17 @@ export default function DoctorDashboard({ user, onLogout }) {
                 <Shield className="h-4 w-4 text-[#b2e061]" />
                 <span>Secure Session</span>
               </div>
-              <Button onClick={onLogout} variant="outline">
+              <Button 
+                onClick={async () => {
+                  try {
+                    await logout();
+                    if (onLogout) onLogout();
+                  } catch (error) {
+                    console.error('Logout failed:', error);
+                  }
+                }} 
+                variant="outline"
+              >
                 Logout
               </Button>
             </div>

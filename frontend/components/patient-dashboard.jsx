@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { logout } from "@/lib/auth"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Switch } from "@/components/ui/switch"
@@ -38,18 +39,18 @@ export default function PatientDashboard({ user, onLogout }) {
     shareWithSpecialists: false,
     shareWithPharmacy: true,
     allowResearch: false,
-    dataRetention: "5years",
+    dataRetention: "5 Years",
   })
 
   // Mock patient data
   const patientInfo = {
-    name: "John Smith",
-    age: 42,
-    bloodType: "O+",
-    allergies: ["Penicillin", "Shellfish"],
-    conditions: ["Hypertension", "Type 2 Diabetes"],
-    emergencyContact: "Jane Smith - (555) 123-4567",
-    avatar: "/man.jpg",
+    name: "Ayush Dubey",
+    age: 19,
+    bloodType: "B+",
+    allergies: ["Dust", "Pollen"],
+    conditions: ["Seasonal Allergies"],
+    emergencyContact: "9542136954",
+    avatar: "/Ayush-profile.jpg",
   }
 
   const healthRecords = [
@@ -58,7 +59,7 @@ export default function PatientDashboard({ user, onLogout }) {
       type: "Lab Results",
       date: "2024-01-15",
       doctor: "Dr. Sarah Wilson",
-      status: "normal",
+      status: "Normal",
       description: "Blood glucose levels within normal range",
       shared: true,
     },
@@ -67,7 +68,7 @@ export default function PatientDashboard({ user, onLogout }) {
       type: "Prescription",
       date: "2024-01-12",
       doctor: "Dr. Michael Chen",
-      status: "active",
+      status: "Active",
       description: "Metformin 500mg - Take twice daily",
       shared: true,
     },
@@ -76,7 +77,7 @@ export default function PatientDashboard({ user, onLogout }) {
       type: "Visit Summary",
       date: "2024-01-10",
       doctor: "Dr. Sarah Wilson",
-      status: "completed",
+      status: "Completed",
       description: "Routine checkup - Blood pressure stable",
       shared: false,
     },
@@ -87,28 +88,28 @@ export default function PatientDashboard({ user, onLogout }) {
       id: 1,
       action: "Lab results shared with Dr. Wilson",
       timestamp: "2024-01-15 10:30 AM",
-      type: "data_share",
+      type: "Data Share",
       secure: true,
     },
     {
       id: 2,
       action: "Appointment scheduled with Dr. Chen",
       timestamp: "2024-01-14 2:15 PM",
-      type: "appointment",
+      type: "Appointment",
       secure: true,
     },
     {
       id: 3,
       action: "Message sent to Dr. Wilson",
       timestamp: "2024-01-13 9:45 AM",
-      type: "message",
+      type: "Message",
       secure: true,
     },
     {
       id: 4,
       action: "Privacy settings updated",
       timestamp: "2024-01-12 4:20 PM",
-      type: "privacy",
+      type: "Privacy",
       secure: true,
     },
   ]
@@ -121,7 +122,7 @@ export default function PatientDashboard({ user, onLogout }) {
       date: "2024-01-25",
       time: "10:00 AM",
       type: "Follow-up",
-      status: "confirmed",
+      status: "Confirmed",
       location: "Medical Center - Room 205",
     },
     {
@@ -131,7 +132,7 @@ export default function PatientDashboard({ user, onLogout }) {
       date: "2024-02-02",
       time: "2:30 PM",
       type: "Consultation",
-      status: "pending",
+      status: "Pending",
       location: "Heart Institute - Suite 301",
     },
   ]
@@ -182,7 +183,17 @@ export default function PatientDashboard({ user, onLogout }) {
                 <Shield className="h-4 w-4 text-[#b2e061]" />
                 <span>Secure Session</span>
               </div>
-              <Button onClick={onLogout} variant="outline">
+              <Button 
+                onClick={async () => {
+                  try {
+                    await logout();
+                    if (onLogout) onLogout();
+                  } catch (error) {
+                    console.error('Logout failed:', error);
+                  }
+                }} 
+                variant="outline"
+              >
                 Logout
               </Button>
             </div>
@@ -226,7 +237,7 @@ export default function PatientDashboard({ user, onLogout }) {
               <CardContent>
                 <div className="flex items-start space-x-6">
                   <Avatar className="h-20 w-20">
-                    <AvatarImage src={patientInfo.avatar || "/placeholder.svg"} />
+                    <AvatarImage src={patientInfo.avatar} alt={patientInfo.name} />
                     <AvatarFallback>
                       {patientInfo.name
                         .split(" ")
@@ -328,10 +339,10 @@ export default function PatientDashboard({ user, onLogout }) {
                   {activityLog.slice(0, 4).map((activity) => (
                     <div key={activity.id} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
                       <div className="flex-shrink-0">
-                        {activity.type === "data_share" && <Share2 className="h-5 w-5 text-[#7eb0d5]" />}
-                        {activity.type === "appointment" && <Calendar className="h-5 w-5 text-[#b2e061]" />}
-                        {activity.type === "message" && <MessageSquare className="h-5 w-5 text-[#FFDF00]" />}
-                        {activity.type === "privacy" && <Settings className="h-5 w-5 text-gray-500" />}
+                        {activity.type === "Data Share" && <Share2 className="h-5 w-5 text-[#7eb0d5]" />}
+                        {activity.type === "Appointment" && <Calendar className="h-5 w-5 text-[#b2e061]" />}
+                        {activity.type === "Message" && <MessageSquare className="h-5 w-5 text-[#FFDF00]" />}
+                        {activity.type === "Privacy" && <Settings className="h-5 w-5 text-gray-500" />}
                       </div>
                       <div className="flex-1">
                         <p className="font-medium">{activity.action}</p>
