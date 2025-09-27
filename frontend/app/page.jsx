@@ -9,13 +9,16 @@ import { Shield, Heart, Users, Lock } from "lucide-react"
 import DoctorDashboard from "@/components/doctor-dashboard"
 import PatientDashboard from "@/components/patient-dashboard"
 import { ethers } from "ethers"
+import PatientForm from "@/components/forms"
 
 // MetaMask Login Form
+// ...existing code...
+
 function LoginForm({ userType, onLogin }) {
   const [walletAddress, setWalletAddress] = useState("")
   const [error, setError] = useState("")
 
-  const handleMetaMaskLogin = async () => {
+   const handleMetaMaskLogin = async () => {
     if (typeof window.ethereum === 'undefined') {
       setError("MetaMask is not installed.")
       return
@@ -23,8 +26,11 @@ function LoginForm({ userType, onLogin }) {
     try {
       const provider = new ethers.BrowserProvider(window.ethereum)
       const accounts = await provider.send("eth_requestAccounts", [])
-      setWalletAddress(accounts[0])
-      onLogin(accounts[0], userType)
+      const address = accounts[0]
+      setWalletAddress(address)
+      
+      // Always set exists to false to show the registration form
+      onLogin(address, userType, false)
     } catch (err) {
       setError("Wallet connection failed.")
     }
@@ -32,12 +38,21 @@ function LoginForm({ userType, onLogin }) {
 
   return (
     <div className="space-y-4">
-      <Label>Sign in with MetaMask</Label>
-      <Button type="button" className="w-full bg-[#7eb0d5] hover:bg-[#5a8bb5] text-white" onClick={handleMetaMaskLogin}>
-        Connect MetaMask as {userType === "doctor" ? "Doctor" : "Patient"}
+      {error && (
+        <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
+          {error}
+        </div>
+      )}
+      
+      <Button 
+        onClick={handleMetaMaskLogin}
+        className="w-full bg-[#703FA1] hover:bg-[#5a2f81]"
+      >
+        {walletAddress ? 
+          `Connected: ${walletAddress.slice(0,6)}...${walletAddress.slice(-4)}` : 
+          'Connect with MetaMask'
+        }
       </Button>
-      {walletAddress && <p className="text-sm text-green-600">Connected: {walletAddress}</p>}
-      {error && <p className="text-sm text-red-600">{error}</p>}
     </div>
   )
 }
@@ -46,19 +61,45 @@ export default function HomePage() {
   const [userType, setUserType] = useState("patient")
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [currentUser, setCurrentUser] = useState(null)
+  const [needsRegistration, setNeedsRegistration] = useState(false)
 
-  const handleLogin = (walletAddress, type) => {
-    setCurrentUser({ walletAddress, type })
-    setIsLoggedIn(true)
-  }
+  // Modify the handleLogin function
+const handleLogin = (walletAddress, type) => {
+  setCurrentUser({ walletAddress, type })
+  setIsLoggedIn(true)
+  // Only show registration form for patients
+  setNeedsRegistration(type === "patient")
+}
 
-  if (isLoggedIn && currentUser) {
-    if (currentUser.type === "doctor") {
-      return <DoctorDashboard user={currentUser} onLogout={() => setIsLoggedIn(false)} />
-    } else {
-      return <PatientDashboard user={currentUser} onLogout={() => setIsLoggedIn(false)} />
-    }
+// Update the conditional rendering section
+if (isLoggedIn && currentUser) {
+  if (needsRegistration && currentUser.type === "patient") {
+    return (
+      <PatientForm 
+        walletAddress={currentUser.walletAddress}
+        onFormSubmit={async (formData) => {
+          try {
+            // Simulate API call with setTimeout
+            await new Promise(resolve => setTimeout(resolve, 1000))
+            setNeedsRegistration(false)
+          } catch (error) {
+            console.error('Registration error:', error)
+          }
+        }}
+      />
+    )
   }
+  
+  // Show appropriate dashboard based on user type
+  return currentUser.type === "doctor" ? 
+    <DoctorDashboard user={currentUser} onLogout={() => setIsLoggedIn(false)} /> :
+    <PatientDashboard user={currentUser} onLogout={() => setIsLoggedIn(false)} />
+}
+
+  // ... rest of HomePage component remains same
+
+  // ///////////////////////////////////////////////////////////////////
+  // ...rest of HomePage component
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
