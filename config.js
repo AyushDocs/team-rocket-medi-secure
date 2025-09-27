@@ -1,7 +1,7 @@
-import dotenv from "dotenv";
-dotenv.config();
+require('dotenv').config();
 
-export const PORT = process.env.PORT || 4000;
-export const JWT_SECRET = process.env.JWT_SECRET || "hackathon_secret";
-export const AES_SECRET = process.env
-
+module.exports = {
+  PORT: process.env.PORT || 4000,
+  JWT_SECRET: process.env.JWT_SECRET || "hackathon_secret",
+  AES_SECRET: process.env.AES_SECRET || "aes_encryption_key"
+};
