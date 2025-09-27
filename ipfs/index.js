@@ -4,7 +4,7 @@ import MedSecureABI from "./MedSecureABI.json";
 
 const provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
 const signer = provider.getSigner();
-const medSecureAddress = "0xYourMedSecureContractAddress";
+const medSecureAddress = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
 const medSecureContract = new ethers.Contract(medSecureAddress, MedSecureABI, signer);
 
 const ENCRYPTION_KEY = "supersecretkey";
@@ -61,28 +61,3 @@ export async function readPatientHistory(walletAddress) {
   console.log("Full patient history:", history);
   return history;
 }
-
-/**
- * Demo workflow
- */
-async function main() {
-  const walletAddress = "0xPatientWalletAddress";
-
-  // 1. Create patient
-  await createPatient(walletAddress, {
-    name: "Bob Johnson",
-    img: "https://example.com/bob.png",
-    blood: "B+",
-    allergies: ["None"],
-    records: []
-  });
-
-  // 2. Update records (multiple updates)
-  await updatePatientRecord(walletAddress, { records: [{ date: "2025-09-27", note: "Initial checkup" }] });
-  await updatePatientRecord(walletAddress, { records: [{ date: "2025-09-28", note: "Lab results received" }] });
-
-  // 3. Read full history
-  await readPatientHistory(walletAddress);
-}
-
-main().catch(console.error);
