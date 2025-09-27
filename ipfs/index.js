@@ -1,60 +1,62 @@
 import { ethers } from "ethers";
 import { addOrUpdateUser, getUser } from "./ipfsHelpers.js";
-import MedSecureABI from "./MedSecureABI.json";
+import MedSecureABI from "./MedSecureABI.js";
+import { setCid, getCid } from "./cidRegistry.js";
 
-const provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
-const signer = provider.getSigner();
-const medSecureAddress = "0xYourMedSecureContractAddress";
-const medSecureContract = new ethers.Contract(medSecureAddress, MedSecureABI, signer);
+const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");
+const signer = await provider.getSigner();
 
-const ENCRYPTION_KEY = "supersecretkey";
+const medSecureAddress = "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
+const medSecureContract = new ethers.Contract(medSecureAddress, MedSecureABI.abi, signer);
 
-// --- Map to track patient wallet → latest CID ---
-const walletToCID = new Map();
+const ENCRYPTION_KEY = "6uRg6Asjb6CEOb6+m3A+tTkdYB/DcLZSdwx7YrFO3ZE=";
 
-/**
- * Create a new patient with initial metadata
- */
+// Convert CID → bytes32 hash for on-chain storage
+function cidToHash(cid) {
+  return ethers.keccak256(ethers.toUtf8Bytes(cid));
+}
+
+// --- Create new patient
 export async function createPatient(walletAddress, metadata) {
   const cid = await addOrUpdateUser(walletAddress, metadata, ENCRYPTION_KEY);
-  walletToCID.set(walletAddress, cid);
+  const cidHash = cidToHash(cid);
+  setCid(cidHash, cid);
 
-  const bytes32Hash = ethers.utils.formatBytes32String(cid.substring(0, 32));
-  const tx = await medSecureContract.createPatient(bytes32Hash);
+  const tx = await medSecureContract.createPatient(cidHash);
   await tx.wait();
 
-  console.log("Patient created. CID:", cid, "TX:", tx.hash);
+  console.log("Patient created:", { cid, cidHash, txHash: tx.hash });
   return cid;
 }
 
-/**
- * Update patient record with versioning
- */
+// --- Update patient record
 export async function updatePatientRecord(walletAddress, updatedFields) {
-  const currentData = await getUser(walletAddress, ENCRYPTION_KEY);
+  const currentData = await getUser(getCid(cidToHash(walletAddress)), ENCRYPTION_KEY).catch(() => ({}));
   const newData = { ...currentData, ...updatedFields };
 
   const newCID = await addOrUpdateUser(walletAddress, newData, ENCRYPTION_KEY);
-  walletToCID.set(walletAddress, newCID);
+  const newHash = cidToHash(newCID);
+  setCid(newHash, newCID);
 
-  const bytes32Hash = ethers.utils.formatBytes32String(newCID.substring(0, 32));
-  const tx = await medSecureContract.updateRecord(1, bytes32Hash); // Use patientId = 1 for demo
+  const tx = await medSecureContract.updateRecord(1, newHash); // demo patientId = 1
   await tx.wait();
 
-  console.log("Record updated. New CID:", newCID, "TX:", tx.hash);
+  console.log("Record updated:", { cid: newCID, hash: newHash, txHash: tx.hash });
   return newCID;
 }
 
-/**
- * Read full patient history
- */
+// --- Read patient history
 export async function readPatientHistory(walletAddress) {
-  const recordHashes = await medSecureContract.getAllRecords(1); // patientId = 1
+  const recordHashes = await medSecureContract.getAllRecords(1); // demo patientId = 1
   const history = [];
 
-  for (const hashBytes of recordHashes) {
-    const cid = ethers.utils.parseBytes32String(hashBytes);
-    const data = await getUser(walletAddress, ENCRYPTION_KEY);
+  for (const hash of recordHashes) {
+    const cid = getCid(hash);
+    if (!cid) {
+      console.warn("CID missing for hash:", hash);
+      continue;
+    }
+    const data = await getUser(cid, ENCRYPTION_KEY);
     history.push({ cid, data });
   }
 
@@ -62,27 +64,25 @@ export async function readPatientHistory(walletAddress) {
   return history;
 }
 
-/**
- * Demo workflow
- */
+// --- Demo
 async function main() {
-  const walletAddress = "0xPatientWalletAddress";
+  const walletAddress = "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199";
 
-  // 1. Create patient
+  // 1️⃣ Create patient
   await createPatient(walletAddress, {
     name: "Bob Johnson",
-    img: "https://example.com/bob.png",
+    img: "https://avatars.githubusercontent.com/u/4368928?s=48&v=4",
     blood: "B+",
     allergies: ["None"],
     records: []
   });
 
-  // 2. Update records (multiple updates)
+  // 2️⃣ Update records
   await updatePatientRecord(walletAddress, { records: [{ date: "2025-09-27", note: "Initial checkup" }] });
   await updatePatientRecord(walletAddress, { records: [{ date: "2025-09-28", note: "Lab results received" }] });
 
-  // 3. Read full history
+  // 3️⃣ Read full history
   await readPatientHistory(walletAddress);
 }
 
-main().catch(console.error);
+// main().catch(console.error);

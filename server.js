@@ -1,19 +1,15 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const cors = require("cors");
-const { PORT } = require("./config");
-
-const authRoutes = require("./routes/auth");
-const patientRoutes = require("./routes/patients");
+import express from "express";
+import bodyParser from "body-parser";
+import cors from "cors";
+import { PORT } from "./config.js";
+import ipfsRoutes from "./routes/ipfs.js";
 
 const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
 
-// Routes
-app.use("/auth", authRoutes);
-app.use("/patients", patientRoutes);
+app.use("/ipfs", ipfsRoutes);
 
 app.get("/", (req, res) => res.send("MedSecure Backend Running"));
 
