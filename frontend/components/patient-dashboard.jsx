@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import MessagingSystem from "@/components/messaging-system"
 import PrivacySecurityCenter from "@/components/privacy-security"
+import HealthChatbot from "@/components/ai-chatbot"
 import {
   Calendar,
   MessageSquare,
@@ -27,6 +28,7 @@ import {
   CheckCircle,
   Plus,
   Stethoscope,
+  Bot,
 } from "lucide-react"
 
 export default function PatientDashboard({ user, onLogout }) {
@@ -207,17 +209,11 @@ export default function PatientDashboard({ user, onLogout }) {
               <Calendar className="h-4 w-4" />
               Appointments
             </TabsTrigger>
-            {/* <TabsTrigger value="privacy" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              Privacy
+            <TabsTrigger value="chatbot" className="flex items-center gap-2">
+              <Bot className="h-4 w-4" />
+              AI Assistant
             </TabsTrigger>
-            <TabsTrigger value="security" className="flex items-center gap-2">
-              <Shield className="h-4 w-4" />
-              Security
-            </TabsTrigger> */}
-          </TabsList>
-
-          {/* Overview Tab */}
+          </TabsList>          {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
             {/* Patient Info Card */}
             <Card>
@@ -629,6 +625,13 @@ export default function PatientDashboard({ user, onLogout }) {
           <TabsContent value="security" className="space-y-6">
             <PrivacySecurityCenter userType="patient" currentUser={user} />
           </TabsContent>
+          {/* chatbot */}
+          <TabsContent value="chatbot" className="space-y-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold">AI Health Assistant</h2>
+          </div>
+          <HealthChatbot user={user} />
+        </TabsContent>
         </Tabs>
       </div>
     </div>
