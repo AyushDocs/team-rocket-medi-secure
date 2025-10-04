@@ -1,168 +1,220 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { logout } from "@/lib/auth"
-import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
-import MessagingSystem from "@/components/messaging-system"
-import PrivacySecurityCenter from "@/components/privacy-security"
-import HealthChatbot from "@/components/ai-chatbot"
-import {
-  Calendar,
-  MessageSquare,
-  User,
-  Shield,
-  Eye,
-  Settings,
-  FileText,
-  Heart,
-  Activity,
-  Download,
-  Share2,
-  Bell,
-  Lock,
-  CheckCircle,
-  Plus,
-  Stethoscope,
-  Bot,
-} from "lucide-react"
+import { Shield, Activity, FileText } from "lucide-react"
+import { collection, addDoc, query, where, onSnapshot, orderBy } from "firebase/firestore";
+import { db } from "../firebase.config";
 
-export default function PatientDashboard({ user, onLogout }) {
+export default function PatientDashboard({ account, contract, doctorContract, onLogout }) {
   const [activeTab, setActiveTab] = useState("overview")
-  const [privacySettings, setPrivacySettings] = useState({
-    shareWithDoctors: true,
-    shareWithSpecialists: false,
-    shareWithPharmacy: true,
-    allowResearch: false,
-    dataRetention: "5 Years",
-  })
+  const [patientInfo, setPatientInfo] = useState(null)
+  const [healthRecords, setHealthRecords] = useState([])
+  const [accessRequests, setAccessRequests] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [doctors, setDoctors] = useState([]);
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
+  console.log('doctorContract',doctorContract)
+  useEffect(() => {
+    const fetchPatientData = async () => {
+      try {
+        setLoading(true)
+        setError(null)
 
-  // Mock patient data
-  const patientInfo = {
-    name: "Ayush Dubey",
-    age: 19,
-    bloodType: "B+",
-    allergies: ["Dust", "Pollen"],
-    conditions: ["Seasonal Allergies"],
-    emergencyContact: "9542136954",
-    avatar: "/Ayush-profile.jpg",
+        // Fetch patient details from the contract
+        const patientId = await contract.methods.walletToPatientId(account).call()
+        if (patientId === "0") {
+          throw new Error("Patient not registered.")
+        }
+
+        const patientDetails = await contract.methods.getPatientDetails(patientId).call()
+        const records = await contract.methods.getMedicalRecords(patientId).call()
+
+        setPatientInfo({
+          name: patientDetails.name,
+          age: patientDetails.age,
+          bloodType: patientDetails.bloodGroup,
+          email: patientDetails.email,
+        })
+
+        setHealthRecords(
+          records.map((record, index) => ({
+            id: index + 1,
+            type: "Medical Record",
+            date: "Unknown", // Add logic to fetch or format dates if available
+            description: record,
+            shared: true,
+          }))
+        )
+      } catch (err) {
+        setError(err.message)
+        setPatientInfo({
+          name: "John Doe",
+          age: 30,
+          bloodType: "A+",
+          email: "john.doe@example.com",
+        })
+        setHealthRecords([
+          {
+            id: 1,
+            type: "Lab Results",
+            date: "2024-01-15",
+            description: "Blood glucose levels within normal range",
+            shared: true,
+          },
+        ]) // Dummy data
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPatientData()
+  }, [account, contract])
+
+  useEffect(() => {
+    const listenForAccessRequests = async () => {
+      try {
+        contract.events.AccessRequested({ fromBlock: "latest" })
+          .on("data", (event) => {
+            const { patient, doctor, ipfsHash } = event.returnValues;
+            if (patient.toLowerCase() === account.toLowerCase()) {
+              setAccessRequests((prevRequests) => [
+                ...prevRequests,
+                { doctor, ipfsHash },
+              ]);
+            }
+          })
+          .on("error", (error) => {
+            console.error("Error listening for access requests:", error);
+          });
+      } catch (error) {
+        console.error("Failed to set up event listener:", error);
+      }
+    };
+
+    listenForAccessRequests();
+  }, [account, contract]);
+
+  const uploadMedicalRecord = async (file) => {
+    try {
+      setLoading(true)
+      setError(null)
+
+      // Upload file to Express server
+      const formData = new FormData()
+      formData.append("file", file)
+
+      const response = await fetch("http://localhost:5000/upload", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to upload file to the server")
+      }
+
+      const data = await response.json()
+      const ipfsHash = data.ipfsHash
+
+      // Store IPFS hash in the contract
+      const patientId = await contract.methods.walletToPatientId(account).call()
+      if (patientId === "0") {
+        throw new Error("Patient not registered.")
+      }
+
+      await contract.methods.addMedicalRecord(ipfsHash).send({ from: account })
+
+      // Update health records
+      setHealthRecords((prevRecords) => [
+        ...prevRecords,
+        {
+          id: prevRecords.length + 1,
+          type: "Medical Record",
+          date: new Date().toISOString().split("T")[0],
+          description: ipfsHash,
+          shared: true,
+        },
+      ])
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const healthRecords = [
-    {
-      id: 1,
-      type: "Lab Results",
-      date: "2024-01-15",
-      doctor: "Dr. Sarah Wilson",
-      status: "Normal",
-      description: "Blood glucose levels within normal range",
-      shared: true,
-    },
-    {
-      id: 2,
-      type: "Prescription",
-      date: "2024-01-12",
-      doctor: "Dr. Michael Chen",
-      status: "Active",
-      description: "Metformin 500mg - Take twice daily",
-      shared: true,
-    },
-    {
-      id: 3,
-      type: "Visit Summary",
-      date: "2024-01-10",
-      doctor: "Dr. Sarah Wilson",
-      status: "Completed",
-      description: "Routine checkup - Blood pressure stable",
-      shared: false,
-    },
-  ]
+  // Update grantAccess to align with the contract
+  const handleAccessResponse = async (doctor, ipfsHash, grant) => {
+    try {
+      if (grant) {
+        await contract.methods.grantAccess(doctor, ipfsHash).send({ from: account });
+      }
+      setAccessRequests((prevRequests) =>
+        prevRequests.filter(
+          (request) => request.doctor !== doctor || request.ipfsHash !== ipfsHash
+        )
+      );
+    } catch (error) {
+      console.error("Failed to respond to access request:", error);
+    }
+  };
 
-  const activityLog = [
-    {
-      id: 1,
-      action: "Lab results shared with Dr. Wilson",
-      timestamp: "2024-01-15 10:30 AM",
-      type: "Data Share",
-      secure: true,
-    },
-    {
-      id: 2,
-      action: "Appointment scheduled with Dr. Chen",
-      timestamp: "2024-01-14 2:15 PM",
-      type: "Appointment",
-      secure: true,
-    },
-    {
-      id: 3,
-      action: "Message sent to Dr. Wilson",
-      timestamp: "2024-01-13 9:45 AM",
-      type: "Message",
-      secure: true,
-    },
-    {
-      id: 4,
-      action: "Privacy settings updated",
-      timestamp: "2024-01-12 4:20 PM",
-      type: "Privacy",
-      secure: true,
-    },
-  ]
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const c = doctorContract || contract
+        const doctorList = await c.methods.getAllDoctors().call();
+        setDoctors(doctorList);
+      } catch (error) {
+        console.error("Failed to fetch doctors:", error);
+      }
+    };
 
-  const appointments = [
-    {
-      id: 1,
-      doctor: "Dr. Sarah Wilson",
-      specialty: "Endocrinology",
-      date: "2024-01-25",
-      time: "10:00 AM",
-      type: "Follow-up",
-      status: "Confirmed",
-      location: "Medical Center - Room 205",
-    },
-    {
-      id: 2,
-      doctor: "Dr. Michael Chen",
-      specialty: "Cardiology",
-      date: "2024-02-02",
-      time: "2:30 PM",
-      type: "Consultation",
-      status: "Pending",
-      location: "Heart Institute - Suite 301",
-    },
-  ]
+    fetchDoctors();
+  }, [contract, doctorContract]);
 
-  const messages = [
-    {
-      id: 1,
-      from: "Dr. Sarah Wilson",
-      subject: "Lab Results Available",
-      message: "Your recent blood work shows good progress. Please continue your current medication regimen.",
-      time: "2 hours ago",
-      unread: true,
-      priority: "normal",
-    },
-    {
-      id: 2,
-      from: "Dr. Michael Chen",
-      subject: "Appointment Reminder",
-      message: "This is a reminder about your upcoming appointment on February 2nd.",
-      time: "1 day ago",
-      unread: false,
-      priority: "normal",
-    },
-  ]
+  useEffect(() => {
+    if (selectedDoctor) {
+      // Use a per-chat subcollection like doctor dashboard: chats/{chatId}/messages
+      const messagesRef = collection(db, "chats", `${account}_${selectedDoctor}`, "messages");
+      const q = query(messagesRef, orderBy("timestamp", "asc"));
 
-  const handlePrivacyChange = (setting, value) => {
-    setPrivacySettings((prev) => ({
-      ...prev,
-      [setting]: value,
-    }))
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const chatMessages = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setMessages(chatMessages);
+      });
+
+      return () => unsubscribe();
+    }
+  }, [selectedDoctor, account]);
+
+  const sendMessage = async () => {
+    if (newMessage.trim() === "" || !selectedDoctor) return;
+
+    try {
+      const messagesRef = collection(db, "chats", `${account}_${selectedDoctor}`, "messages");
+      await addDoc(messagesRef, {
+        sender: account,
+        message: newMessage,
+        timestamp: new Date().toISOString(),
+      });
+      setNewMessage("");
+    } catch (error) {
+      console.error("Failed to send message:", error);
+    }
+  };
+
+  if (loading) {
+    return <div>Loading...</div>
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>
   }
 
   return (
@@ -172,10 +224,13 @@ export default function PatientDashboard({ user, onLogout }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">
-              <Heart className="h-8 w-8 text-[#7eb0d5]" />
+              <Avatar>
+                <AvatarImage src="/man.jpg" alt="Patient Avatar" />
+                <AvatarFallback>JD</AvatarFallback>
+              </Avatar>
               <div>
                 <h1 className="text-xl font-semibold text-gray-900">My Health Dashboard</h1>
-                <p className="text-sm text-gray-600">Welcome back, {user.walletAddress}</p>
+                <p className="text-sm text-gray-600">Welcome back, {account}</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -210,439 +265,134 @@ export default function PatientDashboard({ user, onLogout }) {
             </TabsTrigger>
             <TabsTrigger value="records" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
-              Health Records
+              Records
             </TabsTrigger>
-            <TabsTrigger value="messages" className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4" />
-              Messages
+            <TabsTrigger value="chat" className="flex items-center gap-2">
+              Chat
             </TabsTrigger>
-            <TabsTrigger value="appointments" className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              Appointments
-            </TabsTrigger>
-            <TabsTrigger value="chatbot" className="flex items-center gap-2">
-              <Bot className="h-4 w-4" />
-              AI Assistant
-            </TabsTrigger>
-          </TabsList>          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
-            {/* Patient Info Card */}
+          </TabsList>
+
+          <TabsContent value="overview">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  Personal Information
-                </CardTitle>
+                <CardTitle>Patient Information</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex items-start space-x-6">
-                  <Avatar className="h-20 w-20">
-                    <AvatarImage src={patientInfo.avatar} alt={patientInfo.name} />
-                    <AvatarFallback>
-                      {patientInfo.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
-                    <div>
-                      <h3 className="font-semibold text-lg">{patientInfo.name}</h3>
-                      <p className="text-gray-600">Age: {patientInfo.age}</p>
-                      <p className="text-gray-600">Blood Type: {patientInfo.bloodType}</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium mb-2">Allergies</h4>
-                      <div className="space-y-1">
-                        {patientInfo.allergies.map((allergy, index) => (
-                          <Badge key={index} variant="destructive" className="mr-2">
-                            {allergy}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="font-medium mb-2">Conditions</h4>
-                      <div className="space-y-1">
-                        {patientInfo.conditions.map((condition, index) => (
-                          <Badge key={index} variant="secondary" className="mr-2">
-                            {condition}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-4 pt-4 border-t">
-                  <p className="text-sm text-gray-600">
-                    <strong>Emergency Contact:</strong> {patientInfo.emergencyContact}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Health Records</CardTitle>
-                  <FileText className="h-4 w-4 text-[#7eb0d5]" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{healthRecords.length}</div>
-                  <p className="text-xs text-muted-foreground">2 shared with doctors</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Upcoming Appointments</CardTitle>
-                  <Calendar className="h-4 w-4 text-[#b2e061]" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{appointments.length}</div>
-                  <p className="text-xs text-muted-foreground">Next: Jan 25th</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Unread Messages</CardTitle>
-                  <MessageSquare className="h-4 w-4 text-[#FFDF00]" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">1</div>
-                  <p className="text-xs text-muted-foreground">From Dr. Wilson</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Privacy Status</CardTitle>
-                  <Shield className="h-4 w-4 text-[#b2e061]" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-[#b2e061]">Secure</div>
-                  <p className="text-xs text-muted-foreground">All data encrypted</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Recent Activity */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
-                <CardDescription>Your latest healthcare interactions</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {activityLog.slice(0, 4).map((activity) => (
-                    <div key={activity.id} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
-                      <div className="flex-shrink-0">
-                        {activity.type === "Data Share" && <Share2 className="h-5 w-5 text-[#7eb0d5]" />}
-                        {activity.type === "Appointment" && <Calendar className="h-5 w-5 text-[#b2e061]" />}
-                        {activity.type === "Message" && <MessageSquare className="h-5 w-5 text-[#FFDF00]" />}
-                        {activity.type === "Privacy" && <Settings className="h-5 w-5 text-gray-500" />}
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium">{activity.action}</p>
-                        <p className="text-sm text-gray-600">{activity.timestamp}</p>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <Shield className="h-4 w-4 text-[#b2e061]" />
-                        <span className="text-xs text-gray-500">Secure</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <p>Name: {patientInfo.name}</p>
+                <p>Age: {patientInfo.age}</p>
+                <p>Blood Type: {patientInfo.bloodType}</p>
+                <p>Email: {patientInfo.email}</p>
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* Health Records Tab */}
-          <TabsContent value="records" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">Health Records</h2>
-              <div className="flex space-x-2">
-                <Button variant="outline">
-                  <Download className="h-4 w-4 mr-2" />
-                  Export All
-                </Button>
-                <Button className="bg-[#7eb0d5] hover:bg-[#5a8bb5]">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Record
-                </Button>
-              </div>
-            </div>
+          <TabsContent value="records">
+            <Card>
+              <CardHeader>
+                <CardTitle>Medical Records</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <input
+                  type="file"
+                  onChange={(e) => uploadMedicalRecord(e.target.files[0])}
+                  className="mb-4"
+                />
+                {healthRecords.length === 0 ? (
+                  <p>No medical records found.</p>
+                ) : (
+                  <ul>
+                    {healthRecords.map((record) => (
+                      <li key={record.id}>{record.description}</li>
+                    ))}
+                  </ul>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-            <div className="grid gap-4">
-              {healthRecords.map((record) => (
-                <Card key={record.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="bg-[#7eb0d5] rounded-lg p-3">
-                          <FileText className="h-6 w-6 text-white" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-lg">{record.type}</h3>
-                          <p className="text-gray-600">{record.description}</p>
-                          <p className="text-sm text-gray-500">
-                            {record.date} • Dr. {record.doctor}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center space-x-4">
-                        <div className="text-right">
-                          <Badge
-                            variant={
-                              record.status === "Normal"
-                                ? "default"
-                                : record.status === "Active"
-                                  ? "secondary"
-                                  : "outline"
-                            }
+          <TabsContent value="access-requests">
+            <Card>
+              <CardHeader>
+                <CardTitle>Access Requests</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {accessRequests.length === 0 ? (
+                  <p>No access requests.</p>
+                ) : (
+                  <ul>
+                    {accessRequests.map((request, index) => (
+                      <li key={index} className="mb-4">
+                        <p>Doctor: {request.doctor}</p>
+                        <p>Document ID: {request.ipfsHash}</p>
+                        <div className="flex space-x-4 mt-2">
+                          <Button
+                            onClick={() => handleAccessResponse(request.doctor, request.ipfsHash, true)}
+                            className="bg-green-500 hover:bg-green-600"
                           >
-                            {record.status}
-                          </Badge>
-                          <div className="flex items-center mt-2 text-sm">
-                            {record.shared ? (
-                              <div className="flex items-center text-[#b2e061]">
-                                <CheckCircle className="h-4 w-4 mr-1" />
-                                Shared
-                              </div>
-                            ) : (
-                              <div className="flex items-center text-gray-500">
-                                <Lock className="h-4 w-4 mr-1" />
-                                Private
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="flex flex-col space-y-2">
-                          <Button size="sm" variant="outline">
-                            <Eye className="h-4 w-4 mr-2" />
-                            View
+                            Grant Access
                           </Button>
-                          <Button size="sm" variant="outline">
-                            <Share2 className="h-4 w-4 mr-2" />
-                            Share
+                          <Button
+                            onClick={() => handleAccessResponse(request.doctor, request.ipfsHash, false)}
+                            className="bg-red-500 hover:bg-red-600"
+                          >
+                            Reject Access
                           </Button>
                         </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="messages" className="space-y-6">
-            <MessagingSystem userType="patient" currentUser={user} />
-          </TabsContent>
-
-          {/* Appointments Tab */}
-          <TabsContent value="appointments" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">Appointments</h2>
-              <Button className="bg-[#b2e061] hover:bg-[#8fb84d] text-white">
-                <Calendar className="h-4 w-4 mr-2" />
-                Book Appointment
-              </Button>
-            </div>
-
-            <div className="grid gap-4">
-              {appointments.map((appointment) => (
-                <Card key={appointment.id}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="bg-[#7eb0d5] text-white rounded-lg p-3">
-                          <Stethoscope className="h-6 w-6" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-lg">{appointment.doctor}</h3>
-                          <p className="text-gray-600">{appointment.specialty}</p>
-                          <p className="text-sm text-gray-500">
-                            {appointment.date} at {appointment.time}
-                          </p>
-                          <p className="text-sm text-gray-500">{appointment.location}</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center space-x-4">
-                        <div className="text-right">
-                          <Badge variant={appointment.status === "confirmed" ? "default" : "secondary"}>
-                            {appointment.status}
-                          </Badge>
-                          <p className="text-sm text-gray-600 mt-1">{appointment.type}</p>
-                        </div>
-                        <div className="flex flex-col space-y-2">
-                          <Button size="sm" variant="outline">
-                            Reschedule
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            Cancel
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          {/* Privacy Settings Tab */}
-          <TabsContent value="privacy" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">Privacy & Consent Management</h2>
-              <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <Shield className="h-4 w-4 text-[#b2e061]" />
-                <span>All changes are encrypted and logged</span>
-              </div>
-            </div>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Share2 className="h-5 w-5" />
-                  Data Sharing Permissions
-                </CardTitle>
-                <CardDescription>Control who can access your health information</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label className="text-base">Share with Primary Care Doctors</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Allow your primary care physicians to access your health records
-                    </p>
-                  </div>
-                  <Switch
-                    checked={privacySettings.shareWithDoctors}
-                    onCheckedChange={(checked) => handlePrivacyChange("shareWithDoctors", checked)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label className="text-base">Share with Specialists</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Allow specialist doctors to access relevant health information
-                    </p>
-                  </div>
-                  <Switch
-                    checked={privacySettings.shareWithSpecialists}
-                    onCheckedChange={(checked) => handlePrivacyChange("shareWithSpecialists", checked)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label className="text-base">Share with Pharmacy</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Allow pharmacies to access prescription and allergy information
-                    </p>
-                  </div>
-                  <Switch
-                    checked={privacySettings.shareWithPharmacy}
-                    onCheckedChange={(checked) => handlePrivacyChange("shareWithPharmacy", checked)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label className="text-base">Allow Research Use</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Allow anonymized data to be used for medical research (optional)
-                    </p>
-                  </div>
-                  <Switch
-                    checked={privacySettings.allowResearch}
-                    onCheckedChange={(checked) => handlePrivacyChange("allowResearch", checked)}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Lock className="h-5 w-5" />
-                  Security & Audit
-                </CardTitle>
-                <CardDescription>Monitor access to your health information</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <CheckCircle className="h-5 w-5 text-[#b2e061]" />
-                      <span className="font-medium">End-to-End Encryption</span>
-                    </div>
-                    <p className="text-sm text-gray-600">All your data is encrypted in transit and at rest</p>
-                  </div>
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <Eye className="h-5 w-5 text-[#7eb0d5]" />
-                      <span className="font-medium">Access Logging</span>
-                    </div>
-                    <p className="text-sm text-gray-600">Every access to your data is logged and auditable</p>
-                  </div>
-                </div>
-
-                <div className="flex space-x-4">
-                  <Button variant="outline" className="flex-1 bg-transparent">
-                    <Eye className="h-4 w-4 mr-2" />
-                    View Access Log
-                  </Button>
-                  <Button variant="outline" className="flex-1 bg-transparent">
-                    <Download className="h-4 w-4 mr-2" />
-                    Download My Data
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Bell className="h-5 w-5" />
-                  Notification Preferences
-                </CardTitle>
-                <CardDescription>Choose how you want to be notified about your health data</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label className="text-base">Email notifications for new messages</Label>
-                  <Switch defaultChecked />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label className="text-base">SMS alerts for appointment reminders</Label>
-                  <Switch defaultChecked />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label className="text-base">Notify when data is accessed</Label>
-                  <Switch />
-                </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* Security Tab */}
-          <TabsContent value="security" className="space-y-6">
-            <PrivacySecurityCenter userType="patient" currentUser={user} />
+          <TabsContent value="chat">
+            <Card>
+              <CardHeader>
+                <CardTitle>Chat with a Doctor</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div>
+                  <label htmlFor="doctor-select">Select a Doctor:</label>
+                  <select
+                    id="doctor-select"
+                    value={selectedDoctor || ""}
+                    onChange={(e) => setSelectedDoctor(e.target.value)}
+                    className="mb-4"
+                  >
+                    <option value="" disabled>Select a doctor</option>
+                    {doctors.map((doctor, index) => (
+                      <option key={index} value={doctor.doctorId || doctor["doctorId"]}>
+                        {doctor.name || doctor["name"]} - {doctor.specialization || doctor["specialization"]}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {selectedDoctor && (
+                  <div>
+                    <div className="chat-window">
+                      {messages.map((msg, index) => (
+                        <div key={index} className={msg.sender === account ? "sent" : "received"}>
+                          <p>{msg.message}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="chat-input">
+                      <input
+                        type="text"
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        placeholder="Type your message..."
+                      />
+                      <Button onClick={sendMessage}>Send</Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
-          {/* chatbot */}
-          <TabsContent value="chatbot" className="space-y-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold">AI Health Assistant</h2>
-          </div>
-          <HealthChatbot user={user} />
-        </TabsContent>
         </Tabs>
       </div>
     </div>

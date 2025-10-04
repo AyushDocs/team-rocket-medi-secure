@@ -27,7 +27,7 @@ import {
     Sparkles,
 } from "lucide-react";
 import { getAI, getGenerativeModel, GoogleAIBackend } from "firebase/ai";
-import app from "../../firebase.config";
+import app from "../firebase.config";
 
 export default function HealthChatbot({ user }) {
     const [messages, setMessages] = useState([]);

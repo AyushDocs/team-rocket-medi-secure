@@ -1,118 +1,117 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { logout } from "@/lib/auth"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import MessagingSystem from "@/components/messaging-system"
-import PrivacySecurityCenter from "@/components/privacy-security"
-import {
-  Calendar,
-  MessageSquare,
-  Users,
-  Shield,
-  Eye,
-  Share2,
-  Clock,
-  FileText,
-  Heart,
-  Activity,
-  Search,
-  Filter,
-  MoreHorizontal,
-  Unlock,
-} from "lucide-react"
+import { Heart, Shield, Activity, Users, Calendar } from "lucide-react"
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "firebase/firestore"
+import app from "../firebase.config"
 
-export default function DoctorDashboard({ user, onLogout }) {
+const db = getFirestore(app)
+
+export default function DoctorDashboard({ account, contract, onLogout }) {
   const [activeTab, setActiveTab] = useState("overview")
-  const [selectedPatient, setSelectedPatient] = useState(null)
+  const [patients, setPatients] = useState([])
+  const [appointments] = useState([
+    { id: 1, patient: "Sarah Johnson", time: "09:00 AM", date: "2024-01-20", type: "Follow-up", status: "confirmed" },
+    { id: 2, patient: "Michael Chen", time: "10:30 AM", date: "2024-01-20", type: "Check-up", status: "pending" },
+    { id: 3, patient: "Emma Davis", time: "02:00 PM", date: "2024-01-20", type: "Consultation", status: "confirmed" },
+  ])
+  const [messages, setMessages] = useState([])
+  const [newMessage, setNewMessage] = useState("")
+  const [selectedPatient, setSelectedPatient] = useState("")
+  const [patientIdToAdd, setPatientIdToAdd] = useState("")
+  const [patientWallet, setPatientWallet] = useState("")
+  const [documentId, setDocumentId] = useState("")
+  const [requestMessage, setRequestMessage] = useState("")
+  const [status, setStatus] = useState("")
 
-  // Mock data
-  const patients = [
-    {
-      id: 1,
-      name: "Sarah Johnson",
-      age: 34,
-      condition: "Diabetes Type 2",
-      lastVisit: "2024-01-15",
-      status: "stable",
-      avatar: "/diverse-woman-portrait.png",
-      riskLevel: "low",
-      sharedData: ["Blood Sugar Logs", "Medication History", "Lab Results"],
-    },
-    {
-      id: 2,
-      name: "Michael Chen",
-      age: 45,
-      condition: "Hypertension",
-      lastVisit: "2024-01-12",
-      status: "monitoring",
-      avatar: "/man.jpg",
-      riskLevel: "medium",
-      sharedData: ["Blood Pressure Logs", "Exercise Data", "Diet Tracking"],
-    },
-    {
-      id: 3,
-      name: "Emma Davis",
-      age: 28,
-      condition: "Asthma",
-      lastVisit: "2024-01-10",
-      status: "stable",
-      avatar: "/diverse-woman-portrait.png",
-      riskLevel: "low",
-      sharedData: ["Inhaler Usage", "Symptom Diary", "Allergy Tests"],
-    },
-  ]
+  // --- Fetch doctor's patients from contract ---
+  const fetchPatients = async () => {
+    try {
+      const result = await contract.methods.getDoctorPatients().call({ from: account })
+      setPatients(result)
+    } catch (err) {
+      console.error("Failed to fetch patients:", err)
+    }
+  }
 
-  const appointments = [
-    {
-      id: 1,
-      patient: "Sarah Johnson",
-      time: "09:00 AM",
-      date: "2024-01-20",
-      type: "Follow-up",
-      status: "confirmed",
-    },
-    {
-      id: 2,
-      patient: "Michael Chen",
-      time: "10:30 AM",
-      date: "2024-01-20",
-      type: "Check-up",
-      status: "pending",
-    },
-    {
-      id: 3,
-      patient: "Emma Davis",
-      time: "02:00 PM",
-      date: "2024-01-20",
-      type: "Consultation",
-      status: "confirmed",
-    },
-  ]
+  useEffect(() => {
+    fetchPatients()
+  }, [contract, account])
 
-  const messages = [
-    {
-      id: 1,
-      patient: "Sarah Johnson",
-      message: "My blood sugar readings have been higher than usual this week.",
-      time: "2 hours ago",
-      unread: true,
-      priority: "high",
-    },
-    {
-      id: 2,
-      patient: "Michael Chen",
-      message: "Thank you for the new medication recommendations.",
-      time: "1 day ago",
-      unread: false,
-      priority: "normal",
-    },
-  ]
+  // --- Handle patient addition ---
+  const handleAddPatient = async (e) => {
+    e.preventDefault()
+    if (!patientIdToAdd.trim()) return
+
+    try {
+      setStatus("Adding patient...")
+      await contract.methods.addPatient(patientIdToAdd).send({ from: account })
+      setStatus("Patient added successfully ✅")
+      setPatientIdToAdd("")
+      fetchPatients()
+    } catch (err) {
+      console.error("Add patient failed:", err)
+      setStatus("Failed to add patient ❌")
+    }
+  }
+
+  // --- Request document access ---
+  const requestAccess = async () => {
+    if (!patientWallet || !documentId) return
+    try {
+      await contract.methods.requestAccess(patientWallet, documentId).send({ from: account })
+      setRequestMessage("Access request sent successfully ✅")
+    } catch (error) {
+      console.error("Access request failed:", error)
+      setRequestMessage("Failed to send access request ❌")
+    }
+  }
+
+  // --- Listen to AccessRequested events ---
+  useEffect(() => {
+    if (!contract) return
+    const sub = contract.events
+      .AccessRequested({ fromBlock: "latest" })
+      .on("data", (event) => {
+        const { patient, doctor, ipfsHash } = event.returnValues
+        if (doctor.toLowerCase() === account.toLowerCase()) {
+          console.log(`Access requested for document ${ipfsHash} from patient ${patient}`)
+        }
+      })
+
+    // return () => sub.unsubscribe()
+  }, [contract, account])
+
+  // --- Real-time messages from Firestore ---
+  useEffect(() => {
+    if (!selectedPatient) return
+    const messagesRef = collection(db, "chats", `${account}_${selectedPatient}`, "messages")
+    const q = query(messagesRef, orderBy("timestamp"))
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fetched = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+      setMessages(fetched)
+    })
+    return () => unsubscribe()
+  }, [selectedPatient])
+
+  // --- Send chat message ---
+  const sendMessage = async () => {
+    if (!newMessage.trim() || !selectedPatient) return
+    try {
+      const messagesRef = collection(db, "chats", `${account}_${selectedPatient}`, "messages")
+      await addDoc(messagesRef, {
+        sender: account,
+        content: newMessage,
+        timestamp: new Date().toISOString(),
+      })
+      setNewMessage("")
+    } catch (error) {
+      console.error("Message send failed:", error)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -120,29 +119,19 @@ export default function DoctorDashboard({ user, onLogout }) {
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-4">
-              <Heart className="h-8 w-8 text-[#7eb0d5]" />
+            <div className="flex items-center gap-3">
+              <Heart className="h-7 w-7 text-[#7eb0d5]" />
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">Doctor Dashboard</h1>
-                <p className="text-sm text-gray-600">Welcome back, Dr. {user.walletAddress}</p>
+                <h1 className="text-lg font-semibold text-gray-900">Doctor Dashboard</h1>
+                <p className="text-sm text-gray-600 truncate">Wallet: {account}</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1 text-sm text-gray-600">
                 <Shield className="h-4 w-4 text-[#b2e061]" />
                 <span>Secure Session</span>
               </div>
-              <Button 
-                onClick={async () => {
-                  try {
-                    await logout();
-                    if (onLogout) onLogout();
-                  } catch (error) {
-                    console.error('Logout failed:', error);
-                  }
-                }} 
-                variant="outline"
-              >
+              <Button onClick={onLogout} variant="outline" className="text-sm">
                 Logout
               </Button>
             </div>
@@ -150,327 +139,129 @@ export default function DoctorDashboard({ user, onLogout }) {
         </div>
       </header>
 
+      {/* Main */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-6 mb-6">
-            <TabsTrigger value="overview" className="flex items-center gap-2">
-              <Activity className="h-4 w-4" />
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="patients" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              Patients
-            </TabsTrigger>
-            <TabsTrigger value="messages" className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4" />
-              Messages
-            </TabsTrigger>
-            <TabsTrigger value="schedule" className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              Schedule
-            </TabsTrigger>
-            {/* <TabsTrigger value="sharing" className="flex items-center gap-2">
-              <Share2 className="h-4 w-4" />
-              Data Sharing
-            </TabsTrigger>
-            <TabsTrigger value="privacy" className="flex items-center gap-2">
-              <Shield className="h-4 w-4" />
-              Privacy
-            </TabsTrigger> */}
+          <TabsList className="grid w-full grid-cols-4 mb-6">
+            <TabsTrigger value="overview" className="flex items-center gap-2"><Activity className="h-4 w-4" />Overview</TabsTrigger>
+            <TabsTrigger value="patients" className="flex items-center gap-2"><Users className="h-4 w-4" />Patients</TabsTrigger>
+            <TabsTrigger value="appointments" className="flex items-center gap-2"><Calendar className="h-4 w-4" />Appointments</TabsTrigger>
+            <TabsTrigger value="messages">Messages</TabsTrigger>
           </TabsList>
 
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Patients</CardTitle>
-                  <Users className="h-4 w-4 text-[#7eb0d5]" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">127</div>
-                  <p className="text-xs text-muted-foreground">+3 from last month</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Today's Appointments</CardTitle>
-                  <Calendar className="h-4 w-4 text-[#b2e061]" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">8</div>
-                  <p className="text-xs text-muted-foreground">2 pending confirmation</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Unread Messages</CardTitle>
-                  <MessageSquare className="h-4 w-4 text-[#FFDF00]" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">5</div>
-                  <p className="text-xs text-muted-foreground">1 high priority</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Data Requests</CardTitle>
-                  <Share2 className="h-4 w-4 text-[#7eb0d5]" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">3</div>
-                  <p className="text-xs text-muted-foreground">Pending approval</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Recent Activity */}
+          {/* --- Overview --- */}
+          <TabsContent value="overview">
             <Card>
-              <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
-                <CardDescription>Latest patient interactions and updates</CardDescription>
-              </CardHeader>
+              <CardHeader><CardTitle>Welcome</CardTitle></CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {patients.slice(0, 3).map((patient) => (
-                    <div key={patient.id} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
-                      <Avatar>
-                        <AvatarImage src={patient.avatar || "/placeholder.svg"} />
-                        <AvatarFallback>
-                          {patient.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <p className="font-medium">{patient.name}</p>
-                        <p className="text-sm text-gray-600">Last visit: {patient.lastVisit}</p>
-                      </div>
-                      <Badge variant={patient.status === "stable" ? "default" : "secondary"}>{patient.status}</Badge>
-                      <div className="flex items-center space-x-1">
-                        <Shield className="h-4 w-4 text-[#b2e061]" />
-                        <span className="text-xs text-gray-500">Secure</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <p className="text-gray-700 mb-3">Manage your patients and request access to their records.</p>
+                <form onSubmit={handleAddPatient} className="flex items-center gap-3">
+                  <input
+                    type="text"
+                    value={patientIdToAdd}
+                    onChange={(e) => setPatientIdToAdd(e.target.value)}
+                    placeholder="Enter patient ID"
+                    className="border p-2 rounded flex-1"
+                  />
+                  <Button type="submit">Add Patient</Button>
+                </form>
+                {status && <p className="text-sm text-gray-600 mt-2">{status}</p>}
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* Patients Tab */}
-          <TabsContent value="patients" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">Patient Records</h2>
-              <div className="flex items-center space-x-2">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input placeholder="Search patients..." className="pl-10 w-64" />
-                </div>
-                <Button variant="outline" size="sm">
-                  <Filter className="h-4 w-4 mr-2" />
-                  Filter
+          {/* --- Patients --- */}
+          <TabsContent value="patients">
+            <Card>
+              <CardHeader><CardTitle>Request Patient Data Access</CardTitle></CardHeader>
+              <CardContent className="space-y-3">
+                <input
+                  type="text"
+                  placeholder="Patient Wallet Address"
+                  value={patientWallet}
+                  onChange={(e) => setPatientWallet(e.target.value)}
+                  className="w-full p-2 border rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="Document ID"
+                  value={documentId}
+                  onChange={(e) => setDocumentId(e.target.value)}
+                  className="w-full p-2 border rounded"
+                />
+                <Button onClick={requestAccess} className="w-full bg-[#703FA1] hover:bg-[#5a2f81]">
+                  Request Access
                 </Button>
-              </div>
-            </div>
-
-            <div className="grid gap-4">
-              {patients.map((patient) => (
-                <Card key={patient.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <Avatar className="h-12 w-12">
-                          <AvatarImage src={patient.avatar || "/placeholder.svg"} />
-                          <AvatarFallback>
-                            {patient.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <h3 className="font-semibold text-lg">{patient.name}</h3>
-                          <p className="text-gray-600">
-                            Age: {patient.age} • {patient.condition}
-                          </p>
-                          <p className="text-sm text-gray-500">Last visit: {patient.lastVisit}</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center space-x-4">
-                        <div className="text-right">
-                          <Badge
-                            variant={
-                              patient.riskLevel === "high"
-                                ? "destructive"
-                                : patient.riskLevel === "medium"
-                                  ? "secondary"
-                                  : "default"
-                            }
-                          >
-                            {patient.riskLevel} risk
-                          </Badge>
-                          <div className="flex items-center mt-2 text-sm text-gray-500">
-                            <Shield className="h-4 w-4 mr-1 text-[#b2e061]" />
-                            {patient.sharedData.length} data points shared
-                          </div>
-                        </div>
-
-                        <div className="flex flex-col space-y-2">
-                          <Button
-                            size="sm"
-                            className="bg-[#7eb0d5] hover:bg-[#5a8bb5]"
-                            onClick={() => setSelectedPatient(patient)}
-                          >
-                            <Eye className="h-4 w-4 mr-2" />
-                            View Records
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            <MessageSquare className="h-4 w-4 mr-2" />
-                            Message
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                {requestMessage && <div className="text-sm text-gray-600">{requestMessage}</div>}
+              </CardContent>
+            </Card>
           </TabsContent>
 
-          {/* Messages Tab */}
-          <TabsContent value="messages" className="space-y-6">
-            <MessagingSystem userType="doctor" currentUser={user} />
+          {/* --- Appointments --- */}
+          <TabsContent value="appointments">
+            <Card>
+              <CardHeader><CardTitle>Appointments</CardTitle></CardHeader>
+              <CardContent>
+                {appointments.length === 0 ? (
+                  <p>No appointments found.</p>
+                ) : (
+                  <ul className="space-y-3">
+                    {appointments.map((a) => (
+                      <li key={a.id} className="p-3 border rounded">
+                        <p><strong>{a.patient}</strong> — {a.type}</p>
+                        <p className="text-sm text-gray-600">{a.date} at {a.time} ({a.status})</p>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
 
-          {/* Schedule Tab */}
-          <TabsContent value="schedule" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">Today's Schedule</h2>
-              <Button className="bg-[#b2e061] hover:bg-[#8fb84d] text-white">
-                <Calendar className="h-4 w-4 mr-2" />
-                New Appointment
-              </Button>
-            </div>
+          {/* --- Messages --- */}
+          <TabsContent value="messages">
+            <Card>
+              <CardHeader><CardTitle>Secure Chat</CardTitle></CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <select
+                    value={selectedPatient}
+                    onChange={(e) => setSelectedPatient(e.target.value)}
+                    className="w-full p-2 border rounded"
+                  >
+                    <option value="">Select patient</option>
+                    {patients.map((id, i) => (
+                      <option key={i} value={id}>{`Patient ${id}`}</option>
+                    ))}
+                  </select>
 
-            <div className="grid gap-4">
-              {appointments.map((appointment) => (
-                <Card key={appointment.id}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="bg-[#7eb0d5] text-white rounded-lg p-3">
-                          <Clock className="h-6 w-6" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold">{appointment.patient}</h3>
-                          <p className="text-gray-600">{appointment.type}</p>
-                          <p className="text-sm text-gray-500">
-                            {appointment.time} • {appointment.date}
-                          </p>
-                        </div>
+                  <div className="border p-3 h-64 overflow-y-auto bg-white rounded">
+                    {messages.map((msg) => (
+                      <div
+                        key={msg.id}
+                        className={`p-2 mb-2 rounded-lg ${
+                          msg.sender === account ? "bg-blue-100 text-right" : "bg-gray-100"
+                        }`}
+                      >
+                        <p className="text-sm">{msg.content}</p>
+                        <p className="text-xs text-gray-500">{new Date(msg.timestamp).toLocaleString()}</p>
                       </div>
+                    ))}
+                  </div>
 
-                      <div className="flex items-center space-x-3">
-                        <Badge variant={appointment.status === "confirmed" ? "default" : "secondary"}>
-                          {appointment.status}
-                        </Badge>
-                        <Button size="sm" variant="outline">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          {/* Data Sharing Tab */}
-          <TabsContent value="sharing" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">Data Sharing Controls</h2>
-              <Button className="bg-[#FFDF00] hover:bg-[#e6c600] text-black">
-                <Share2 className="h-4 w-4 mr-2" />
-                Share Data
-              </Button>
-            </div>
-
-            <div className="grid gap-6">
-              {patients.map((patient) => (
-                <Card key={patient.id}>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <Avatar>
-                          <AvatarImage src={patient.avatar || "/placeholder.svg"} />
-                          <AvatarFallback>
-                            {patient.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <CardTitle className="text-lg">{patient.name}</CardTitle>
-                          <CardDescription>Data sharing permissions</CardDescription>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Shield className="h-5 w-5 text-[#b2e061]" />
-                        <span className="text-sm text-gray-600">Privacy Protected</span>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {patient.sharedData.map((dataType, index) => (
-                          <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                            <div className="flex items-center space-x-2">
-                              <FileText className="h-4 w-4 text-[#7eb0d5]" />
-                              <span className="text-sm font-medium">{dataType}</span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Unlock className="h-4 w-4 text-[#b2e061]" />
-                              <Button size="sm" variant="outline">
-                                Revoke
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="flex justify-between items-center pt-4 border-t">
-                        <div className="text-sm text-gray-600">
-                          Last shared: {patient.lastVisit} • Audit trail available
-                        </div>
-                        <div className="flex space-x-2">
-                          <Button size="sm" variant="outline">
-                            <Eye className="h-4 w-4 mr-2" />
-                            View Audit
-                          </Button>
-                          <Button size="sm" className="bg-[#7eb0d5] hover:bg-[#5a8bb5]">
-                            <Share2 className="h-4 w-4 mr-2" />
-                            Share More
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          {/* Privacy & Security Tab */}
-          <TabsContent value="privacy" className="space-y-6">
-            <PrivacySecurityCenter userType="doctor" currentUser={user} />
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      placeholder="Type a message"
+                      className="flex-1 p-2 border rounded"
+                    />
+                    <Button onClick={sendMessage}>Send</Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
