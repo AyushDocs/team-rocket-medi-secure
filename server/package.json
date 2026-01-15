@@ -1,19 +1,30 @@
 {
-  "name": "server",
+  "name": "medi-secure-server",
   "version": "1.0.0",
-  "description": "",
+  "description": "Medi Secure Server for Safety Features",
   "main": "index.js",
   "scripts": {
-    "dev": "node index.js"
+    "dev": "nodemon index.js",
+    "start": "node index.js"
   },
   "type": "module",
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "medi-secure",
+    "blockchain",
+    "ipfs",
+    "web3"
+  ],
+  "author": "Ayush Dubey",
   "license": "ISC",
   "dependencies": {
+    "@pinata/sdk": "^2.1.0",
     "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
     "express": "^5.1.0",
-    "ipfs-http-client": "^59.0.0",
-    "multer": "^2.0.2"
+    "multer": "^2.0.2",
+    "web3": "^4.16.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
   }
 }

@@ -1,18 +1,32 @@
 {
-  "name": "contracts",
+  "name": "medi-secure-contracts",
   "version": "1.0.0",
-  "description": "",
+  "description": "Smart contracts for MediSecure",
   "main": "truffle-config.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "truffle test",
+    "compile": "truffle compile",
+    "dev:deploy": "truffle migrate --network development",
+    "dev:deploy:reset": "truffle migrate --network development --reset",
+    "dev:ganache": "ganache --wallet.deterministic --database.dbPath ./ganache-db --server.port 7545",
+    "dev": "concurrently \"npm run dev:ganache\" \"npm run dev:deploy:reset\""
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "ethereum",
+    "solidity",
+    "truffle",
+    "ganache",
+    "web3"
+  ],
+  "author": "Ayush Dubey",
   "license": "ISC",
   "dependencies": {
     "web3": "^1.9.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
   }
 }
