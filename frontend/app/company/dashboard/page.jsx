@@ -24,12 +24,14 @@ export default function CompanyDashboard() {
     const [price, setPrice] = useState("0.01") // ETH
     const [budget, setBudget] = useState("0.1") // ETH
     const [loading, setLoading] = useState(false)
+    const [loadingData, setLoadingData] = useState(true)
 
     useEffect(() => {
         if(marketplaceContract && account) loadData();
     }, [marketplaceContract, account])
 
     const loadData = async () => {
+        setLoadingData(true);
         try {
             // My Purchases
             const bought = await marketplaceContract.getCompanyPurchases({ from: account });
@@ -41,25 +43,43 @@ export default function CompanyDashboard() {
             const mine = allOffers.filter(o => o.company.toLowerCase() === account.toLowerCase());
             setMyOffers(mine);
 
-        } catch(e) { console.error(e); }
+        } catch(e) { 
+            console.error(e);
+            toast.error("Failed to load dashboard data");
+        } finally {
+            setLoadingData(false);
+        }
     }
 
     const createOffer = async () => {
-        try {
-            setLoading(true);
-            const priceWei = ethers.parseEther(price);
-            const budgetWei = ethers.parseEther(budget);
-            
-            const tx = await marketplaceContract.createOffer(offerTitle, offerDesc, priceWei, { value: budgetWei });
-            await tx.wait();
-            
-            alert("Offer Created!");
-            loadData();
-            setOfferTitle(""); setOfferDesc("");
-        } catch(e) {
-            console.error(e);
-            alert("Error: " + e.message);
-        } finally { setLoading(false); }
+        if (!offerTitle || !offerDesc) {
+            toast.error("Please fill in title and description");
+            return;
+        }
+
+        setLoading(true);
+        
+        const promise = new Promise(async(resolve, reject) => {
+            try {
+                const priceWei = ethers.parseEther(price);
+                const budgetWei = ethers.parseEther(budget);
+                
+                const tx = await marketplaceContract.createOffer(offerTitle, offerDesc, priceWei, { value: budgetWei });
+                await tx.wait();
+                
+                resolve();
+                loadData();
+                setOfferTitle(""); setOfferDesc("");
+            } catch(e) {
+                reject(e);
+            } finally { setLoading(false); }
+        })
+
+        toast.promise(promise, {
+            loading: 'Creating On-Chain Campaign...',
+            success: 'Campaign Live!',
+            error: (err) => `Failed: ${err.message}`
+        });
     }
 
     const handleView = async (ipfsHash, patientAddr) => {
@@ -97,10 +117,11 @@ export default function CompanyDashboard() {
             const url = URL.createObjectURL(blob);
             setSelectedDocUrl(url);
             setViewModalOpen(true);
+            toast.success("Document Decrypted");
 
         } catch (e) {
             console.error(e);
-            alert("View Error: " + e.message + "\n(Note: Backend requires Marketplace integration for access check)");
+            toast.error("View Error: " + e.message);
         }
     }
 
@@ -127,6 +148,7 @@ export default function CompanyDashboard() {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        toast.success("CSV Exported!");
     }
 
     return (
@@ -153,7 +175,12 @@ export default function CompanyDashboard() {
             <Card>
                 <CardHeader><CardTitle>My Active Campaigns</CardTitle></CardHeader>
                 <CardContent>
-                    {myOffers.length === 0 ? <p>No active campaigns.</p> : (
+                    {loadingData ? (
+                        <div className="space-y-2">
+                            <Skeleton className="h-12 w-full" />
+                            <Skeleton className="h-12 w-full" />
+                        </div>
+                    ) : myOffers.length === 0 ? <p>No active campaigns.</p> : (
                         <ul className="space-y-2">
                             {myOffers.map((o, i) => (
                                 <li key={i} className="p-3 border rounded bg-white flex justify-between">
@@ -176,7 +203,13 @@ export default function CompanyDashboard() {
                     </Button>
                 </CardHeader>
                 <CardContent>
-                    {purchases.length === 0 ? <p>No data purchased yet.</p> : (
+                    {loadingData ? (
+                        <div className="space-y-2">
+                             <Skeleton className="h-16 w-full" />
+                             <Skeleton className="h-16 w-full" />
+                             <Skeleton className="h-16 w-full" />
+                        </div>
+                    ) : purchases.length === 0 ? <p>No data purchased yet.</p> : (
                         <ul className="space-y-2">
                              {purchases.map((p, i) => (
                                 <li key={i} className="p-3 border rounded bg-white flex justify-between items-center">
@@ -207,7 +240,10 @@ export default function CompanyDashboard() {
                                 title="Document"
                             />
                         ) : (
-                            <p>Loading document...</p>
+                            <div className="flex flex-col items-center gap-2">
+                                <Skeleton className="h-[60vh] w-[800px]" />
+                                <p>Loading document securely...</p>
+                            </div>
                         )}
                     </div>
                 </DialogContent>

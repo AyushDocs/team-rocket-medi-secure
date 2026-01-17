@@ -3,16 +3,17 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Skeleton } from "@/components/ui/skeleton"
 import { ethers } from "ethers"
 import { Eye } from "lucide-react"
 import { useEffect, useState } from "react"
+import toast from "react-hot-toast"
 import { useWeb3 } from "../../../../context/Web3Context"
 
 export default function RecordsPatient() {
   const { patientContract, account } = useWeb3()
   const [healthRecords, setHealthRecords] = useState([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
   
   // Upload State
   const [file, setFile] = useState(null)
@@ -32,14 +33,15 @@ export default function RecordsPatient() {
       try {
         setLoading(true)
         const patientId = await patientContract.walletToPatientId(account)
-        if (patientId.toString() === "0") return; 
+        if (patientId.toString() === "0") {
+             setLoading(false);
+             return; 
+        }
 
         const records = await patientContract.getMedicalRecords(patientId)
         setHealthRecords(
           records.map((record, index) => ({
             id: index + 1,
-            // Access by property name first, fallback to index
-            // Struct: tokenId, ipfsHash, fileName, recordDate, hospital
             tokenId: record.tokenId ? record.tokenId.toString() : (record[0] ? record[0].toString() : "N/A"),
             ipfsHash: record.ipfsHash || record[1],
             fileName: record.fileName || record[2],
@@ -50,6 +52,7 @@ export default function RecordsPatient() {
         )
       } catch (err) {
         console.error("Error fetching records:", err)
+        toast.error("Failed to fetch medical records");
       } finally {
         setLoading(false)
       }
@@ -60,43 +63,48 @@ export default function RecordsPatient() {
   const handleUpload = async (e) => {
     e.preventDefault();
     if(!patientContract || !file || !docName || !docDate || !hospital) {
-        setError("Please fill all fields and select a file.");
+        toast.error("Please fill all fields and select a file.");
         return;
     }
     
-    try {
-      setUploading(true)
-      setError(null)
-
-      const formData = new FormData()
-      formData.append("file", file)
-      formData.append("userAddress", account); 
-
-      const response = await fetch("http://localhost:5000/files", {
-        method: "POST",
-        body: formData,
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to upload file to the server")
-      }
-
-      const data = await response.json()
-      const ipfsHash = data.ipfsHash
+    setUploading(true);
+    
+    const uploadPromise = new Promise(async (resolve, reject) => {
+        try {
+            const formData = new FormData()
+            formData.append("file", file)
+            formData.append("userAddress", account); 
       
-      // Call updated contract function with 4 args
-      const tx = await patientContract.addMedicalRecord(ipfsHash, docName, docDate, hospital)
-      await tx.wait()
+            const response = await fetch("http://localhost:5000/files", {
+              method: "POST",
+              body: formData,
+            })
       
-      // Reload to reflect new data (including new Token ID)
-      window.location.reload(); 
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.error || "Failed to upload file")
+            }
+      
+            const data = await response.json()
+            const ipfsHash = data.ipfsHash
+            
+            const tx = await patientContract.addMedicalRecord(ipfsHash, docName, docDate, hospital)
+            await tx.wait()
+            
+            resolve();
+            window.location.reload(); 
+        } catch(e) {
+            reject(e);
+        } finally {
+            setUploading(false);
+        }
+    });
 
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setUploading(false)
-    }
+    toast.promise(uploadPromise, {
+        loading: 'Minting NFT Record... (This may take a minute)',
+        success: 'Record Minted Successfully!',
+        error: (err) => `Error: ${err.message}`,
+    });
   }
 
   const handleViewDocument = async (ipfsHash) => {
@@ -111,17 +119,18 @@ export default function RecordsPatient() {
           
           if (!response.ok) {
               const err = await response.json();
-              throw new Error(err.error || "Failed to fetch document access");
+              throw new Error(err.error || "Failed to fetch document");
           }
 
           const blob = await response.blob();
           const url = URL.createObjectURL(blob);
           setSelectedDocUrl(url);
           setViewModalOpen(true);
+          toast.success("Document Decrypted!");
 
       } catch (err) {
           console.error("View document error:", err);
-          alert("Error opening document: " + err.message);
+          toast.error("View Failed: " + err.message);
       } finally {
           setViewingDoc(false);
       }
@@ -171,14 +180,25 @@ export default function RecordsPatient() {
                         required
                     />
                 </div>
-                {error && <p className="text-xs text-red-500">{error}</p>}
                 <Button type="submit" size="sm" disabled={uploading} className="bg-[#703FA1] hover:bg-[#5a2f81]">
-                    {uploading ? "Minting NFT..." : "Mint NFT Record"}
+                    {uploading ? "Minting..." : "Mint NFT Record"}
                 </Button>
             </form>
         </div>
 
-        {healthRecords.length === 0 ? (
+        {loading ? (
+             <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex flex-col sm:flex-row justify-between items-center p-3 border rounded-lg">
+                        <div className="space-y-2 w-full">
+                            <Skeleton className="h-4 w-[200px]" />
+                            <Skeleton className="h-3 w-[150px]" />
+                        </div>
+                        <Skeleton className="h-8 w-20 mt-2 sm:mt-0" />
+                    </div>
+                ))}
+            </div>
+        ) : healthRecords.length === 0 ? (
           <p className="text-gray-500 text-sm">No medical records found.</p>
         ) : (
           <ul className="space-y-4">
@@ -225,7 +245,10 @@ export default function RecordsPatient() {
                         title="Document"
                     />
                 ) : (
-                    <p>Loading document...</p>
+                    <div className="flex flex-col items-center gap-2">
+                        <Skeleton className="h-[60vh] w-[800px]" />
+                        <p>Loading document securely...</p>
+                    </div>
                 )}
             </div>
         </DialogContent>

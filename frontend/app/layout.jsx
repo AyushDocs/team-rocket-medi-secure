@@ -1,5 +1,6 @@
 import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
+import { Toaster } from "react-hot-toast"
 import { Web3Provider } from "../context/Web3Context"
 import "./globals.css"
 
@@ -18,6 +19,7 @@ export default function RootLayout({ children }) {
           <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
         </Web3Provider>
         <Analytics />
+        <Toaster position="top-right" />
       </body>
     </html>
   )

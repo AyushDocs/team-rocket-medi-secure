@@ -2,9 +2,11 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Skeleton } from "@/components/ui/skeleton"
 import { ethers } from "ethers"
 import { ShoppingCart, Upload } from "lucide-react"
 import { useEffect, useState } from "react"
+import toast from "react-hot-toast"
 import { useWeb3 } from "../../../../context/Web3Context"
 
 export default function PatientMarketplace() {
@@ -12,6 +14,7 @@ export default function PatientMarketplace() {
     const [offers, setOffers] = useState([])
     const [myRecords, setMyRecords] = useState([])
     const [loading, setLoading] = useState(false)
+    const [loadingOffers, setLoadingOffers] = useState(true)
     const [selectedOffer, setSelectedOffer] = useState(null)
     const [selectedRecord, setSelectedRecord] = useState(null)
     const [status, setStatus] = useState("")
@@ -23,6 +26,7 @@ export default function PatientMarketplace() {
     }, [marketplaceContract, patientContract, account])
 
     const loadMarketplace = async () => {
+        setLoadingOffers(true);
         try {
             // 1. Fetch Active Offers
             const allOffers = await marketplaceContract.getAllOffers();
@@ -41,7 +45,12 @@ export default function PatientMarketplace() {
                     date: r.recordDate || r[3]
                 })));
             }
-        } catch(e) { console.error("Marketplace Load Error:", e); }
+        } catch(e) { 
+            console.error("Marketplace Load Error:", e);
+            toast.error("Failed to load marketplace offers");
+        } finally {
+            setLoadingOffers(false);
+        }
     }
 
     const handleSell = async () => {
@@ -49,23 +58,31 @@ export default function PatientMarketplace() {
         setLoading(true);
         setStatus("Processing Transaction...");
         
-        try {
-            // Call sellData(offerId, ipfsHash)
-            const tx = await marketplaceContract.sellData(selectedOffer.id, selectedRecord.ipfsHash);
-            setStatus("Transaction Sent... Waiting for Confirmation");
-            await tx.wait();
-            
-            setStatus("Success! Data Sold & ETH Received.");
-            alert("Data Sold Successfully!");
-            loadMarketplace(); // Refresh
-            setSelectedOffer(null);
-            
-        } catch(e) {
-            console.error(e);
-            setStatus("Transaction Failed: " + (e.reason || e.message));
-        } finally {
-            setLoading(false);
-        }
+        const sellPromise = new Promise(async (resolve, reject) => {
+            try {
+                // Call sellData(offerId, ipfsHash)
+                const tx = await marketplaceContract.sellData(selectedOffer.id, selectedRecord.ipfsHash);
+                setStatus("Transaction Sent... Waiting for Confirmation");
+                await tx.wait();
+                
+                resolve();
+                
+                loadMarketplace(); // Refresh
+                setSelectedOffer(null);
+                
+            } catch(e) {
+                console.error(e);
+                reject(e);
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        toast.promise(sellPromise, {
+            loading: 'Selling Data to Company...',
+            success: 'Data Sold Successfully! ETH Received.',
+            error: (err) => `Transaction Failed: ${err.message}`
+        });
     }
 
     return (
@@ -79,7 +96,17 @@ export default function PatientMarketplace() {
 
             {/* Active Offers Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {offers.length === 0 ? (
+                {loadingOffers ? (
+                    // Skeleton Grid
+                    [1,2,3].map(i => (
+                        <div key={i} className="border rounded-lg p-4 space-y-3">
+                            <Skeleton className="h-6 w-3/4" />
+                            <Skeleton className="h-4 w-1/2" />
+                            <Skeleton className="h-20 w-full" />
+                            <Skeleton className="h-10 w-full" />
+                        </div>
+                    ))
+                ) : offers.length === 0 ? (
                     <p className="text-gray-500 col-span-full text-center py-10">
                         No active offers available at the moment. Check back later.
                     </p>
