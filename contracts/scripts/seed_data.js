@@ -1,161 +1,124 @@
 const Patient = artifacts.require("Patient");
 const Doctor = artifacts.require("Doctor");
+const Marketplace = artifacts.require("Marketplace");
 
 module.exports = async function(callback) {
   try {
     const patientContract = await Patient.deployed();
     const doctorContract = await Doctor.deployed();
+    const marketplaceContract = await Marketplace.deployed();
 
-    const [deployer, doctorAccount, patientAccount] = await web3.eth.getAccounts();
-    
-    // Use the specific address requested by user if possible, otherwise use available accounts
-    // User asked for 0xFF... for both? That's impossible for separate roles if logic prevents it.
-    // "use the public addres 0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0 for both patient and doctor"
-    // Smart contracts usually map msg.sender. If I use the same address for both, 
-    // Patient contract: walletToPatientId[addr] = 1
-    // Doctor contract: doctorIds[addr] = 1
-    // It MIGHT work if they are independent contracts and don't cross-check 'is this address also a doctor?'.
-    // Let's try to simulate this setup using the current provider's account 0 if it matches, 
-    // or just use the first available account since I can't force the private key here without configuration.
-    // Wait, I am running a script. I can't easily switch 'msg.sender' to an arbitrary address without its private key unless I unlock it or use ganache-cli --unlock.
-    // The user provided a specific address. If that address is the ONE currently active in their browser (MetaMask), 
-    // then I should ideally try to set up state for THAT address.
-    // However, I can only execute transactions from accounts Ganache controls.
-    // If the user's address is NOT in Ganache's list, I cannot transact As them.
-    // I will use `accounts[0]` (deployer) and `accounts[1]` as valid substitutes for the demo script.
-    // BUT the user specifically asked for that address.
-    // "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0" is likely the first address of the deterministic mnemonic "myth like ...".
-    // I will check if accounts[0] matches.
-    
-    const targetAddress = "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0";
-    console.log(`Target Address from user: ${targetAddress}`);
-    
-    // Check if we can unlock/impersonate or if it's already available
-    const availableAccounts = await web3.eth.getAccounts();
-    const foundAccount = availableAccounts.find(a => a.toLowerCase() === targetAddress.toLowerCase());
-    
-    let actor = foundAccount || availableAccounts[0];
-    console.log(`Using actor account: ${actor}`);
+    const accounts = await web3.eth.getAccounts();
+    const deployer = accounts[0];
 
-    // 1. Register Patient (if not exists)
-    // We updated registerPatient to take (username, name, email, age, bloodGroup)
-    console.log("Registering Patient...");
-    try {
-        await patientContract.registerPatient("testuser", "Test Patient", "test@example.com", 30, "O+", { from: actor });
-        console.log("Patient registered.");
-    } catch(e) {
-        console.log("Patient registration skipped (likely already registered): " + e.message);
-    }
-    
-    // 2. Register Doctor (if not exists)
-    // Doctor registration: registerDoctor(string _name, string _specialization, string _hospital)
-    console.log("Registering Doctor...");
-    try {
-        await doctorContract.registerDoctor("Dr. Strange", "Neurology", "New York Hospital", { from: actor });
-        console.log("Doctor registered.");
-    } catch(e) {
-        console.log("Doctor registration skipped: " + e.message);
-    }
-    
-    // 3. Add Medical Record for Patient
-    // addMedicalRecord(hash, fileName)
-    // 3. Add Medical Record for Patient
-    console.log("Adding Medical Record...");
-    
-    // Default Fallback
-    let fileHash = "QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG";
-    const fileName = "seed_record.txt";
+    // --- ROLES SETUP ---
+    // Patients: Accounts 1, 2, 3
+    const patients = [accounts[1], accounts[2], accounts[3]];
+    // Doctors: Accounts 4, 5
+    const doctors = [accounts[4], accounts[5]];
+    // Companies: Accounts 6, 7
+    const companies = [accounts[6], accounts[7]];
 
-    try {
-        console.log("Attempting to upload to local server...");
-        
-        const fileContent = "This is a secure medical record uploaded via the seed script.";
-        
-        // Dynamic imports/definitions to handle Truffle environment quirks
-        let BlobClass = typeof Blob !== 'undefined' ? Blob : require('buffer').Blob;
-        let FormDataClass = typeof FormData !== 'undefined' ? FormData : null;
-        
-        if (!BlobClass || !FormDataClass) {
-             throw new Error("Blob or FormData not available in this environment. Skipping upload.");
-        }
+    console.log("--- STARTING FULL SEED ---");
 
-        const fileBlob = new BlobClass([fileContent], { type: 'text/plain' });
-        const formData = new FormDataClass();
-        formData.append("file", fileBlob, fileName);
-        formData.append("userAddress", actor);
-        
-        // Check for fetch
-        if (typeof fetch === 'undefined') {
-             throw new Error("fetch is not available. Skipping upload.");
-        }
+    // --- 1. REGISTER PATIENTS & MINT RECORDS ---
+    const recordData = [
+        { name: "Blood Test Report", hospital: "City General", date: "2025-12-01" },
+        { name: "MRI Scan - Knee", hospital: "Ortho Clinic", date: "2026-01-10" },
+        { name: "Vaccination Cert", hospital: "Community Health", date: "2024-05-20" },
+        { name: "X-Ray Chest", hospital: "City General", date: "2025-11-15" },
+        { name: "Lab Results - Full Panel", hospital: "Quest Diagnostics", date: "2026-01-05" }
+    ];
 
-        const response = await fetch("http://localhost:5000/files", {
-            method: "POST",
-            body: formData
-        });
-
-        if (!response.ok) {
-            throw new Error(`Server responded with ${response.status}: ${await response.text()}`);
-        }
-
-        const data = await response.json();
-        if (data.ipfsHash) {
-            fileHash = data.ipfsHash;
-            console.log(`File Uploaded Successfully. IPFS Hash: ${fileHash}`);
-        }
-
-    } catch (uploadError) {
-        console.warn("Server upload verification failed (using fallback hash):");
-        console.warn(uploadError.message);
+    for (let i = 0; i < patients.length; i++) {
+        const pAddr = patients[i];
+        try {
+            console.log(`Setting up Patient ${i+1}: ${pAddr}`);
+            await patientContract.registerPatient(`patient${i+1}`, `Patient ${i+1}`, `active${i+1}@demo.com`, 30+i, "O+", { from: pAddr });
+            
+            // Add 3-5 records per patient
+            for (let j = 0; j < 3 + i; j++) {
+                const rec = recordData[j % recordData.length];
+                const ipfsHash = `QmFakeHash${i}${j}XXXYYYZZZ`; // Simulate hash
+                await patientContract.addMedicalRecord(ipfsHash, rec.name, rec.date, rec.hospital, { from: pAddr });
+                console.log(`  > Minted Record: ${rec.name}`);
+            }
+        } catch(e) { console.log(`  ! Skipped Patient ${i+1}: ${e.message}`); }
     }
 
-    console.log(`Adding Medical Record to Blockchain: ${fileHash}, ${fileName}`);
-    await patientContract.addMedicalRecord(fileHash, fileName, "2026-01-17", "Seed Hospital", { from: actor });
-    
-    // 4. Doctor Adds Patient to their list
-    // Doctor contract: addPatient(patientId)
-    // First get patient ID
-    const patId = await patientContract.walletToPatientId(actor);
-    console.log(`Patient ID is: ${patId}`);
-    
-    // In this scenario, Doctor is SAME address as Patient.
-    // doctorContract.addPatient(patId, { from: actor })
-    try {
-        await doctorContract.addPatient(patId, { from: actor });
-        console.log("Doctor added patient (self) to list.");
-    } catch(e) {
-        console.log("Add patient skipped: " + e.message);
+    // --- 2. REGISTER DOCTORS & REQUEST ACCESS ---
+    const doctorProfiles = [
+        { name: "Dr. Strange", spec: "Neurology", hosp: "Sanctum Medical" },
+        { name: "Dr. House", spec: "Diagnostics", hosp: "Princeton Plainsboro" }
+    ];
+
+    for (let i = 0; i < doctors.length; i++) {
+        const dAddr = doctors[i];
+        try {
+            console.log(`Setting up Doctor ${i+1}: ${dAddr}`);
+            await doctorContract.registerDoctor(doctorProfiles[i].name, doctorProfiles[i].spec, doctorProfiles[i].hosp, { from: dAddr });
+
+            // Request access to first patient's first record
+            // Need patient ID first? Logic might require address.
+            // Doctor contract requests by (patientAddress, ipfsHash...)
+            const targetPatient = patients[0];
+            const fakeHash = "QmFakeHash00XXXYYYZZZ"; // Predictable hash from above
+            
+            await doctorContract.requestAccess(targetPatient, fakeHash, "Blood Test Report", 300, "Routine Checkup", { from: dAddr });
+            console.log(`  > Requested Access to Patient 1`);
+
+        } catch(e) { console.log(`  ! Skipped Doctor ${i+1}: ${e.message}`); }
     }
 
-    // 5. Grant Access
-    // In normal flow: Doctor requests access -> Patient grants.
-    // Or Patient grants directly? 
-    // Patient.sol doesn't handle access control logic for the Doctor contract explicitly. 
-    // Usually Doctor contract RequestAccess emits event, then Patient contract (or UI) calls `doctorContract.grantAccess`.
-    // Wait, access control is likely stored on Doctor contract? 
-    // Let's check Doctor.sol.
-    // function grantAccess(uint256 _accessId) public
-    // AND requestAccess(address _patient, string _ipfsHash, string _fileName)
-    
-    console.log("Requesting Access...");
-    try {
-        await doctorContract.requestAccess(actor, fileHash, fileName, 300, "Initial Test Access", { from: actor });
-        console.log("Access Requested by Doctor.");
-    } catch(e) {
-        console.log("Request skipped: " + e.message);
+    // --- 3. REGISTER COMPANIES & CREATE OFFERS ---
+    const companyProfiles = [
+        { name: "Pfizer Research", budget: "5" },
+        { name: "HealthAI Corp", budget: "3" }
+    ];
+
+    const offers = [
+        { title: "Buying X-Ray Datasets", desc: "Looking for chest X-rays for AI training.", price: "0.05" },
+        { title: "Diabetes Research Study", desc: "Need blood reports for glucose analysis.", price: "0.1" }
+    ];
+
+    for (let i = 0; i < companies.length; i++) {
+        const cAddr = companies[i];
+        try {
+            console.log(`Setting up Company ${i+1}: ${cAddr}`);
+            
+            // Register
+            const fees = web3.utils.toWei("0.1", "ether"); // Registration Fee
+            await marketplaceContract.registerCompany("Com", companyProfiles[i].name, { from: cAddr, value: fees });
+
+            // Create Offer
+            const o = offers[i];
+            const priceWei = web3.utils.toWei(o.price, "ether");
+            const budgetWei = web3.utils.toWei(companyProfiles[i].budget, "ether");
+            
+            await marketplaceContract.createOffer(o.title, o.desc, priceWei, { from: cAddr, value: budgetWei });
+            console.log(`  > Created Offer: ${o.title}`);
+
+        } catch(e) { console.log(`  ! Skipped Company ${i+1}: ${e.message}`); }
     }
-    
-    // 6. Grant Access (as Patient)
-    console.log("Granting Access...");
+
+    // --- 4. SIMULATE TRANSACTIONS (Optional) ---
+    // Simulate Patient 1 selling data to Company 1
     try {
-        // Patient calls grantAccess(doctorAddress, ipfsHash, duration)
-        await doctorContract.grantAccess(actor, fileHash, 300, { from: actor });
-        console.log("Access Granted by Patient.");
-    } catch(e) {
-         console.log("Grant Access skipped: " + e.message);
-    }
+        console.log("Simulating Sale: Patient 1 -> Company 1");
+        // Get Offer ID 1
+        // Get Hash
+        const saleHash = "QmFakeHash00XXXYYYZZZ";
+        // Marketplace offer IDs start at 1?
+        await marketplaceContract.sellData(1, saleHash, { from: patients[0] });
+        console.log("  > Sale Complete!");
+    } catch(e) { console.log("  ! Sale failed (maybe already sold): " + e.message); }
+
+    console.log("--- SEED COMPLETE ---");
+    console.log("Use these accounts for Demo:");
+    console.log(`Patient 1: ${patients[0]}`);
+    console.log(`Doctor 1: ${doctors[0]}`);
+    console.log(`Company 1: ${companies[0]}`);
     
-    console.log("Seed Script Completed.");
     callback();
     
   } catch (error) {
