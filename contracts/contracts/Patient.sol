@@ -35,6 +35,15 @@ contract Patient is ERC721URIStorage {
     mapping(uint256 => PatientDetails) public patients;
     uint256 private patientIdCounter;
 
+    struct Nominee {
+        string name;
+        address walletAddress;
+        string relationship;
+        string contactNumber;
+    }
+
+    mapping(uint256 => Nominee[]) public patientNominees;
+
     constructor() ERC721("MediSecure Record", "MEDREC") {}
 
     function registerPatient(
@@ -62,6 +71,47 @@ contract Patient is ERC721URIStorage {
         newPatient.email = _email;
         newPatient.age = _age;
         newPatient.bloodGroup = _bloodGroup;
+    }
+
+    function updatePatientDetails(
+        string memory _name,
+        string memory _email,
+        uint8 _age,
+        string memory _bloodGroup
+    ) public {
+        uint256 patientId = walletToPatientId[msg.sender];
+        require(patientId != 0, "Patient not registered");
+
+        PatientDetails storage patient = patients[patientId];
+        patient.name = _name;
+        patient.email = _email;
+        patient.age = _age;
+        patient.bloodGroup = _bloodGroup;
+    }
+
+    function addNominee(
+        string memory _name,
+        address _walletAddress,
+        string memory _relationship,
+        string memory _contactNumber
+    ) public {
+        uint256 patientId = walletToPatientId[msg.sender];
+        require(patientId != 0, "Patient not registered");
+
+        patientNominees[patientId].push(
+            Nominee({
+                name: _name,
+                walletAddress: _walletAddress,
+                relationship: _relationship,
+                contactNumber: _contactNumber
+            })
+        );
+    }
+
+    function getNominees(
+        uint256 _patientId
+    ) public view returns (Nominee[] memory) {
+        return patientNominees[_patientId];
     }
 
     function addMedicalRecord(

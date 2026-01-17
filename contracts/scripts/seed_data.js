@@ -43,6 +43,16 @@ module.exports = async function(callback) {
                 await patientContract.addMedicalRecord(ipfsHash, rec.name, rec.date, rec.hospital, { from: pAddr });
                 console.log(`  > Minted Record: ${rec.name}`);
             }
+
+            // Add Nominee
+            await patientContract.addNominee(`Nominee ${i+1}`, accounts[9], "Family", `555-010${i}`, { from: pAddr });
+            console.log(`  > Added Nominee: Nominee ${i+1}`);
+
+            // Test Profile Update for first patient
+            if (i === 0) {
+                 await patientContract.updatePatientDetails(`Patient One Updated`, `updated1@demo.com`, 31, "O+", { from: pAddr });
+                 console.log(`  > Updated Profile for Patient 1`);
+            }
         } catch(e) { console.log(`  ! Skipped Patient ${i+1}: ${e.message}`); }
     }
 

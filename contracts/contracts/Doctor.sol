@@ -7,7 +7,7 @@ contract Doctor {
         string name;
         string specialization;
         string email;
-        uint256[] patientIds; // NEW: List of patients linked to this doctor
+        uint256[] patientIds; // List of patients linked to this doctor
     }
 
     struct DocumentAccess {
@@ -17,8 +17,9 @@ contract Doctor {
         bool hasAccess;
         uint256 grantTime;
         uint256 duration;
-        string reason; // NEW: Purpose of access
-        bool isEmergency; // NEW: Emergency flag
+        string reason;
+        bool isEmergency;
+        bool isResolved; // NEW: Alert dismissed?
     }
 
     mapping(address => uint256) public walletToDoctorId;
@@ -59,6 +60,12 @@ contract Doctor {
         address indexed patient,
         string ipfsHash,
         string reason,
+        uint256 timestamp
+    );
+    event EmergencyResolved(
+        address indexed patient,
+        address indexed resolver,
+        string ipfsHash,
         uint256 timestamp
     );
 
@@ -148,7 +155,8 @@ contract Doctor {
                 grantTime: 0,
                 duration: _duration,
                 reason: _reason,
-                isEmergency: false
+                isEmergency: false,
+                isResolved: false
             })
         );
 
@@ -180,7 +188,8 @@ contract Doctor {
                 grantTime: block.timestamp,
                 duration: 24 hours, // Fixed duration for emergency
                 reason: _reason,
-                isEmergency: true
+                isEmergency: true,
+                isResolved: false
             })
         );
 
@@ -210,7 +219,7 @@ contract Doctor {
             ) {
                 accessList[i].hasAccess = true;
                 accessList[i].grantTime = block.timestamp;
-                accessList[i].duration = _duration; // Update with confirmed duration
+                accessList[i].duration = _duration;
 
                 emit AccessGranted(
                     msg.sender,
@@ -225,6 +234,31 @@ contract Doctor {
         revert("Access request not found");
     }
 
+    function resolveEmergency(address _doctor, string memory _ipfsHash) public {
+        uint256 doctorId = walletToDoctorId[_doctor];
+        require(doctorId != 0, "Doctor not registered");
+
+        DocumentAccess[] storage accessList = doctorAccessList[doctorId];
+        for (uint256 i = 0; i < accessList.length; i++) {
+            if (
+                accessList[i].patient == msg.sender &&
+                keccak256(abi.encodePacked(accessList[i].ipfsHash)) ==
+                keccak256(abi.encodePacked(_ipfsHash)) &&
+                accessList[i].isEmergency
+            ) {
+                accessList[i].isResolved = true;
+                emit EmergencyResolved(
+                    msg.sender,
+                    msg.sender,
+                    _ipfsHash,
+                    block.timestamp
+                );
+                return;
+            }
+        }
+        revert("Emergency record not found or already resolved");
+    }
+
     function revokeAccess(address _doctor, string memory _ipfsHash) public {
         uint256 doctorId = walletToDoctorId[_doctor];
         require(doctorId != 0, "Doctor not registered");
@@ -237,6 +271,9 @@ contract Doctor {
                 keccak256(abi.encodePacked(_ipfsHash))
             ) {
                 accessList[i].hasAccess = false;
+                if (accessList[i].isEmergency) {
+                    accessList[i].isResolved = true;
+                }
                 emit AccessRevoked(
                     msg.sender,
                     _doctor,
