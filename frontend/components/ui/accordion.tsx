@@ -1,10 +1,10 @@
 'use client'
 
-import * as React from 'react'
 import * as AccordionPrimitive from '@radix-ui/react-accordion'
 import { ChevronDownIcon } from 'lucide-react'
+import * as React from 'react'
 
-import { cn } from '@/lib/utils'
+import { cn } from '@/hooks/lib/utils'
 
 function Accordion({
   ...props
@@ -63,4 +63,5 @@ function AccordionContent({
   )
 }
 
-export { Accordion, AccordionItem, AccordionTrigger, AccordionContent }
+export { Accordion, AccordionContent, AccordionItem, AccordionTrigger }
+

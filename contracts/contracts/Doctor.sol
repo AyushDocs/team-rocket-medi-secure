@@ -23,8 +23,16 @@ contract Doctor {
     uint256 private doctorIdCounter;
 
     // --- EVENTS ---
-    event AccessRequested(address indexed patient, address indexed doctor, string ipfsHash);
-    event PatientAdded(uint256 indexed doctorId, uint256 indexed patientId, address indexed doctor);
+    event AccessRequested(
+        address indexed patient,
+        address indexed doctor,
+        string ipfsHash
+    );
+    event PatientAdded(
+        uint256 indexed doctorId,
+        uint256 indexed patientId,
+        address indexed doctor
+    );
 
     // --- DOCTOR REGISTRATION ---
     function registerDoctor(
@@ -72,11 +80,10 @@ contract Doctor {
     }
 
     // --- DOCUMENT ACCESS LOGIC ---
-    function hasAccessToDocument(address _patient, string memory _ipfsHash)
-        public
-        view
-        returns (bool)
-    {
+    function hasAccessToDocument(
+        address _patient,
+        string memory _ipfsHash
+    ) public view returns (bool) {
         uint256 doctorId = walletToDoctorId[msg.sender];
         require(doctorId != 0, "Doctor not registered");
 
@@ -99,7 +106,11 @@ contract Doctor {
         require(doctorId != 0, "Doctor not registered");
 
         doctorAccessList[doctorId].push(
-            DocumentAccess({patient: _patient, ipfsHash: _ipfsHash, hasAccess: false})
+            DocumentAccess({
+                patient: _patient,
+                ipfsHash: _ipfsHash,
+                hasAccess: false
+            })
         );
 
         emit AccessRequested(_patient, msg.sender, _ipfsHash);
@@ -124,12 +135,20 @@ contract Doctor {
     }
 
     // --- GETTERS ---
+    function getAccessList() public view returns (DocumentAccess[] memory) {
+        uint256 doctorId = walletToDoctorId[msg.sender];
+        require(doctorId != 0, "Doctor not registered");
+        return doctorAccessList[doctorId];
+    }
+
     function getPatients() public view returns (DoctorDetails[] memory) {
         uint256 doctorId = walletToDoctorId[msg.sender];
         require(doctorId != 0, "Doctor not registered");
 
         DocumentAccess[] memory accessList = doctorAccessList[doctorId];
-        DoctorDetails[] memory patients = new DoctorDetails[](accessList.length);
+        DoctorDetails[] memory patients = new DoctorDetails[](
+            accessList.length
+        );
         uint256 count = 0;
 
         for (uint256 i = 0; i < accessList.length; i++) {

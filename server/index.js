@@ -1,10 +1,13 @@
 import pinataSDK from "@pinata/sdk";
+import axios from "axios";
 import cors from "cors";
 import "dotenv/config";
 import express from "express";
 import fs from "fs";
+import { createServer } from "http";
 import multer from "multer";
 import path from "path";
+import { Server } from "socket.io";
 import { Readable } from "stream";
 import { fileURLToPath } from "url";
 import Web3 from "web3";
@@ -15,6 +18,40 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const port = process.env.PORT || 5000;
+
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*", // Allow all origins for dev
+    methods: ["GET", "POST"],
+  },
+});
+
+const chatHistory = {};
+
+io.on("connection", (socket) => {
+  console.log(`User connected: ${socket.id}`);
+
+  socket.on("join_room", (room) => {
+    socket.join(room);
+    console.log(`User ${socket.id} joined room: ${room}`);
+    
+    // Load history
+    if (chatHistory[room]) {
+        socket.emit("load_history", chatHistory[room]);
+    }
+  });
+
+  socket.on("send_message", (data) => {
+    if (!chatHistory[data.room]) chatHistory[data.room] = [];
+    chatHistory[data.room].push(data);
+    socket.to(data.room).emit("receive_message", data);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected", socket.id);
+  });
+});
 
 // Middleware
 app.use(cors());
@@ -47,7 +84,7 @@ const loadContract = () => {
 };
 
 const doctorContract = loadContract();
-if(!doctorContract) return console.log("Failed to load contract");
+if(!doctorContract) throw new Error("Failed to load contract");
 
 app.post("/files", upload.single("file"), async (req, res) => {
   try {
@@ -116,24 +153,22 @@ app.get("/files/:hash", async (req, res) => {
     if (!hasAccess) {
       return res.status(403).json({ error: "Access denied" });
     }
-    const result = await pinata.pinList({
-        hashContains: hash
-    });
-    
-    if (result.rows.length === 0) {
-        return res.status(404).json({ error: "File not found on IPFS" });
-    }
+    // Stream file from Pinata Gateway
+    const gatewayUrl = `https://gateway.pinata.cloud/ipfs/${hash}`;
+    const response = await axios.get(gatewayUrl, { responseType: 'stream' });
 
-    res.json({
-        metadata: result.rows[0],
-        gatewayUrl: `https://gateway.pinata.cloud/ipfs/${hash}`
-    });
+    res.setHeader("Content-Type", response.headers["content-type"]);
+    response.data.pipe(res);
 
   } catch (error) {
     console.error("Error fetching files from Pinata:", error);
     res.status(500).json({ error: "Failed to fetch files from Pinata" });
   }
 });
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  httpServer.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
+}
+
+export default app;

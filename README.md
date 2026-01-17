@@ -22,7 +22,7 @@
 - **Truffle**: Framework for smart contract development and deployment.
 
 ### Frontend
-- **Framework**: [Next.js](https://nextjs.org/) (React)
+- **Framework**: [Next.js](https://nextjs.org/) (React, TypeScript, App Router)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/) with Radix UI primitives.
 - **Web3 Integration**: `ethers.js`, `web3.js` for interacting with smart contracts.
 - **Charts**: `recharts` for analytics visualization.

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -10,117 +9,88 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Heart } from "lucide-react";
-import DoctorDashboard from "@/components/doctor-dashboard";
-import PatientDashboard from "@/components/patient-dashboard";
-import Web3 from "web3";
-import PatientContractABI from "../contracts/Patient.json";
-import DoctorContractABI from "../contracts/Doctor.json";
-import SignupPatient from "@/components/signup-patient";
-import SignupDoctor from "@/components/signup-doctor";
+import { Heart, Shield } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useWeb3 } from "../context/Web3Context";
 
 export default function HomePage() {
+    const { connect, isConnected, account, patientContract, doctorContract, loading: web3Loading, error: web3Error } = useWeb3();
+    const router = useRouter();
     const [userType, setUserType] = useState("patient");
-    const [walletAddress, setWalletAddress] = useState("");
-    const [dashboard, setDashboard] = useState(null);
-    const [Account, setAccount] = useState("");
-    const [PatientContract, setPatientContract] = useState(null);
-    const [DoctorContract, setDoctorContract] = useState(null);
-    const [error, setError] = useState("");
-
-    const onLogout = () => {
-        setAccount("");
-        setPatientContract(null);
-        setDoctorContract(null);
-        setDashboard(null);
-        setUserType("patient"); // Reset to default user type or handle as needed
-        console.log("User logged out successfully.");
-    };
-
-    const handleConnect = async () => {
-        try {
-            if (!window.ethereum) {
-                setError(
-                    "MetaMask is not installed. Please install it to continue."
-                );
-                return;
-            }
-
-            const web3 = new Web3(window.ethereum);
-            const accounts = await web3.eth.requestAccounts();
-            setWalletAddress(accounts[0]);
-
-            if (userType === "doctor") {
-                const exists = await DoctorContract.methods
-                    .doctorExists(accounts[0])
-                    .call();
-                if (exists) {
-                    setDashboard(
-                        <DoctorDashboard
-                            account={accounts[0]}
-                            contract={DoctorContract}
-                            onLogout={onLogout}
-                        />
-                    );
-                } else {
-                    setDashboard(<SignupDoctor contract={DoctorContract} />);
-                }
-            } else if (userType === "patient") {
-                const exists = await PatientContract.methods
-                    .userExists(accounts[0])
-                    .call();
-                if (exists) {
-                    setDashboard(
-                        <PatientDashboard
-                            account={accounts[0]}
-                            contract={PatientContract}
-                            onLogout={onLogout}
-                            doctorContract={DoctorContract}
-                        />
-                    );
-                } else {
-                    setDashboard(<SignupPatient contract={PatientContract} />);
-                }
-            }
-        } catch (err) {
-            setError(err.message || "An error occurred while connecting.");
-        }
-    };
+    const [isRouting, setIsRouting] = useState(false);
+    const [localError, setLocalError] = useState("");
 
     useEffect(() => {
-        const init = async () => {
-            if (!window.ethereum) {
-                setError(
-                    "MetaMask is not installed. Please install it to continue."
-                );
-                return;
-            }
-            const web3 = new Web3(window.ethereum);
-            const accounts = await web3.eth.getAccounts();
-            setAccount(accounts[0]);
+        if (web3Error) {
+            setLocalError(web3Error);
+        }
+    }, [web3Error]);
 
-            const networkId = await web3.eth.net.getId();
-
-            const patientDeployedNetwork =
-                PatientContractABI.networks[networkId];
-            const patientInstance = new web3.eth.Contract(
-                PatientContractABI.abi,
-                patientDeployedNetwork && patientDeployedNetwork.address
-            );
-            console.log(patientInstance);
-            setPatientContract(patientInstance);
-            const doctorDeployedNetwork = DoctorContractABI.networks[networkId];
-            const DoctorInstance = new web3.eth.Contract(
-                DoctorContractABI.abi,
-                doctorDeployedNetwork && doctorDeployedNetwork.address
-            );
-            console.log(DoctorInstance);
-            setDoctorContract(DoctorInstance);
+    // Handle routing once connected
+    useEffect(() => {
+        const routeUser = async () => {
+             if (isConnected && account && !web3Loading && !isRouting) {
+                 setIsRouting(true);
+                 try {
+                     if (userType === "doctor") {
+                         if (!doctorContract) {
+                             throw new Error("Doctor contract not loaded. Check network.");
+                         }
+                         const exists = await doctorContract.doctorExists(account);
+                         if (exists) {
+                             router.push("/doctor/dashboard");
+                         } else {
+                             router.push("/doctor/signup");
+                         }
+                     } else {
+                         if (!patientContract) {
+                             throw new Error("Patient contract not loaded. Check network.");
+                         }
+                         const exists = await patientContract.userExists(account);
+                         if (exists) {
+                             router.push("/patient/dashboard");
+                         } else {
+                             router.push("/patient/signup");
+                         }
+                     }
+                 } catch (err) {
+                     console.error("Routing error:", err);
+                     setLocalError(err.message);
+                     setIsRouting(false);
+                 }
+             }
         };
-        init();
-    }, [Account, userType]);
 
-    if (dashboard) return dashboard;
+        // Only run routing logic if we engaged the connect flow or are already connected
+        // But we want to avoid auto-routing if user just lands on page without intent?
+        // Actually, if they are already connected (metamask), auto-login is good UX.
+        // But we need to know WHICH tab they prefer?
+        // Default is "patient". If a doctor visits, they might get routed to patient signup if not careful.
+        // Better: Only route when they click "Connect" OR if they are already connected, maybe wait for them to confirm?
+        // Let's rely on explicit "Connect" button action triggering the check, OR if already connected, we check based on current tab? 
+        // Logic: If connected, check BOTH. If Doctor, go Doctor. If Patient, go Patient.
+        // But `userType` state defaults to Patient. 
+        // Let's keep it simple: Route based on `userType` state when connected.
+        // If user is Doctor but on Patient tab, they might fail UserExists and go to Patient Signup. 
+        // Ideally we check both contracts to guess type, but for now stick to Tab selection.
+        
+        if (isConnected && !isRouting) {
+            // We wait for the user to trigger connection?
+            // The context might auto-connect on load.
+            // If explicit action is preferred, we can use a flag.
+            // But for now, let's just let the effect run.
+            routeUser();
+        }
+    }, [isConnected, account, web3Loading, patientContract, doctorContract, userType, router]);
+
+    const handleConnect = async () => {
+        setLocalError("");
+        if (!isConnected) {
+            await connect();
+        } 
+        // The useEffect will handle routing once `isConnected` becomes true
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
@@ -175,42 +145,38 @@ export default function HomePage() {
 
                             <TabsContent value="patient">
                                 <div className="space-y-4">
-                                    {error && (
+                                    {localError && (
                                         <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
-                                            {error}
+                                            {localError}
                                         </div>
                                     )}
                                     <Button
                                         onClick={handleConnect}
+                                        disabled={web3Loading || isRouting}
                                         className="w-full bg-[#703FA1] hover:bg-[#5a2f81]"
                                     >
-                                        {Account
-                                            ? `Connected: ${Account.slice(
-                                                  0,
-                                                  6
-                                              )}...${Account.slice(-4)}`
-                                            : "Connect with MetaMask"}
+                                        {web3Loading || isRouting ? "Loading..." : (isConnected || account
+                                            ? `Connected: ${account?.slice(0,6)}...`
+                                            : "Connect with MetaMask")}
                                     </Button>
                                 </div>
                             </TabsContent>
 
                             <TabsContent value="doctor">
                                 <div className="space-y-4">
-                                    {error && (
+                                    {localError && (
                                         <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
-                                            {error}
+                                            {localError}
                                         </div>
                                     )}
                                     <Button
                                         onClick={handleConnect}
+                                        disabled={web3Loading || isRouting}
                                         className="w-full bg-[#703FA1] hover:bg-[#5a2f81]"
                                     >
-                                        {Account
-                                            ? `Connected: ${Account.slice(
-                                                  0,
-                                                  6
-                                              )}...${Account.slice(-4)}`
-                                            : "Connect with MetaMask"}
+                                        {web3Loading || isRouting ? "Loading..." : (isConnected || account
+                                            ? `Connected: ${account?.slice(0,6)}...`
+                                            : "Connect with MetaMask")}
                                     </Button>
                                 </div>
                             </TabsContent>

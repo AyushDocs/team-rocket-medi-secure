@@ -10,9 +10,8 @@
     "test": "truffle test",
     "compile": "truffle compile",
     "dev:deploy": "truffle migrate --network development",
-    "dev:deploy:reset": "truffle migrate --network development --reset",
-    "dev:ganache": "ganache --wallet.deterministic --database.dbPath ./ganache-db --server.port 7545",
-    "dev": "concurrently \"npm run dev:ganache\" \"npm run dev:deploy:reset\""
+    "dev:reset": "truffle migrate --network development --reset",
+    "dev:ganache": "ganache"
   },
   "keywords": [
     "ethereum",
@@ -27,6 +26,8 @@
     "web3": "^1.9.0"
   },
   "devDependencies": {
-    "concurrently": "^9.2.1"
+    "concurrently": "^9.2.1",
+    "ganache": "^7.9.2",
+    "truffle": "^5.11.5"
   }
 }
