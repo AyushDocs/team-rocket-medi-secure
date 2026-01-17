@@ -139,7 +139,7 @@ module.exports = async function(callback) {
     
     console.log("Requesting Access...");
     try {
-        await doctorContract.requestAccess(actor, fileHash, fileName, { from: actor });
+        await doctorContract.requestAccess(actor, fileHash, fileName, 300, { from: actor });
         console.log("Access Requested by Doctor.");
     } catch(e) {
         console.log("Request skipped: " + e.message);
@@ -148,8 +148,8 @@ module.exports = async function(callback) {
     // 6. Grant Access (as Patient)
     console.log("Granting Access...");
     try {
-        // Patient calls grantAccess(doctorAddress, ipfsHash)
-        await doctorContract.grantAccess(actor, fileHash, { from: actor });
+        // Patient calls grantAccess(doctorAddress, ipfsHash, duration)
+        await doctorContract.grantAccess(actor, fileHash, 300, { from: actor });
         console.log("Access Granted by Patient.");
     } catch(e) {
          console.log("Grant Access skipped: " + e.message);

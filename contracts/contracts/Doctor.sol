@@ -13,8 +13,10 @@ contract Doctor {
     struct DocumentAccess {
         address patient;
         string ipfsHash;
-        string fileName; // Added fileName
+        string fileName;
         bool hasAccess;
+        uint256 grantTime;
+        uint256 duration;
     }
 
     mapping(address => uint256) public walletToDoctorId;
@@ -28,7 +30,8 @@ contract Doctor {
         address indexed patient,
         address indexed doctor,
         string ipfsHash,
-        string fileName // Added fileName
+        string fileName,
+        uint256 duration
     );
     event PatientAdded(
         uint256 indexed doctorId,
@@ -56,8 +59,6 @@ contract Doctor {
         uint256 doctorId = walletToDoctorId[msg.sender];
         require(doctorId != 0, "Doctor not registered");
 
-        // Avoid duplicates? Simple check or just push.
-        // For MVP push is fine, or check if already exists.
         bool exists = false;
         for (uint i = 0; i < doctors[doctorId].patientIds.length; i++) {
             if (doctors[doctorId].patientIds[i] == _patientId) {
@@ -76,6 +77,7 @@ contract Doctor {
         require(doctorId != 0, "Doctor not registered");
         return doctors[doctorId].patientIds;
     }
+
     function hasAccessToDocument(
         address _patient,
         string memory _ipfsHash
@@ -91,6 +93,13 @@ contract Doctor {
                 keccak256(abi.encodePacked(_ipfsHash)) &&
                 accessList[i].hasAccess
             ) {
+                // Check for expiration
+                if (
+                    block.timestamp >
+                    accessList[i].grantTime + accessList[i].duration
+                ) {
+                    return false;
+                }
                 return true;
             }
         }
@@ -100,7 +109,8 @@ contract Doctor {
     function requestAccess(
         address _patient,
         string memory _ipfsHash,
-        string memory _fileName
+        string memory _fileName,
+        uint256 _duration
     ) public {
         uint256 doctorId = walletToDoctorId[msg.sender];
         require(doctorId != 0, "Doctor not registered");
@@ -110,14 +120,26 @@ contract Doctor {
                 patient: _patient,
                 ipfsHash: _ipfsHash,
                 fileName: _fileName,
-                hasAccess: false
+                hasAccess: false,
+                grantTime: 0,
+                duration: _duration
             })
         );
 
-        emit AccessRequested(_patient, msg.sender, _ipfsHash, _fileName);
+        emit AccessRequested(
+            _patient,
+            msg.sender,
+            _ipfsHash,
+            _fileName,
+            _duration
+        );
     }
 
-    function grantAccess(address _doctor, string memory _ipfsHash) public {
+    function grantAccess(
+        address _doctor,
+        string memory _ipfsHash,
+        uint256 _duration
+    ) public {
         uint256 doctorId = walletToDoctorId[_doctor];
         require(doctorId != 0, "Doctor not registered");
 
@@ -129,6 +151,8 @@ contract Doctor {
                 keccak256(abi.encodePacked(_ipfsHash))
             ) {
                 accessList[i].hasAccess = true;
+                accessList[i].grantTime = block.timestamp;
+                accessList[i].duration = _duration; // Update with confirmed duration
                 return;
             }
         }

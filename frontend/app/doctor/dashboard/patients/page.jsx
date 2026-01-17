@@ -12,6 +12,7 @@ export default function PatientsDoctor() {
   
   const [patientDocs, setPatientDocs] = useState([])
   const [selectedDocHash, setSelectedDocHash] = useState("")
+  const [duration, setDuration] = useState("300") // Default 5 mins
   
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState("")
@@ -84,7 +85,7 @@ export default function PatientsDoctor() {
       const doc = patientDocs.find(d => d.hash === selectedDocHash);
       if(!doc) throw new Error("Document not found in list");
 
-      const tx = await doctorContract.requestAccess(selectedPatientAddr, selectedDocHash, doc.name);
+      const tx = await doctorContract.requestAccess(selectedPatientAddr, selectedDocHash, doc.name, duration);
       await tx.wait();
       setStatus("Access request sent successfully ✅");
     } catch (error) {
@@ -136,6 +137,22 @@ export default function PatientsDoctor() {
             {selectedPatientAddr && patientDocs.length === 0 && (
                 <p className="text-xs text-amber-600">No documents found for this patient.</p>
             )}
+        </div>
+
+        {/* Duration Select */}
+        <div className="space-y-1">
+            <label className="text-sm font-medium text-gray-700">Access Duration</label>
+            <select 
+                className="w-full p-2 border rounded bg-white"
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
+            >
+                <option value="300">5 Minutes</option>
+                <option value="900">15 Minutes</option>
+                <option value="3600">1 Hour</option>
+                <option value="86400">24 Hours</option>
+                <option value="604800">7 Days</option>
+            </select>
         </div>
 
         <Button 

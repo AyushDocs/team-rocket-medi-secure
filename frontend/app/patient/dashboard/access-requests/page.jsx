@@ -8,6 +8,7 @@ import { useWeb3 } from "../../../../context/Web3Context"
 export default function AccessRequestsPatient() {
   const { doctorContract, account } = useWeb3()
   const [accessRequests, setAccessRequests] = useState([])
+  const [modifiedDurations, setModifiedDurations] = useState({}) // Key: "doc-hash", Value: seconds
 
   useEffect(() => {
     if(!doctorContract || !account) {
@@ -18,14 +19,14 @@ export default function AccessRequestsPatient() {
     // Fetch past access requests
     const fetchRequests = async () => {
       try {
-        // Create filter: AccessRequested(patient=account, doctor=null, ipfsHash=null)
         const filter = doctorContract.filters.AccessRequested(account);
         const events = await doctorContract.queryFilter(filter);
         
         const pastRequests = events.map(event => ({
-          doctor: event.args[1], // 2nd argument is doctor address
-          ipfsHash: event.args[2], // 3rd argument is ipfsHash
-          fileName: event.args[3] || "Unnamed Document" // 4th argument is fileName
+          doctor: event.args[1], 
+          ipfsHash: event.args[2], 
+          fileName: event.args[3] || "Unnamed Document",
+          duration: event.args[4] ? event.args[4].toString() : "300" // Arg 4 is duration
         }));
         
         setAccessRequests(pastRequests);
@@ -37,12 +38,11 @@ export default function AccessRequestsPatient() {
     fetchRequests();
 
     // Listen for new requests
-    const handleAccessRequested = (patient, doctor, ipfsHash, fileName) => {
-         // Arguments are: patient, doctor, ipfsHash, fileName (based on Doctor.sol event)
+    const handleAccessRequested = (patient, doctor, ipfsHash, fileName, duration) => {
          if (patient.toLowerCase() === account.toLowerCase()) {
               setAccessRequests((prevRequests) => [
                 ...prevRequests,
-                { doctor, ipfsHash, fileName },
+                { doctor, ipfsHash, fileName, duration: duration.toString() },
               ]);
          }
     };
@@ -61,7 +61,13 @@ export default function AccessRequestsPatient() {
     }
     try {
       if (grant) {
-        const tx = await doctorContract.grantAccess(doctor, ipfsHash);
+        const key = `${doctor}-${ipfsHash}`;
+        // Use modified duration if exists, else generic default logic? 
+        // We iterate requests to find default?
+        const req = accessRequests.find(r => r.doctor === doctor && r.ipfsHash === ipfsHash);
+        const finalDuration = modifiedDurations[key] || req.duration || "300";
+        
+        const tx = await doctorContract.grantAccess(doctor, ipfsHash, finalDuration);
         await tx.wait();
       }
       setAccessRequests((prevRequests) =>
@@ -73,6 +79,13 @@ export default function AccessRequestsPatient() {
       console.error("Failed to respond to access request:", error);
     }
   };
+  
+  const formatDuration = (sec) => {
+      const s = parseInt(sec);
+      if(s < 3600) return `${Math.floor(s/60)} Mins`;
+      if(s < 86400) return `${(s/3600).toFixed(1)} Hours`;
+      return `${(s/86400).toFixed(1)} Days`;
+  }
 
   return (
     <Card>
@@ -84,12 +97,30 @@ export default function AccessRequestsPatient() {
           <p className="text-gray-500">No pending access requests.</p>
         ) : (
           <ul className="space-y-4">
-            {accessRequests.map((request, index) => (
-              <li key={index} className="p-4 border rounded-lg bg-white shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
+            {accessRequests.map((request, index) => {
+               const key = `${request.doctor}-${request.ipfsHash}`;
+               const currentDuration = modifiedDurations[key] || request.duration;
+               
+               return (
+              <li key={index} className="p-4 border rounded-lg bg-white shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="flex-1">
                     <h3 className="font-semibold text-gray-900">{request.fileName}</h3>
-                    <p className="text-sm text-gray-600">Requested by: <span className="font-mono bg-gray-100 px-1 rounded">{request.doctor}</span></p>
-                    <p className="text-xs text-gray-400 mt-1">ID: {request.ipfsHash}</p>
+                    <p className="text-sm text-gray-600">Requested by: <span className="font-mono bg-gray-100 px-1 rounded">{request.doctor.slice(0,8)}...</span></p>
+                    <div className="mt-2 flex items-center gap-2">
+                         <span className="text-xs font-medium text-gray-500">Access Duration:</span>
+                         <select 
+                            className="text-sm border rounded bg-gray-50 p-1"
+                            value={currentDuration}
+                            onChange={(e) => setModifiedDurations({...modifiedDurations, [key]: e.target.value})}
+                         >
+                            <option value="300">5 Mins</option>
+                            <option value="900">15 Mins</option>
+                            <option value="3600">1 Hour</option>
+                            <option value="86400">24 Hours</option>
+                            <option value="604800">7 Days</option>
+                         </select>
+                         <span className="text-xs text-blue-600">({formatDuration(currentDuration)})</span>
+                    </div>
                 </div>
                 <div className="flex space-x-2">
                   <Button
@@ -108,7 +139,7 @@ export default function AccessRequestsPatient() {
                   </Button>
                 </div>
               </li>
-            ))}
+            )})}
           </ul>
         )}
       </CardContent>
