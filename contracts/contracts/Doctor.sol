@@ -17,6 +17,7 @@ contract Doctor {
         bool hasAccess;
         uint256 grantTime;
         uint256 duration;
+        string reason; // NEW: Purpose of access
     }
 
     mapping(address => uint256) public walletToDoctorId;
@@ -31,7 +32,8 @@ contract Doctor {
         address indexed doctor,
         string ipfsHash,
         string fileName,
-        uint256 duration
+        uint256 duration,
+        string reason // NEW
     );
     event AccessGranted(
         address indexed patient,
@@ -123,7 +125,8 @@ contract Doctor {
         address _patient,
         string memory _ipfsHash,
         string memory _fileName,
-        uint256 _duration
+        uint256 _duration,
+        string memory _reason
     ) public {
         uint256 doctorId = walletToDoctorId[msg.sender];
         require(doctorId != 0, "Doctor not registered");
@@ -135,7 +138,8 @@ contract Doctor {
                 fileName: _fileName,
                 hasAccess: false,
                 grantTime: 0,
-                duration: _duration
+                duration: _duration,
+                reason: _reason
             })
         );
 
@@ -144,7 +148,8 @@ contract Doctor {
             msg.sender,
             _ipfsHash,
             _fileName,
-            _duration
+            _duration,
+            _reason
         );
     }
 

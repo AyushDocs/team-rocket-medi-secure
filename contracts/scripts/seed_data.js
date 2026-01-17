@@ -139,7 +139,7 @@ module.exports = async function(callback) {
     
     console.log("Requesting Access...");
     try {
-        await doctorContract.requestAccess(actor, fileHash, fileName, 300, { from: actor });
+        await doctorContract.requestAccess(actor, fileHash, fileName, 300, "Initial Test Access", { from: actor });
         console.log("Access Requested by Doctor.");
     } catch(e) {
         console.log("Request skipped: " + e.message);
