@@ -47,6 +47,7 @@ export default function PatientDashboardLayout({ children }) {
     if (pathname.includes("records")) return "records"
     if (pathname.includes("chat")) return "chat"
     if (pathname.includes("access-requests")) return "access-requests"
+    if (pathname.includes("marketplace")) return "marketplace"
     return "overview"
   }
 
@@ -84,7 +85,7 @@ export default function PatientDashboardLayout({ children }) {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <Tabs value={getValue()} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
+          <TabsList className="grid w-full grid-cols-5 mb-6">
             <Link href="/patient/dashboard/overview" className="w-full">
                 <TabsTrigger value="overview" className="w-full flex items-center gap-2 cursor-pointer">
                     <Activity className="h-4 w-4" />
@@ -105,6 +106,11 @@ export default function PatientDashboardLayout({ children }) {
             <Link href="/patient/dashboard/access-requests" className="w-full">
                 <TabsTrigger value="access-requests" className="w-full flex items-center gap-2 cursor-pointer">
                     Requests
+                </TabsTrigger>
+            </Link>
+            <Link href="/patient/dashboard/marketplace" className="w-full">
+                <TabsTrigger value="marketplace" className="w-full flex items-center gap-2 cursor-pointer text-purple-700 font-bold">
+                    Marketplace
                 </TabsTrigger>
             </Link>
           </TabsList>

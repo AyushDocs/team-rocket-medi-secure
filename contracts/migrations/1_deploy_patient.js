@@ -5,9 +5,7 @@ module.exports = async function (deployer, network, accounts) {
   await deployer.deploy(Patient);
   const patientInstance = await Patient.deployed();
 
-  const contractPath=path.join(__dirname,'..','build','contracts','Patient.json')
-  const contractData=JSON.parse(fs.readFileSync(contractPath))
-  // Update the networks object manually to ensure frontend gets latest address
+  const contractData=Patient.toJSON()
   const networkId = await web3.eth.net.getId();
   if (!contractData.networks) contractData.networks = {};
   contractData.networks[networkId] = {

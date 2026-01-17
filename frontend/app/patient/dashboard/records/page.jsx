@@ -8,7 +8,6 @@ import { Eye } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useWeb3 } from "../../../../context/Web3Context"
 
-// ... (imports remain same) we need to update state variables only
 export default function RecordsPatient() {
   const { patientContract, account } = useWeb3()
   const [healthRecords, setHealthRecords] = useState([])
@@ -39,11 +38,13 @@ export default function RecordsPatient() {
         setHealthRecords(
           records.map((record, index) => ({
             id: index + 1,
-            type: "Medical Record",
-            fileName: record.fileName || record[1],
-            ipfsHash: record.ipfsHash || record[0],
-            date: record.recordDate || record[2] || "Unknown Date",
-            hospital: record.hospital || record[3] || "Unknown Location",
+            // Access by property name first, fallback to index
+            // Struct: tokenId, ipfsHash, fileName, recordDate, hospital
+            tokenId: record.tokenId ? record.tokenId.toString() : (record[0] ? record[0].toString() : "N/A"),
+            ipfsHash: record.ipfsHash || record[1],
+            fileName: record.fileName || record[2],
+            date: record.recordDate || record[3] || "Unknown Date",
+            hospital: record.hospital || record[4] || "Unknown Location",
             shared: true,
           }))
         )
@@ -87,25 +88,9 @@ export default function RecordsPatient() {
       // Call updated contract function with 4 args
       const tx = await patientContract.addMedicalRecord(ipfsHash, docName, docDate, hospital)
       await tx.wait()
-
-      setHealthRecords((prevRecords) => [
-        ...prevRecords,
-        {
-          id: prevRecords.length + 1,
-          type: "Medical Record",
-          date: docDate,
-          fileName: docName, // Use the user-provided name
-          hospital: hospital,
-          ipfsHash: ipfsHash,
-          shared: true,
-        },
-      ])
       
-      // Reset Form
-      setFile(null);
-      setDocName("");
-      setDocDate("");
-      setHospital("");
+      // Reload to reflect new data (including new Token ID)
+      window.location.reload(); 
 
     } catch (err) {
       setError(err.message)
@@ -146,12 +131,12 @@ export default function RecordsPatient() {
     <>
     <Card>
       <CardHeader>
-        <CardTitle>Medical Records</CardTitle>
+        <CardTitle>Medical Records (NFTs)</CardTitle>
       </CardHeader>
       <CardContent>
         {/* Upload Form */}
         <div className="mb-6 p-4 border rounded bg-gray-50 space-y-3">
-            <h3 className="font-semibold text-sm">Add New Record</h3>
+            <h3 className="font-semibold text-sm">Mint New Record NFT</h3>
             <form onSubmit={handleUpload} className="space-y-3">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <input 
@@ -188,7 +173,7 @@ export default function RecordsPatient() {
                 </div>
                 {error && <p className="text-xs text-red-500">{error}</p>}
                 <Button type="submit" size="sm" disabled={uploading} className="bg-[#703FA1] hover:bg-[#5a2f81]">
-                    {uploading ? "Uploading..." : "Upload Record"}
+                    {uploading ? "Minting NFT..." : "Mint NFT Record"}
                 </Button>
             </form>
         </div>
@@ -200,8 +185,11 @@ export default function RecordsPatient() {
             {healthRecords.map((record) => (
               <li key={record.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 border rounded-lg bg-white shadow-sm">
                 <div className="mb-2 sm:mb-0">
-                    <p className="font-medium text-gray-700 truncate max-w-md">
+                    <p className="font-medium text-gray-700 truncate max-w-md flex items-center gap-2">
                         {record.fileName}
+                         <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded border border-purple-200 font-mono">
+                            NFT #{record.tokenId}
+                        </span>
                     </p>
                     <p className="text-xs text-gray-500">
                         {record.date} • {record.hospital}

@@ -4,11 +4,13 @@ import { ethers } from "ethers";
 import { createContext, useContext, useEffect, useState } from "react";
 import DoctorContractABI from "../contracts/Doctor.json";
 import PatientContractABI from "../contracts/Patient.json";
+import MarketplaceContractABI from "../contracts/Marketplace.json";
 
 const Web3Context = createContext();
 export const Web3Provider = ({ children }) => {
     const [patientContract, setPatientContract] = useState(null);
     const [doctorContract, setDoctorContract] = useState(null);
+    const [marketplaceContract, setMarketplaceContract] = useState(null);
     const [isConnected, setIsConnected] = useState(false);
     const [account, setAccount] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -31,6 +33,7 @@ export const Web3Provider = ({ children }) => {
             
             let patientNetworkData = PatientContractABI.networks[netId];
             let doctorNetworkData = DoctorContractABI.networks[netId];
+            let marketNetworkData = MarketplaceContractABI.networks[netId];
 
             if (!patientNetworkData) {
                 const pIds = Object.keys(PatientContractABI.networks);
@@ -50,18 +53,30 @@ export const Web3Provider = ({ children }) => {
                 }
             }
 
-            if (!patientNetworkData || !doctorNetworkData) {
+            if (!marketNetworkData) {
+                const mIds = Object.keys(MarketplaceContractABI.networks);
+                if (mIds.length > 0) {
+                    const fallbackId = mIds[mIds.length - 1];
+                    console.warn(`Marketplace Contract not found on network ${netId}. Falling back to ${fallbackId}`);
+                    marketNetworkData = MarketplaceContractABI.networks[fallbackId];
+                }
+            }
+
+            if (!patientNetworkData || !doctorNetworkData || !marketNetworkData) {
                 throw new Error(`Contracts not deployed on this network (ID: ${netId})`);
             }
             
             console.log("Patient Contract Address:", patientNetworkData.address);
             console.log("Doctor Contract Address:", doctorNetworkData.address);
+            console.log("Marketplace Contract Address:", marketNetworkData.address);
 
             const patientContract = new ethers.Contract(patientNetworkData.address, PatientContractABI.abi, signer);
             const doctorContract = new ethers.Contract(doctorNetworkData.address, DoctorContractABI.abi, signer);
+            const marketContract = new ethers.Contract(marketNetworkData.address, MarketplaceContractABI.abi, signer);
 
             setPatientContract(patientContract);
             setDoctorContract(doctorContract);
+            setMarketplaceContract(marketContract);
             setAccount(address);
             setIsConnected(true);
         } catch (error) {
@@ -75,6 +90,7 @@ export const Web3Provider = ({ children }) => {
     const disconnect = () => {
         setPatientContract(null);
         setDoctorContract(null);
+        setMarketplaceContract(null);
         setIsConnected(false);
         setAccount(null);
     }
@@ -112,6 +128,7 @@ export const Web3Provider = ({ children }) => {
         connect,
         patientContract,
         doctorContract,
+        marketplaceContract,
         isConnected,
         account,
         loading,

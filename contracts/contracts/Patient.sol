@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-contract Patient {
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+
+contract Patient is ERC721URIStorage {
+    uint256 private _nextTokenId;
+
     mapping(address => uint256) public walletToPatientId;
     mapping(string => uint256) public usernameToPatientId; // Username -> ID mapping
 
@@ -10,6 +14,7 @@ contract Patient {
     }
 
     struct MedicalRecord {
+        uint256 tokenId; // NFT ID
         string ipfsHash;
         string fileName;
         string recordDate;
@@ -18,7 +23,7 @@ contract Patient {
 
     struct PatientDetails {
         uint256 patientId;
-        string username; // Added username
+        string username;
         string name;
         address walletAddress;
         string email;
@@ -29,6 +34,8 @@ contract Patient {
 
     mapping(uint256 => PatientDetails) public patients;
     uint256 private patientIdCounter;
+
+    constructor() ERC721("MediSecure Record", "MEDREC") {}
 
     function registerPatient(
         string memory _username,
@@ -66,8 +73,14 @@ contract Patient {
         uint256 patientId = walletToPatientId[msg.sender];
         require(patientId != 0, "Patient not registered");
 
+        // Mint NFT
+        uint256 tokenId = _nextTokenId++;
+        _mint(msg.sender, tokenId);
+        _setTokenURI(tokenId, _ipfsHash);
+
         patients[patientId].medicalRecords.push(
             MedicalRecord({
+                tokenId: tokenId,
                 ipfsHash: _ipfsHash,
                 fileName: _fileName,
                 recordDate: _recordDate,
