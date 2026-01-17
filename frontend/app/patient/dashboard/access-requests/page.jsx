@@ -8,89 +8,181 @@ import { useWeb3 } from "../../../../context/Web3Context"
 export default function AccessRequestsPatient() {
   const { doctorContract, account } = useWeb3()
   const [accessRequests, setAccessRequests] = useState([])
-  const [modifiedDurations, setModifiedDurations] = useState({}) // Key: "doc-hash", Value: seconds
+  const [activeAccess, setActiveAccess] = useState([])
+  const [historyLogs, setHistoryLogs] = useState([])
+  const [modifiedDurations, setModifiedDurations] = useState({}) 
 
   useEffect(() => {
-    if(!doctorContract || !account) {
-        console.warn("Contracts or Account missing. Skipping request fetch.", { doctorContract: !!doctorContract, account });
-        return;
-    }
+    if(!doctorContract || !account) return;
 
-    // Fetch past access requests
+    // 1. Fetch Pending Requests
     const fetchRequests = async () => {
       try {
         const filter = doctorContract.filters.AccessRequested(account);
         const events = await doctorContract.queryFilter(filter);
+        // We need to filter out requests that have already been granted?
+        // Simpler: Just show all requested events that don't have a corresponding Grant event?
+        // Or rely on the "Active" list logic. 
+        // For now, let's just show raw requests as "Pending" and if they are in "Active", maybe hide them?
+        // Let's stick to the previous simple logic: Events = Requests. 
+        // Real implementation would check if 'hasAccess' is false on-chain, but that requires iterating.
+        // We'll keep the existing logic but maybe filter locally if we find them in active list.
         
         const pastRequests = events.map(event => ({
           doctor: event.args[1], 
           ipfsHash: event.args[2], 
           fileName: event.args[3] || "Unnamed Document",
-          duration: event.args[4] ? event.args[4].toString() : "300" // Arg 4 is duration
+          duration: event.args[4] ? event.args[4].toString() : "300"
         }));
-        
         setAccessRequests(pastRequests);
-      } catch (error) {
-        console.error("Error fetching access requests:", error);
-      }
+      } catch (error) { console.error(error); }
     };
+
+    // 2. Fetch History & Active State
+    const fetchHistory = async () => {
+        try {
+            const grantFilter = doctorContract.filters.AccessGranted(account);
+            const revokeFilter = doctorContract.filters.AccessRevoked(account);
+            
+            const [grants, revokes] = await Promise.all([
+                doctorContract.queryFilter(grantFilter),
+                doctorContract.queryFilter(revokeFilter)
+            ]);
+            
+            // Explicitly map args by index to avoid 'undefined' issues
+            const allEvents = [
+                ...grants.map(e => ({ 
+                    type: 'GRANTED', 
+                    doctor: e.args[1], // Index 1 is doctor in AccessGranted(patient, doctor, ...)
+                    ipfsHash: e.args[2],
+                    timestamp: e.args[3], 
+                    duration: e.args[4],
+                    blockNumber: e.blockNumber 
+                })),
+                ...revokes.map(e => ({ 
+                    type: 'REVOKED', 
+                    doctor: e.args[1], // Index 1 is doctor in AccessRevoked(patient, doctor, ...)
+                    ipfsHash: e.args[2],
+                    timestamp: e.args[3], 
+                    blockNumber: e.blockNumber 
+                }))
+            ].sort((a,b) => b.blockNumber - a.blockNumber); // Newest first
+
+            setHistoryLogs(allEvents);
+
+            // Determine Active Access
+            const now = Math.floor(Date.now() / 1000);
+            
+            const uniquePairs = new Set();
+            const activeList = [];
+
+            for (const e of allEvents) {
+                const key = `${e.doctor}-${e.ipfsHash}`;
+                if (uniquePairs.has(key)) continue;
+                uniquePairs.add(key);
+
+                if (e.type === 'GRANTED') {
+                    const grantTime = Number(e.timestamp);
+                    const duration = Number(e.duration);
+                    if (grantTime + duration > now) {
+                        // It is active
+                        activeList.push({
+                            doctor: e.doctor,
+                            ipfsHash: e.ipfsHash,
+                            grantTime,
+                            duration,
+                            remaining: (grantTime + duration) - now
+                        });
+                    }
+                }
+            }
+            setActiveAccess(activeList);
+
+        } catch(e) { console.error("History error:", e); }
+    }
 
     fetchRequests();
+    fetchHistory();
 
-    // Listen for new requests
-    const handleAccessRequested = (patient, doctor, ipfsHash, fileName, duration) => {
-         if (patient.toLowerCase() === account.toLowerCase()) {
-              setAccessRequests((prevRequests) => [
-                ...prevRequests,
-                { doctor, ipfsHash, fileName, duration: duration.toString() },
-              ]);
-         }
-    };
+    // Listeners
+    const handleRequested = (p, d, h, f, dur) => {
+        if(p.toLowerCase() === account.toLowerCase()) 
+            setAccessRequests(prev => [...prev, { doctor: d, ipfsHash: h, fileName: f, duration: dur.toString() }]);
+    }
+    // We should also listen for Grant/Revoke to update UI in real-time
+    const handleStateChange = () => { fetchHistory(); };
 
-    doctorContract.on("AccessRequested", handleAccessRequested);
+    doctorContract.on("AccessRequested", handleRequested);
+    doctorContract.on("AccessGranted", handleStateChange);
+    doctorContract.on("AccessRevoked", handleStateChange);
 
     return () => {
-        doctorContract.off("AccessRequested", handleAccessRequested);
+        doctorContract.off("AccessRequested", handleRequested);
+        doctorContract.off("AccessGranted", handleStateChange);
+        doctorContract.off("AccessRevoked", handleStateChange);
     };
   }, [account, doctorContract]);
 
   const handleAccessResponse = async (doctor, ipfsHash, grant) => {
-    if(!doctorContract) {
-        console.warn("Doctor contract missing during response.");
-        return;
-    }
+    if(!doctorContract) return;
     try {
       if (grant) {
         const key = `${doctor}-${ipfsHash}`;
-        // Use modified duration if exists, else generic default logic? 
-        // We iterate requests to find default?
         const req = accessRequests.find(r => r.doctor === doctor && r.ipfsHash === ipfsHash);
-        const finalDuration = modifiedDurations[key] || req.duration || "300";
-        
+        const finalDuration = modifiedDurations[key] || req?.duration || "300";
         const tx = await doctorContract.grantAccess(doctor, ipfsHash, finalDuration);
         await tx.wait();
       }
-      setAccessRequests((prevRequests) =>
-        prevRequests.filter(
-          (request) => request.doctor !== doctor || request.ipfsHash !== ipfsHash
-        )
-      );
-    } catch (error) {
-      console.error("Failed to respond to access request:", error);
-    }
+      // Remove from pending list locally
+      setAccessRequests(prev => prev.filter(r => r.doctor !== doctor || r.ipfsHash !== ipfsHash));
+    } catch (error) { console.error(error); }
   };
-  
+
+  const handleRevoke = async (doctor, ipfsHash) => {
+      try {
+          const tx = await doctorContract.revokeAccess(doctor, ipfsHash);
+          await tx.wait();
+          // Event listener will refresh history/active list
+      } catch(e) { console.error(e); }
+  }
+
   const formatDuration = (sec) => {
-      const s = parseInt(sec);
-      if(s < 3600) return `${Math.floor(s/60)} Mins`;
-      if(s < 86400) return `${(s/3600).toFixed(1)} Hours`;
-      return `${(s/86400).toFixed(1)} Days`;
+      const s = Number(sec); // Explicit conversion for BigInt consideration
+      if(s < 60) return `${s}s`;
+      if(s < 3600) return `${Math.floor(s/60)}m`;
+      if(s < 86400) return `${(s/3600).toFixed(1)}h`;
+      return `${(s/86400).toFixed(1)}d`;
   }
 
   return (
+    <div className="space-y-6">
+    {/* Active Access Section */}
+    <Card className="border-green-100 bg-green-50/30">
+        <CardHeader><CardTitle className="text-green-800">Active Permissions</CardTitle></CardHeader>
+        <CardContent>
+            {activeAccess.length === 0 ? <p className="text-gray-500 text-sm">No active access grants.</p> : (
+                <ul className="space-y-3">
+                    {activeAccess.map((item, i) => (
+                        <li key={i} className="flex justify-between items-center p-3 bg-white border border-green-200 rounded-lg">
+                            <div>
+                                <p className="font-medium text-gray-800">Doctor: {item.doctor.slice(0,8)}...</p>
+                                <p className="text-xs text-green-600">Expires in: {formatDuration(item.remaining)}</p>
+                                <p className="text-xs text-gray-400">Doc: {item.ipfsHash.slice(0,10)}...</p>
+                            </div>
+                            <Button onClick={() => handleRevoke(item.doctor, item.ipfsHash)} variant="destructive" size="sm">
+                                Revoke
+                            </Button>
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </CardContent>
+    </Card>
+
+    {/* Pending Requests */}
     <Card>
       <CardHeader>
-        <CardTitle>Access Requests</CardTitle>
+        <CardTitle>Pending Requests</CardTitle>
       </CardHeader>
       <CardContent>
         {accessRequests.length === 0 ? (
@@ -128,7 +220,7 @@ export default function AccessRequestsPatient() {
                     className="bg-green-600 hover:bg-green-700 text-white"
                     size="sm"
                   >
-                    Grant Access
+                    Grant
                   </Button>
                   <Button
                     onClick={() => handleAccessResponse(request.doctor, request.ipfsHash, false)}
@@ -144,5 +236,26 @@ export default function AccessRequestsPatient() {
         )}
       </CardContent>
     </Card>
+    
+    {/* Audit Log */}
+    <Card className="border-gray-200 bg-gray-50">
+        <CardHeader><CardTitle className="text-gray-600 text-base">Audit Log</CardTitle></CardHeader>
+        <CardContent>
+            <div className="max-h-60 overflow-y-auto space-y-2">
+                {historyLogs.map((log, i) => (
+                    <div key={i} className="text-xs flex gap-2 items-center text-gray-600">
+                        <span className={`font-bold px-1.5 py-0.5 rounded ${log.type === 'GRANTED' ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'}`}>
+                            {log.type}
+                        </span>
+                        <span>{new Date(Number(log.timestamp) * 1000).toLocaleString()}</span>
+                        <span>- Doc: {log.doctor.slice(0,6)}...</span>
+                        {log.type === 'GRANTED' && <span>For {formatDuration(log.duration || log[4])}</span>}
+                    </div>
+                ))}
+                {historyLogs.length === 0 && <p className="text-gray-400 text-xs">No history found.</p>}
+            </div>
+        </CardContent>
+    </Card>
+    </div>
   )
 }

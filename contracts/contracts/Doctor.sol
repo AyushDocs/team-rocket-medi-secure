@@ -33,6 +33,19 @@ contract Doctor {
         string fileName,
         uint256 duration
     );
+    event AccessGranted(
+        address indexed patient,
+        address indexed doctor,
+        string ipfsHash,
+        uint256 grantTime,
+        uint256 duration
+    );
+    event AccessRevoked(
+        address indexed patient,
+        address indexed doctor,
+        string ipfsHash,
+        uint256 revokeTime
+    );
     event PatientAdded(
         uint256 indexed doctorId,
         uint256 indexed patientId,
@@ -153,10 +166,42 @@ contract Doctor {
                 accessList[i].hasAccess = true;
                 accessList[i].grantTime = block.timestamp;
                 accessList[i].duration = _duration; // Update with confirmed duration
+
+                emit AccessGranted(
+                    msg.sender,
+                    _doctor,
+                    _ipfsHash,
+                    block.timestamp,
+                    _duration
+                );
                 return;
             }
         }
         revert("Access request not found");
+    }
+
+    function revokeAccess(address _doctor, string memory _ipfsHash) public {
+        uint256 doctorId = walletToDoctorId[_doctor];
+        require(doctorId != 0, "Doctor not registered");
+
+        DocumentAccess[] storage accessList = doctorAccessList[doctorId];
+        for (uint256 i = 0; i < accessList.length; i++) {
+            if (
+                accessList[i].patient == msg.sender &&
+                keccak256(abi.encodePacked(accessList[i].ipfsHash)) ==
+                keccak256(abi.encodePacked(_ipfsHash))
+            ) {
+                accessList[i].hasAccess = false;
+                emit AccessRevoked(
+                    msg.sender,
+                    _doctor,
+                    _ipfsHash,
+                    block.timestamp
+                );
+                return;
+            }
+        }
+        revert("Access record not found");
     }
 
     // --- GETTERS ---
