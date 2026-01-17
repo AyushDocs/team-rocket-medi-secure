@@ -8,15 +8,39 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useWeb3 } from "../../../context/Web3Context"
 
+import { useEffect, useState } from "react"
+// ... imports
+
 export default function PatientDashboardLayout({ children }) {
-  const { account, disconnect } = useWeb3()
+  const { account, disconnect, patientContract, loading } = useWeb3()
   const router = useRouter()
   const pathname = usePathname()
+  const [verifying, setVerifying] = useState(true)
 
   const handleLogout = () => {
       disconnect();
       router.push("/");
   }
+
+  useEffect(() => {
+      const verifyPatient = async () => {
+          if (!loading && patientContract && account) {
+              try {
+                  const exists = await patientContract.userExists(account);
+                  if (!exists) {
+                      console.warn("Account is not a registered patient. Redirecting.");
+                      router.push("/patient/signup"); 
+                  }
+              } catch (err) {
+                  console.error("Patient verification failed:", err);
+              } finally {
+                  setVerifying(false);
+              }
+          }
+      };
+      
+      verifyPatient();
+  }, [account, patientContract, loading, router]);
 
   const getValue = () => {
     if (pathname.includes("overview")) return "overview"

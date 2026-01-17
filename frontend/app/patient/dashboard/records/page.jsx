@@ -8,12 +8,20 @@ import { Eye } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useWeb3 } from "../../../../context/Web3Context"
 
+// ... (imports remain same) we need to update state variables only
 export default function RecordsPatient() {
   const { patientContract, account } = useWeb3()
   const [healthRecords, setHealthRecords] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   
+  // Upload State
+  const [file, setFile] = useState(null)
+  const [docName, setDocName] = useState("")
+  const [docDate, setDocDate] = useState("")
+  const [hospital, setHospital] = useState("")
+  const [uploading, setUploading] = useState(false)
+
   // Document Viewing State
   const [viewModalOpen, setViewModalOpen] = useState(false)
   const [selectedDocUrl, setSelectedDocUrl] = useState("")
@@ -25,19 +33,17 @@ export default function RecordsPatient() {
       try {
         setLoading(true)
         const patientId = await patientContract.walletToPatientId(account)
-        if (patientId.toString() === "0") {
-             // Not registered
-             return; 
-        }
+        if (patientId.toString() === "0") return; 
 
         const records = await patientContract.getMedicalRecords(patientId)
-        const recordsArray = Array.from(records);
         setHealthRecords(
-          recordsArray.map((record, index) => ({
+          records.map((record, index) => ({
             id: index + 1,
             type: "Medical Record",
-            date: "Unknown", 
-            description: record, // IPFS Hash
+            fileName: record.fileName || record[1],
+            ipfsHash: record.ipfsHash || record[0],
+            date: record.recordDate || record[2] || "Unknown Date",
+            hospital: record.hospital || record[3] || "Unknown Location",
             shared: true,
           }))
         )
@@ -50,10 +56,15 @@ export default function RecordsPatient() {
     fetchRecords()
   }, [patientContract, account])
 
-  const uploadMedicalRecord = async (file) => {
-    if(!patientContract) return;
+  const handleUpload = async (e) => {
+    e.preventDefault();
+    if(!patientContract || !file || !docName || !docDate || !hospital) {
+        setError("Please fill all fields and select a file.");
+        return;
+    }
+    
     try {
-      setLoading(true)
+      setUploading(true)
       setError(null)
 
       const formData = new FormData()
@@ -72,9 +83,9 @@ export default function RecordsPatient() {
 
       const data = await response.json()
       const ipfsHash = data.ipfsHash
-
-      const patientId = await patientContract.walletToPatientId(account)
-      const tx = await patientContract.addMedicalRecord(ipfsHash)
+      
+      // Call updated contract function with 4 args
+      const tx = await patientContract.addMedicalRecord(ipfsHash, docName, docDate, hospital)
       await tx.wait()
 
       setHealthRecords((prevRecords) => [
@@ -82,15 +93,24 @@ export default function RecordsPatient() {
         {
           id: prevRecords.length + 1,
           type: "Medical Record",
-          date: new Date().toISOString().split("T")[0],
-          description: ipfsHash,
+          date: docDate,
+          fileName: docName, // Use the user-provided name
+          hospital: hospital,
+          ipfsHash: ipfsHash,
           shared: true,
         },
       ])
+      
+      // Reset Form
+      setFile(null);
+      setDocName("");
+      setDocDate("");
+      setHospital("");
+
     } catch (err) {
       setError(err.message)
     } finally {
-      setLoading(false)
+      setUploading(false)
     }
   }
 
@@ -129,27 +149,69 @@ export default function RecordsPatient() {
         <CardTitle>Medical Records</CardTitle>
       </CardHeader>
       <CardContent>
-        <input
-          type="file"
-          onChange={(e) => uploadMedicalRecord(e.target.files[0])}
-          className="mb-4"
-        />
+        {/* Upload Form */}
+        <div className="mb-6 p-4 border rounded bg-gray-50 space-y-3">
+            <h3 className="font-semibold text-sm">Add New Record</h3>
+            <form onSubmit={handleUpload} className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <input 
+                        type="text" 
+                        placeholder="Document Name (e.g. MRI Scan)" 
+                        value={docName}
+                        onChange={(e) => setDocName(e.target.value)}
+                        className="p-2 border rounded text-sm w-full"
+                        required
+                    />
+                    <input 
+                        type="text" 
+                        placeholder="Hospital / Lab Name" 
+                        value={hospital}
+                        onChange={(e) => setHospital(e.target.value)}
+                        className="p-2 border rounded text-sm w-full"
+                        required
+                    />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <input 
+                        type="datetime-local" 
+                        value={docDate}
+                        onChange={(e) => setDocDate(e.target.value)}
+                        className="p-2 border rounded text-sm w-full"
+                        required
+                    />
+                    <input 
+                        type="file" 
+                        onChange={(e) => setFile(e.target.files[0])}
+                        className="p-1 border rounded text-sm w-full bg-white"
+                        required
+                    />
+                </div>
+                {error && <p className="text-xs text-red-500">{error}</p>}
+                <Button type="submit" size="sm" disabled={uploading} className="bg-[#703FA1] hover:bg-[#5a2f81]">
+                    {uploading ? "Uploading..." : "Upload Record"}
+                </Button>
+            </form>
+        </div>
+
         {healthRecords.length === 0 ? (
-          <p>No medical records found.</p>
+          <p className="text-gray-500 text-sm">No medical records found.</p>
         ) : (
           <ul className="space-y-4">
             {healthRecords.map((record) => (
               <li key={record.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 border rounded-lg bg-white shadow-sm">
                 <div className="mb-2 sm:mb-0">
-                    <p className="font-medium text-gray-700 truncate max-w-md" title={record.description}>
-                        {record.description}
+                    <p className="font-medium text-gray-700 truncate max-w-md">
+                        {record.fileName}
                     </p>
-                    <p className="text-xs text-gray-400">IPFS Hash</p>
+                    <p className="text-xs text-gray-500">
+                        {record.date} • {record.hospital}
+                    </p>
+                    <p className="text-xs text-gray-400 truncate max-w-xs">{/*record.ipfsHash*/ "Secured on Blockchain"}</p>
                 </div>
                 <Button 
                     variant="outline" 
                     size="sm" 
-                    onClick={() => handleViewDocument(record.description)}
+                    onClick={() => handleViewDocument(record.ipfsHash)}
                     disabled={viewingDoc}
                 >
                    <Eye className="w-4 h-4 mr-2" />

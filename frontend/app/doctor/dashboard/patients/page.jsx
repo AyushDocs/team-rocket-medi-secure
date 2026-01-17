@@ -2,49 +2,150 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useWeb3 } from "../../../../context/Web3Context"
 
 export default function PatientsDoctor() {
-  const { doctorContract } = useWeb3()
-  const [patientWallet, setPatientWallet] = useState("")
-  const [documentId, setDocumentId] = useState("")
-  const [requestMessage, setRequestMessage] = useState("")
+  const { doctorContract, patientContract } = useWeb3()
+  const [patientsList, setPatientsList] = useState([])
+  const [selectedPatientAddr, setSelectedPatientAddr] = useState("")
+  
+  const [patientDocs, setPatientDocs] = useState([])
+  const [selectedDocHash, setSelectedDocHash] = useState("")
+  
+  const [loading, setLoading] = useState(false)
+  const [status, setStatus] = useState("")
+
+  // Load Patients on Mount
+  useEffect(() => {
+    const fetchPatients = async () => {
+      if (!doctorContract || !patientContract) return;
+      try {
+        const pIds = await doctorContract.getDoctorPatients();
+        const details = await Promise.all(Array.from(pIds).map(async (id) => {
+            try {
+                const d = await patientContract.getPatientDetails(id);
+                return {
+                    id: id.toString(),
+                    name: d.name,
+                    username: d.username,
+                    wallet: d.walletAddress
+                };
+            } catch(e) { console.error(e); return null; }
+        }));
+        setPatientsList(details.filter(p => p !== null));
+      } catch (err) {
+        console.error("Error fetching patients:", err);
+      }
+    };
+    fetchPatients();
+  }, [doctorContract, patientContract]);
+
+  // Load Documents when Patient Selected
+  const handlePatientChange = async (e) => {
+      const addr = e.target.value;
+      setSelectedPatientAddr(addr);
+      setSelectedDocHash("");
+      setPatientDocs([]);
+      
+      if (!addr) return;
+
+      try {
+          // Need patient ID to get records
+          // We can find it from our local list
+          const patient = patientsList.find(p => p.wallet === addr);
+          if (!patient) return;
+
+          const records = await patientContract.getMedicalRecords(patient.id);
+          // records is struct array: ipfsHash, fileName, recordDate, hospital
+          // Map it
+          const docs = records.map((r) => ({
+              hash: r.ipfsHash || r[0],
+              name: r.fileName || r[1],
+              date: r.recordDate || r[2] || "Unknown Date",
+              hospital: r.hospital || r[3] || "Unknown Location"
+          }));
+          setPatientDocs(docs);
+      } catch (err) {
+          console.error("Error fetching records:", err);
+      }
+  };
 
   const requestAccess = async () => {
-    if (!patientWallet || !documentId) return
+    if (!selectedPatientAddr || !selectedDocHash) {
+        setStatus("Please select a patient and a document.");
+        return;
+    }
+    
+    setLoading(true);
+    setStatus("Sending Request...");
+    
     try {
-      const tx = await doctorContract.requestAccess(patientWallet, documentId)
-      await tx.wait()
-      setRequestMessage("Access request sent successfully ✅")
+      const doc = patientDocs.find(d => d.hash === selectedDocHash);
+      if(!doc) throw new Error("Document not found in list");
+
+      const tx = await doctorContract.requestAccess(selectedPatientAddr, selectedDocHash, doc.name);
+      await tx.wait();
+      setStatus("Access request sent successfully ✅");
     } catch (error) {
-      console.error("Access request failed:", error)
-      setRequestMessage("Failed to send access request ❌")
+      console.error("Access request failed:", error);
+      setStatus("Failed to send access request ❌");
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
     <Card>
       <CardHeader><CardTitle>Request Patient Data Access</CardTitle></CardHeader>
-      <CardContent className="space-y-3">
-        <input
-          type="text"
-          placeholder="Patient Wallet Address"
-          value={patientWallet}
-          onChange={(e) => setPatientWallet(e.target.value)}
-          className="w-full p-2 border rounded"
-        />
-        <input
-          type="text"
-          placeholder="Document ID"
-          value={documentId}
-          onChange={(e) => setDocumentId(e.target.value)}
-          className="w-full p-2 border rounded"
-        />
-        <Button onClick={requestAccess} className="w-full bg-[#703FA1] hover:bg-[#5a2f81]">
-          Request Access
+      <CardContent className="space-y-4">
+        
+        {/* Patient Select */}
+        <div className="space-y-1">
+            <label className="text-sm font-medium text-gray-700">Select Patient</label>
+            <select 
+                className="w-full p-2 border rounded bg-white"
+                value={selectedPatientAddr}
+                onChange={handlePatientChange}
+            >
+                <option value="">-- Choose Patient --</option>
+                {patientsList.map(p => (
+                    <option key={p.id} value={p.wallet}>
+                        {p.name} (@{p.username})
+                    </option>
+                ))}
+            </select>
+        </div>
+
+        {/* Document Select */}
+        <div className="space-y-1">
+            <label className="text-sm font-medium text-gray-700">Select Document</label>
+            <select 
+                className="w-full p-2 border rounded bg-white"
+                value={selectedDocHash}
+                onChange={(e) => setSelectedDocHash(e.target.value)}
+                disabled={!selectedPatientAddr || patientDocs.length === 0}
+            >
+                <option value="">-- Choose Document --</option>
+                {patientDocs.map((d, i) => (
+                    <option key={i} value={d.hash}>
+                        {d.name} ({d.date} at {d.hospital})
+                    </option>
+                ))}
+            </select>
+            {selectedPatientAddr && patientDocs.length === 0 && (
+                <p className="text-xs text-amber-600">No documents found for this patient.</p>
+            )}
+        </div>
+
+        <Button 
+            onClick={requestAccess} 
+            className="w-full bg-[#703FA1] hover:bg-[#5a2f81]"
+            disabled={loading || !selectedPatientAddr || !selectedDocHash}
+        >
+          {loading ? "Processing..." : "Request Access"}
         </Button>
-        {requestMessage && <div className="text-sm text-gray-600">{requestMessage}</div>}
+        {status && <div className="text-sm text-center font-medium text-gray-700">{status}</div>}
       </CardContent>
     </Card>
   )

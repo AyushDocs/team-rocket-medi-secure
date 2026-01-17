@@ -13,6 +13,7 @@ contract Doctor {
     struct DocumentAccess {
         address patient;
         string ipfsHash;
+        string fileName; // Added fileName
         bool hasAccess;
     }
 
@@ -26,7 +27,8 @@ contract Doctor {
     event AccessRequested(
         address indexed patient,
         address indexed doctor,
-        string ipfsHash
+        string ipfsHash,
+        string fileName // Added fileName
     );
     event PatientAdded(
         uint256 indexed doctorId,
@@ -34,52 +36,46 @@ contract Doctor {
         address indexed doctor
     );
 
-    // --- DOCTOR REGISTRATION ---
     function registerDoctor(
         string memory _name,
         string memory _specialization,
-        string memory _email
+        string memory _hospital
     ) public {
         require(walletToDoctorId[msg.sender] == 0, "Doctor already registered");
-
         doctorIdCounter++;
         walletToDoctorId[msg.sender] = doctorIdCounter;
 
-        doctors[doctorIdCounter] = DoctorDetails({
-            doctorId: doctorIdCounter,
-            name: _name,
-            specialization: _specialization,
-            email: _email,
-            patientIds: new uint256[](0) // Initialize empty patient list
-        });
+        DoctorDetails storage newDoctor = doctors[doctorIdCounter];
+        newDoctor.doctorId = doctorIdCounter;
+        newDoctor.name = _name;
+        newDoctor.specialization = _specialization;
+        newDoctor.email = _hospital;
     }
 
-    // --- ADD PATIENT TO DOCTOR ---
     function addPatient(uint256 _patientId) public {
         uint256 doctorId = walletToDoctorId[msg.sender];
         require(doctorId != 0, "Doctor not registered");
 
-        // Optional: ensure no duplicate patient
-        uint256[] storage patients = doctors[doctorId].patientIds;
-        for (uint256 i = 0; i < patients.length; i++) {
-            if (patients[i] == _patientId) {
-                revert("Patient already added");
+        // Avoid duplicates? Simple check or just push.
+        // For MVP push is fine, or check if already exists.
+        bool exists = false;
+        for (uint i = 0; i < doctors[doctorId].patientIds.length; i++) {
+            if (doctors[doctorId].patientIds[i] == _patientId) {
+                exists = true;
+                break;
             }
         }
+        require(!exists, "Patient already added");
 
         doctors[doctorId].patientIds.push(_patientId);
-
         emit PatientAdded(doctorId, _patientId, msg.sender);
     }
 
-    // --- GET DOCTOR'S PATIENT LIST ---
     function getDoctorPatients() public view returns (uint256[] memory) {
         uint256 doctorId = walletToDoctorId[msg.sender];
         require(doctorId != 0, "Doctor not registered");
         return doctors[doctorId].patientIds;
     }
-
-    // --- DOCUMENT ACCESS LOGIC ---
     function hasAccessToDocument(
         address _patient,
         string memory _ipfsHash
@@ -101,7 +97,11 @@ contract Doctor {
         return false;
     }
 
-    function requestAccess(address _patient, string memory _ipfsHash) public {
+    function requestAccess(
+        address _patient,
+        string memory _ipfsHash,
+        string memory _fileName
+    ) public {
         uint256 doctorId = walletToDoctorId[msg.sender];
         require(doctorId != 0, "Doctor not registered");
 
@@ -109,11 +109,12 @@ contract Doctor {
             DocumentAccess({
                 patient: _patient,
                 ipfsHash: _ipfsHash,
+                fileName: _fileName,
                 hasAccess: false
             })
         );
 
-        emit AccessRequested(_patient, msg.sender, _ipfsHash);
+        emit AccessRequested(_patient, msg.sender, _ipfsHash, _fileName);
     }
 
     function grantAccess(address _doctor, string memory _ipfsHash) public {

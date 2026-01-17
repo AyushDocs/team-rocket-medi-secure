@@ -2,8 +2,8 @@
 
 import { ethers } from "ethers";
 import { createContext, useContext, useEffect, useState } from "react";
-import DoctorContractABI from "../../contracts/build/contracts/Doctor.json";
-import PatientContractABI from "../../contracts/build/contracts/Patient.json";
+import DoctorContractABI from "../contracts/Doctor.json";
+import PatientContractABI from "../contracts/Patient.json";
 
 const Web3Context = createContext();
 export const Web3Provider = ({ children }) => {
@@ -27,6 +27,8 @@ export const Web3Provider = ({ children }) => {
             const network = await provider.getNetwork();
             const netId = network.chainId.toString();
                 
+            console.log(`Web3Context: Detected Network ID: ${netId}`);
+            
             let patientNetworkData = PatientContractABI.networks[netId];
             let doctorNetworkData = DoctorContractABI.networks[netId];
 
@@ -51,6 +53,9 @@ export const Web3Provider = ({ children }) => {
             if (!patientNetworkData || !doctorNetworkData) {
                 throw new Error(`Contracts not deployed on this network (ID: ${netId})`);
             }
+            
+            console.log("Patient Contract Address:", patientNetworkData.address);
+            console.log("Doctor Contract Address:", doctorNetworkData.address);
 
             const patientContract = new ethers.Contract(patientNetworkData.address, PatientContractABI.abi, signer);
             const doctorContract = new ethers.Contract(doctorNetworkData.address, DoctorContractABI.abi, signer);

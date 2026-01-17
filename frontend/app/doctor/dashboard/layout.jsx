@@ -1,4 +1,5 @@
 "use client"
+import { useEffect, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -8,14 +9,39 @@ import { usePathname, useRouter } from "next/navigation"
 import { useWeb3 } from "../../../context/Web3Context"
 
 export default function DoctorDashboardLayout({ children }) {
-  const { account, disconnect } = useWeb3()
+  const { account, disconnect, doctorContract, loading } = useWeb3()
   const router = useRouter()
   const pathname = usePathname()
+  const [verifying, setVerifying] = useState(true)
 
   const handleLogout = () => {
       disconnect();
       router.push("/");
   }
+
+  useEffect(() => {
+      const verifyDoctor = async () => {
+          if (!loading && doctorContract && account) {
+              try {
+                  const isDoctor = await doctorContract.doctorExists(account);
+                  if (!isDoctor) {
+                      console.warn("Account is not a registered doctor. Redirecting.");
+                      router.push("/doctor/signup"); // Or home
+                  }
+              } catch (err) {
+                  console.error("Doctor verification failed:", err);
+              } finally {
+                  setVerifying(false);
+              }
+          } else if (!loading && !account) {
+               // Not connected?
+               // Wait for connection or redirect?
+               // If completely disconnected, maybe Home.
+          }
+      };
+      
+      verifyDoctor();
+  }, [account, doctorContract, loading, router]);
 
   // Helper to determine active tab based on path
   const getValue = () => {

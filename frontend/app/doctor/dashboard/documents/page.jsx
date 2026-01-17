@@ -13,7 +13,10 @@ export default function DocumentsDoctor() {
   const [viewingDoc, setViewingDoc] = useState(null)
 
   const fetchAccessList = async () => {
-    if (!doctorContract) return;
+    if (!doctorContract) {
+        console.warn("Doctor contract not loaded. Skipping access list fetch.");
+        return;
+    }
     try {
       const result = await doctorContract.getAccessList();
       // Result is array of structs. Map to usable format.
@@ -21,7 +24,8 @@ export default function DocumentsDoctor() {
       const docs = result.map(doc => ({
         patient: doc.patient || doc[0],
         ipfsHash: doc.ipfsHash || doc[1],
-        hasAccess: doc.hasAccess || doc[2]
+        fileName: doc.fileName || doc[2] || `Document`,
+        hasAccess: doc.hasAccess || doc[3]
       })).filter(doc => doc.hasAccess); // Only show if access is true
       setAccessDocs(docs);
     } catch (err) {
@@ -56,9 +60,9 @@ export default function DocumentsDoctor() {
                                         <FileText className="h-6 w-6" />
                                     </div>
                                     <div>
-                                        <p className="font-semibold text-gray-900">Medical Record #{i+1}</p>
-                                        <p className="text-sm text-gray-500">Patient: {doc.patient}</p>
-                                        <p className="text-xs text-gray-400">ID: {doc.ipfsHash}</p>
+                                        <p className="font-semibold text-gray-900">{doc.fileName}</p>
+                                        <p className="text-sm text-gray-500">Patient: <span className="font-mono">{doc.patient}</span></p>
+                                        <p className="text-xs text-gray-400 truncate max-w-xs">{/*doc.ipfsHash*/ "Secured on Blockchain"}</p>
                                     </div>
                                 </div>
                                 <Button onClick={() => setViewingDoc(doc)} variant="outline">

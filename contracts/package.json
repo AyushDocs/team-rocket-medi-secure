@@ -11,7 +11,8 @@
     "compile": "truffle compile",
     "dev:deploy": "truffle migrate --network development",
     "dev:reset": "truffle migrate --network development --reset",
-    "dev:ganache": "ganache"
+    "dev:ganache": "ganache",
+    "seed": "truffle exec scripts/seed_data.js --network development"
   },
   "keywords": [
     "ethereum",

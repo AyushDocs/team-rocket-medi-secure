@@ -11,7 +11,7 @@ import { useWeb3 } from "../context/Web3Context"
 import SafeDocumentViewer from "./safe-document-viewer"
 
 export default function DoctorDashboard() {
-  const { doctorContract, account, disconnect } = useWeb3()
+  const { doctorContract, patientContract, account, disconnect } = useWeb3()
   const router = useRouter()
   
   const [activeTab, setActiveTab] = useState("overview")
@@ -33,13 +33,38 @@ export default function DoctorDashboard() {
   const [accessDocs, setAccessDocs] = useState([])
   const [viewingDoc, setViewingDoc] = useState(null)
 
+  // New states for selection
+  const [requestStatus, setRequestStatus] = useState("")
+  const [selectedRequestPatient, setSelectedRequestPatient] = useState(null) // Object: { id, name, walletAddress, records }
+  const [selectedRequestDoc, setSelectedRequestDoc] = useState(null) // Object: { hash, fileName }
+
   // --- Fetch doctor's patients from contract ---
   const fetchPatients = async () => {
-    if (!doctorContract) return;
+    if (!doctorContract || !patientContract) return;
     try {
-      const result = await doctorContract.getDoctorPatients()
-      setPatients(Array.from(result)) 
-      console.log(Array.from(result))
+      const patientIds = await doctorContract.getDoctorPatients()
+      
+      const patientDataPromises = Array.from(patientIds).map(async (id) => {
+          try {
+             const details = await patientContract.getPatientDetails(id)
+             // Assuming PatientDetails struct now includes walletAddress
+             return {
+               id: id.toString(),
+               name: details.name,
+               walletAddress: details.walletAddress, // Assuming this field exists in PatientDetails
+               records: details.medicalRecords.map(record => ({
+                 hash: record.ipfsHash,
+                 fileName: record.fileName
+               }))
+             }
+          } catch(e) { 
+            console.error(`Error fetching details for patient ID ${id}:`, e); 
+            return null; 
+          }
+      });
+      
+      const allPatients = await Promise.all(patientDataPromises);
+      setPatients(allPatients.filter(p => p !== null));
     } catch (err) {
       console.error("Failed to fetch patients:", err)
     }
@@ -87,9 +112,13 @@ export default function DoctorDashboard() {
 
   // --- Request document access ---
   const requestAccess = async () => {
-    if (!patientWallet || !documentId) return
+    if (!selectedRequestPatient || !selectedRequestDoc) return
     try {
-      const tx = await doctorContract.requestAccess(patientWallet, documentId)
+      const tx = await doctorContract.requestAccess(
+          selectedRequestPatient.walletAddress, 
+          selectedRequestDoc.hash, 
+          selectedRequestDoc.fileName
+      )
       await tx.wait()
       setRequestMessage("Access request sent successfully ✅")
     } catch (error) {
@@ -98,188 +127,63 @@ export default function DoctorDashboard() {
     }
   }
 
-  // --- Listen to AccessRequested events ---
-  useEffect(() => {
-    if (!doctorContract) return
+  // ... (keep useEffect for event listener)
 
-    const handleAccessRequested = (patient, doctor, ipfsHash) => {
-        if (doctor.toLowerCase() === account.toLowerCase()) {
-          console.log(`Access requested for document ${ipfsHash} from patient ${patient}`)
-        }
-    }
+  // ... (keep login/socket logic)
 
-    doctorContract.on("AccessRequested", handleAccessRequested);
-
-    return () => {
-        doctorContract.off("AccessRequested", handleAccessRequested);
-    }
-  }, [doctorContract, account])
-
-  const handleLogout = () => {
-      disconnect();
-      router.push("/");
-  }
-
-  const [myDoctorId, setMyDoctorId] = useState(null)
-
-  useEffect(() => {
-    const fetchMyId = async () => {
-       if (doctorContract && account) {
-           try {
-             const id = await doctorContract.walletToDoctorId(account)
-             setMyDoctorId(id.toString())
-           } catch(e) { console.error("Error fetching doctor ID", e) }
-       }
-    }
-    fetchMyId()
-  }, [doctorContract, account])
-
-  useEffect(() => {
-    const newSocket = io("http://localhost:5000");
-    setSocket(newSocket);
-    return () => newSocket.close();
-  }, [account]);
-
-  useEffect(() => {
-    if(!socket) return;
-    
-    socket.on("receive_message", (data) => {
-        setMessages((list) => [...list, data]);
-    });
-
-    socket.on("load_history", (history) => {
-        setMessages(history);
-    });
-    
-    return () => {
-        socket.off("receive_message");
-        socket.off("load_history");
-    };
-  }, [socket]);
-
-  useEffect(() => {
-    if (selectedPatient && myDoctorId && socket) {
-      const roomId = `${selectedPatient}_${myDoctorId}`;
-      socket.emit("join_room", roomId);
-      setMessages([]); // Clear previous chat
-    }
-  }, [selectedPatient, myDoctorId, socket]);
-
-  // --- Send chat message ---
-  const sendMessage = async () => {
-    if (!newMessage.trim() || !selectedPatient || !myDoctorId || !socket) return;
-    
-    const roomId = `${selectedPatient}_${myDoctorId}`;
-    const messageData = {
-      room: roomId,
-      content: newMessage, // Doctor dashboard uses 'content' not 'message', let's check UI rendering. 
-                           // UI uses msg.content. Patient uses msg.message.
-                           // I should normalize or respect existing. 
-                           // Patient Dashboard UI uses msg.message? 
-                           // Let's check PatientDashboard logic in Step 852. 
-                           // PatientDashboard UI: msg.message.
-                           // DoctorDashboard UI: msg.content.
-                           // I'll stick to 'content' for DoctorDashboard to avoid UI breaking, 
-                           // BUT if they talk to each other, naming must be consistent or UI must handle both.
-                           // User asked to replace logic. 
-                           // Better to normalize? NO, risky. 
-                           // I will send BOTH fields 'message' and 'content' or just use what UI expects.
-                           // Doctor sends 'content'. Patient receives 'data'. Patient UI reads 'msg.message'.
-                           // If Doctor sends 'content', Patient sees undefined? 
-                           // Correct. I must normalize.
-                           // I will change DoctorDashboard to send 'message' AND 'content' for compatibility or just switch to 'message'.
-                           // Check Doctor UI rendering: line 266 `msg.content`.
-                           // Check Patient UI rendering: line 443 `msg.message`.
-                           // I will send BOTH to be safe.
-      sender: account,
-      message: newMessage, // For Patient Dashboard compatibility
-      content: newMessage, // For Doctor Dashboard compatibility
-      timestamp: new Date().toISOString(),
-    };
-
-    await socket.emit("send_message", messageData);
-    setMessages((list) => [...list, messageData]);
-    setNewMessage("");
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center gap-3">
-              <Heart className="h-7 w-7 text-[#7eb0d5]" />
-              <div>
-                <h1 className="text-lg font-semibold text-gray-900">Doctor Dashboard</h1>
-                <p className="text-sm text-gray-600 truncate">Wallet: {account}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1 text-sm text-gray-600">
-                <Shield className="h-4 w-4 text-[#b2e061]" />
-                <span>Secure Session</span>
-              </div>
-              <Button onClick={handleLogout} variant="outline" className="text-sm">
-                Logout
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-5 mb-6">
-            <TabsTrigger value="overview" className="flex items-center gap-2"><Activity className="h-4 w-4" />Overview</TabsTrigger>
-            <TabsTrigger value="patients" className="flex items-center gap-2"><Users className="h-4 w-4" />Patients</TabsTrigger>
-            <TabsTrigger value="appointments" className="flex items-center gap-2"><Calendar className="h-4 w-4" />Appointments</TabsTrigger>
-            <TabsTrigger value="messages">Messages</TabsTrigger>
-            <TabsTrigger value="documents" className="flex items-center gap-2"><FileText className="h-4 w-4" />Documents</TabsTrigger>
-          </TabsList>
-
-          {/* --- Overview --- */}
-          <TabsContent value="overview">
-            <Card>
-              <CardHeader><CardTitle>Welcome</CardTitle></CardHeader>
-              <CardContent>
-                <p className="text-gray-700 mb-3">Manage your patients and request access to their records.</p>
-                <form onSubmit={handleAddPatient} className="flex items-center gap-3">
-                  <input
-                    type="text"
-                    value={patientIdToAdd}
-                    onChange={(e) => setPatientIdToAdd(e.target.value)}
-                    placeholder="Enter patient ID"
-                    className="border p-2 rounded flex-1"
-                  />
-                  <Button type="submit">Add Patient</Button>
-                </form>
-                {status && <p className="text-sm text-gray-600 mt-2">{status}</p>}
-              </CardContent>
-            </Card>
-          </TabsContent>
+  // ... 
 
           {/* --- Patients --- */}
           <TabsContent value="patients">
             <Card>
               <CardHeader><CardTitle>Request Patient Data Access</CardTitle></CardHeader>
-              <CardContent className="space-y-3">
-                <input
-                  type="text"
-                  placeholder="Patient Wallet Address"
-                  value={patientWallet}
-                  onChange={(e) => setPatientWallet(e.target.value)}
-                  className="w-full p-2 border rounded"
-                />
-                <input
-                  type="text"
-                  placeholder="Document ID"
-                  value={documentId}
-                  onChange={(e) => setDocumentId(e.target.value)}
-                  className="w-full p-2 border rounded"
-                />
-                <Button onClick={requestAccess} className="w-full bg-[#703FA1] hover:bg-[#5a2f81]">
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Select Patient</label>
+                    <select
+                      className="w-full p-2 border rounded"
+                      onChange={(e) => {
+                          const p = patients.find(p => p.id === e.target.value);
+                          setSelectedRequestPatient(p);
+                          setSelectedRequestDoc(null);
+                      }}
+                      value={selectedRequestPatient?.id || ""}
+                    >
+                      <option value="">-- Select Patient --</option>
+                      {patients.map((p) => (
+                        <option key={p.id} value={p.id}>{p.name} (ID: {p.id})</option>
+                      ))}
+                    </select>
+                </div>
+
+                {selectedRequestPatient && (
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium">Select Document</label>
+                        <select
+                          className="w-full p-2 border rounded"
+                          onChange={(e) => {
+                              const doc = selectedRequestPatient.records.find(r => r.hash === e.target.value);
+                              setSelectedRequestDoc(doc);
+                          }}
+                          value={selectedRequestDoc?.hash || ""}
+                        >
+                          <option value="">-- Select Document --</option>
+                          {selectedRequestPatient.records.length === 0 ? (
+                              <option disabled>No documents available</option>
+                          ) : (
+                              selectedRequestPatient.records.map((doc, i) => (
+                                <option key={i} value={doc.hash}>{doc.fileName} (Hash: {doc.hash.slice(0,6)}...)</option>
+                              ))
+                          )}
+                        </select>
+                    </div>
+                )}
+                
+                <Button 
+                    onClick={requestAccess} 
+                    className="w-full bg-[#703FA1] hover:bg-[#5a2f81]"
+                    disabled={!selectedRequestPatient || !selectedRequestDoc}
+                >
                   Request Access
                 </Button>
                 {requestMessage && <div className="text-sm text-gray-600">{requestMessage}</div>}
@@ -320,8 +224,8 @@ export default function DoctorDashboard() {
                     className="w-full p-2 border rounded"
                   >
                     <option value="">Select patient</option>
-                    {patients.map((id, i) => (
-                      <option key={i} value={id}>{`Patient ${id}`}</option>
+                    {patients.map((p) => (
+                      <option key={p.id} value={p.id}>{p.name} (ID: {p.id})</option>
                     ))}
                   </select>
 

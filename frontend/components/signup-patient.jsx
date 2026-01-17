@@ -11,6 +11,7 @@ export default function SignupPatient() {
   const { patientContract, account } = useWeb3();
   const router = useRouter();
 
+  const [username, setUsername] = useState(""); // 1. Add username state
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [age, setAge] = useState("");
@@ -24,7 +25,7 @@ export default function SignupPatient() {
       setErrorMessage("Contract not connected. Please check your network.");
       return;
     }
-    if (!name || !email || !age || !bloodGroup) {
+    if (!username || !name || !email || !age || !bloodGroup) { // 2. Validate username
       setErrorMessage("All fields are required.");
       return;
     }
@@ -34,7 +35,8 @@ export default function SignupPatient() {
       setErrorMessage("");
       setSuccessMessage("");
 
-      const tx = await patientContract.registerPatient(name, email, parseInt(age), bloodGroup);
+      // 3. Pass username to contract
+      const tx = await patientContract.registerPatient(username, name, email, parseInt(age), bloodGroup);
       await tx.wait();
 
       setSuccessMessage("Patient registered successfully!");
@@ -44,7 +46,7 @@ export default function SignupPatient() {
 
     } catch (error) {
       console.error(error);
-      setErrorMessage(error.message || "An error occurred during registration.");
+      setErrorMessage(error.reason || error.message || "An error occurred during registration.");
     } finally {
         setLoading(false);
     }
@@ -68,6 +70,11 @@ export default function SignupPatient() {
             </div>
           )}
           <div className="space-y-4">
+            <Input
+              placeholder="Unique Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
             <Input
               placeholder="Full Name"
               value={name}
