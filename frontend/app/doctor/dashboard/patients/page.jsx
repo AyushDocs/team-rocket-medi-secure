@@ -2,7 +2,9 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { AlertTriangle, Siren } from "lucide-react"
 import { useEffect, useState } from "react"
+import toast from "react-hot-toast"
 import { useWeb3 } from "../../../../context/Web3Context"
 
 export default function PatientsDoctor() {
@@ -13,10 +15,10 @@ export default function PatientsDoctor() {
   const [patientDocs, setPatientDocs] = useState([])
   const [selectedDocHash, setSelectedDocHash] = useState("")
   const [duration, setDuration] = useState("300") 
-  const [reason, setReason] = useState("") // New state
+  const [reason, setReason] = useState("") 
   
   const [loading, setLoading] = useState(false)
-  const [status, setStatus] = useState("")
+  const [emergencyMode, setEmergencyMode] = useState(false)
 
   // Load Patients on Mount
   useEffect(() => {
@@ -53,14 +55,10 @@ export default function PatientsDoctor() {
       if (!addr) return;
 
       try {
-          // Need patient ID to get records
-          // We can find it from our local list
           const patient = patientsList.find(p => p.wallet === addr);
           if (!patient) return;
 
           const records = await patientContract.getMedicalRecords(patient.id);
-          // records is struct array: ipfsHash, fileName, recordDate, hospital
-          // Map it
           const docs = records.map((r) => ({
               hash: r.ipfsHash || r[0],
               name: r.fileName || r[1],
@@ -70,38 +68,84 @@ export default function PatientsDoctor() {
           setPatientDocs(docs);
       } catch (err) {
           console.error("Error fetching records:", err);
+          toast.error("Failed to fetch patient records");
       }
   };
 
   const requestAccess = async () => {
     if (!selectedPatientAddr || !selectedDocHash || !reason.trim()) {
-        setStatus("Please complete all fields (Patient, Document, Reason).");
+        toast.error("Please complete all fields.");
         return;
     }
     
     setLoading(true);
-    setStatus("Sending Request...");
     
-    try {
-      const doc = patientDocs.find(d => d.hash === selectedDocHash);
-      if(!doc) throw new Error("Document not found in list");
+    // Normal Access Request
+    if (!emergencyMode) {
+        const promise = new Promise(async (resolve, reject) => {
+             try {
+                const doc = patientDocs.find(d => d.hash === selectedDocHash);
+                const tx = await doctorContract.requestAccess(selectedPatientAddr, selectedDocHash, doc.name, duration, reason);
+                await tx.wait();
+                resolve();
+             } catch(e) { reject(e); } finally { setLoading(false); }
+        });
 
-      const tx = await doctorContract.requestAccess(selectedPatientAddr, selectedDocHash, doc.name, duration, reason);
-      await tx.wait();
-      setStatus("Access request sent successfully ✅");
-    } catch (error) {
-      console.error("Access request failed:", error);
-      setStatus("Failed to send access request ❌");
-    } finally {
-      setLoading(false);
+        toast.promise(promise, {
+             loading: 'Sending Access Request...',
+             success: 'Request Sent to Patient!',
+             error: (e) => `Error: ${e.message}`
+        });
+    } 
+    // EMERGENCY BREAK GLASS
+    else {
+        const promise = new Promise(async (resolve, reject) => {
+             try {
+                const doc = patientDocs.find(d => d.hash === selectedDocHash);
+                const tx = await doctorContract.emergencyBreakGlass(selectedPatientAddr, selectedDocHash, doc.name, reason);
+                await tx.wait();
+                resolve();
+             } catch(e) { reject(e); } finally { setLoading(false); }
+        });
+
+        toast.promise(promise, {
+             loading: 'ACTIVATING EMERGENCY PROTOCOL...',
+             success: 'ACCESS FORCEFULLY GRANTED. AUDIT LOGGED.',
+             error: (e) => `Emergency Failed: ${e.message}`
+        });
     }
   }
 
   return (
-    <Card>
-      <CardHeader><CardTitle>Request Patient Data Access</CardTitle></CardHeader>
+    <Card className={emergencyMode ? "border-red-500 shadow-red-100 shadow-lg transition-all" : "transition-all"}>
+      <CardHeader>
+          <div className="flex justify-between items-center">
+            <CardTitle className="flex items-center gap-2">
+                {emergencyMode ? <Siren className="text-red-600 animate-pulse" /> : null}
+                {emergencyMode ? "EMERGENCY ACCESS PROTOCOL" : "Request Patient Data Access"}
+            </CardTitle>
+            <Button 
+                variant={emergencyMode ? "destructive" : "outline"}
+                size="sm"
+                onClick={() => setEmergencyMode(!emergencyMode)}
+                className={emergencyMode ? "animate-pulse font-bold" : ""}
+            >
+                {emergencyMode ? "Disable Emergency Mode" : "⚠ Emergency Override"}
+            </Button>
+          </div>
+      </CardHeader>
       <CardContent className="space-y-4">
         
+        {emergencyMode && (
+            <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded text-sm text-red-700 flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 shrink-0" />
+                <div>
+                    <strong className="block font-bold">WARNING: YOU ARE BREAKING GLASS.</strong>
+                    <p>This action will unintentionally grant access and trigger an immediate audit alert on the blockchain. Use ONLY for life-threatening situations.</p>
+                </div>
+            </div>
+        )}
+
         {/* Patient Select */}
         <div className="space-y-1">
             <label className="text-sm font-medium text-gray-700">Select Patient</label>
@@ -139,40 +183,41 @@ export default function PatientsDoctor() {
 
         {/* Reason Input */}
         <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">Reason for Access</label>
+            <label className="text-sm font-medium text-gray-700">Reason for Access {emergencyMode && <span className="text-red-500">*MANDATORY*</span>}</label>
             <input 
                 type="text"
-                placeholder="e.g. Annual Checkup, Emergency, Second Opinion"
-                className="w-full p-2 border rounded"
+                placeholder={emergencyMode ? "STATE EMERGENCY REASON (Recorded Immutably)" : "e.g. Annual Checkup"}
+                className={`w-full p-2 border rounded ${emergencyMode ? "border-red-300 bg-red-50 placeholder-red-300" : ""}`}
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
             />
         </div>
 
-        {/* Duration Select */}
-        <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">Access Duration</label>
-            <select 
-                className="w-full p-2 border rounded bg-white"
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-            >
-                <option value="300">5 Minutes</option>
-                <option value="900">15 Minutes</option>
-                <option value="3600">1 Hour</option>
-                <option value="86400">24 Hours</option>
-                <option value="604800">7 Days</option>
-            </select>
-        </div>
+        {/* Duration Select (Hidden for Emergency -> Fixed 24h) */}
+        {!emergencyMode && (
+             <div className="space-y-1">
+                <label className="text-sm font-medium text-gray-700">Access Duration</label>
+                <select 
+                    className="w-full p-2 border rounded bg-white"
+                    value={duration}
+                    onChange={(e) => setDuration(e.target.value)}
+                >
+                    <option value="300">5 Minutes</option>
+                    <option value="900">15 Minutes</option>
+                    <option value="3600">1 Hour</option>
+                    <option value="86400">24 Hours</option>
+                    <option value="604800">7 Days</option>
+                </select>
+            </div>
+        )}
 
         <Button 
             onClick={requestAccess} 
-            className="w-full bg-[#703FA1] hover:bg-[#5a2f81]"
+            className={`w-full ${emergencyMode ? "bg-red-600 hover:bg-red-700 text-white font-bold py-3" : "bg-[#703FA1] hover:bg-[#5a2f81]"}`}
             disabled={loading || !selectedPatientAddr || !selectedDocHash || !reason}
         >
-          {loading ? "Processing..." : "Request Access"}
+          {loading ? "Processing..." : (emergencyMode ? "🚨 CONFIRM EMERGENCY ACCESS 🚨" : "Request Access")}
         </Button>
-        {status && <div className="text-sm text-center font-medium text-gray-700">{status}</div>}
       </CardContent>
     </Card>
   )

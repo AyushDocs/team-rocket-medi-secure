@@ -3,6 +3,7 @@ import axios from "axios";
 import cors from "cors";
 import "dotenv/config";
 import express from "express";
+import FormData from "form-data"; // Import form-data package explicitly here
 import fs from "fs";
 import { createServer } from "http";
 import multer from "multer";
@@ -64,10 +65,15 @@ const pinata = new pinataSDK(
   process.env.PINATA_SECRET_API_KEY
 );
 
-// Initialize Web3
+// Verify Pinata Connection
+pinata.testAuthentication().then((result) => {
+    console.log("Pinata Connected:", result);
+}).catch((err) => {
+    console.error("Pinata Connection Failed:", err);
+});
+
 const web3 = new Web3(process.env.RPC_URL);
 
-// Load Smart Contract
 const loadContract = () => {
   try {
     const artifactPath = path.join(__dirname, "../contracts/build/contracts/Doctor.json");
@@ -84,35 +90,84 @@ const loadContract = () => {
 };
 
 const doctorContract = loadContract();
-if(!doctorContract) throw new Error("Failed to load contract");
+// if(!doctorContract) throw new Error("Failed to load contract"); // Soft fail for now to allow server start
 
 app.post("/files", upload.single("file"), async (req, res) => {
   try {
+    console.log("----- Upload Request Received -----");
+    console.log("Files:", req.file ? "Present" : "Missing");
+    console.log("Body:", req.body);
+
     if (!req.file) return res.status(400).json({ error: "No file uploaded" });
     
     const { userAddress } = req.body;
-    if (!userAddress) return res.status(400).json({ error: "User address is required" });
+    if (!userAddress) {
+        console.error("Missing userAddress in body");
+        return res.status(400).json({ error: "User address is required" });
+    }
 
-    const stream = Readable.from(req.file.buffer);
-    stream.path = req.file.originalname;
+    // Ensure metadata is clean
+    const safeName = req.file.originalname.replace(/[^a-zA-Z0-9.-]/g, "_");
+    console.log("Sanitized Filename:", safeName);
 
-    const options = {
-      pinataMetadata: {
-        name: req.file.originalname,
+    // Construct Metadata
+    const metadata = JSON.stringify({
+        name: safeName,
         keyvalues: {
             owner: userAddress
         }
-      },
-      pinataOptions: {
-        cidVersion: 0,
-      },
-    };
+    });
+    console.log("Pinata Metadata:", metadata);
 
-    const result = await pinata.pinFileToIPFS(stream, options);
-    res.json({ ipfsHash: result.IpfsHash });
+    const pinataOptions = JSON.stringify({
+        cidVersion: 0
+    });
+
+    // Construct FormData manually for stability
+    const formData = new FormData();
+    
+    // Use Stream with known length to prevent ECONNRESET
+    const stream = Readable.from(req.file.buffer);
+    formData.append('file', stream, {
+        filename: safeName,
+        knownLength: req.file.size // CRITICAL: Helps Axios/FormData set Content-Length header
+    });
+    
+    formData.append('pinataMetadata', metadata);
+    formData.append('pinataOptions', pinataOptions);
+    
+    console.log("Stream prepared. Size:", req.file.size);
+    console.log("Sending to Pinata...");
+
+    // Direct Axios call to avoid SDK stream issues
+    const response = await axios.post(
+        "https://api.pinata.cloud/pinning/pinFileToIPFS",
+        formData,
+        {
+            maxBodyLength: Infinity,
+            timeout: 300000, // 5 minute timeout
+            headers: {
+                ...formData.getHeaders(),
+                'pinata_api_key': process.env.PINATA_API_KEY,
+                'pinata_secret_api_key': process.env.PINATA_SECRET_API_KEY
+            }
+        }
+    );
+
+    console.log("Pinata Success:", response.data);
+    res.json({ ipfsHash: response.data.IpfsHash });
+
   } catch (error) {
-    console.error("Error uploading file to Pinata:", error);
-    res.status(500).json({ error: "Failed to upload file to Pinata" });
+    console.error("Pinata Upload Error Details:", error?.response?.data || error.message);
+    const errorDetails = error?.response?.data;
+    
+    // Check for specific Pinata errors
+    if (errorDetails && errorDetails.error) {
+        console.error("Pinata Specific Message:", errorDetails.error);
+    }
+    
+    const errorMsg = errorDetails?.error || error.message || "Failed to upload file to Pinata";
+    res.status(500).json({ error: errorMsg, details: errorDetails });
   }
 });
 

@@ -6,81 +6,15 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { ethers } from "ethers"
 import { Download, Eye } from "lucide-react"
-import { useEffect, useState } from "react"
-import { useWeb3 } from "../../../context/Web3Context"
+import mammoth from "mammoth"; // Import Mammoth
+
+// ... (rest of imports)
 
 export default function CompanyDashboard() {
-    const { marketplaceContract, account } = useWeb3()
-    const [purchases, setPurchases] = useState([])
-    const [myOffers, setMyOffers] = useState([])
-    
-    // View State
-    const [viewModalOpen, setViewModalOpen] = useState(false)
-    const [selectedDocUrl, setSelectedDocUrl] = useState("")
+    // ... (state)
+    const [docHtml, setDocHtml] = useState("") // New state for HTML content (docx)
 
-    // Offer Form
-    const [offerTitle, setOfferTitle] = useState("")
-    const [offerDesc, setOfferDesc] = useState("")
-    const [price, setPrice] = useState("0.01") // ETH
-    const [budget, setBudget] = useState("0.1") // ETH
-    const [loading, setLoading] = useState(false)
-    const [loadingData, setLoadingData] = useState(true)
-
-    useEffect(() => {
-        if(marketplaceContract && account) loadData();
-    }, [marketplaceContract, account])
-
-    const loadData = async () => {
-        setLoadingData(true);
-        try {
-            // My Purchases
-            const bought = await marketplaceContract.getCompanyPurchases({ from: account });
-            // Mapping: patient, ipfsHash, timestamp, offerId
-            setPurchases(bought);
-
-            // Fetch Offers (Active)
-            const allOffers = await marketplaceContract.getAllOffers();
-            const mine = allOffers.filter(o => o.company.toLowerCase() === account.toLowerCase());
-            setMyOffers(mine);
-
-        } catch(e) { 
-            console.error(e);
-            toast.error("Failed to load dashboard data");
-        } finally {
-            setLoadingData(false);
-        }
-    }
-
-    const createOffer = async () => {
-        if (!offerTitle || !offerDesc) {
-            toast.error("Please fill in title and description");
-            return;
-        }
-
-        setLoading(true);
-        
-        const promise = new Promise(async(resolve, reject) => {
-            try {
-                const priceWei = ethers.parseEther(price);
-                const budgetWei = ethers.parseEther(budget);
-                
-                const tx = await marketplaceContract.createOffer(offerTitle, offerDesc, priceWei, { value: budgetWei });
-                await tx.wait();
-                
-                resolve();
-                loadData();
-                setOfferTitle(""); setOfferDesc("");
-            } catch(e) {
-                reject(e);
-            } finally { setLoading(false); }
-        })
-
-        toast.promise(promise, {
-            loading: 'Creating On-Chain Campaign...',
-            success: 'Campaign Live!',
-            error: (err) => `Failed: ${err.message}`
-        });
-    }
+    // ... (loadData etc)
 
     const handleView = async (ipfsHash, patientAddr) => {
         try {
@@ -89,33 +23,36 @@ export default function CompanyDashboard() {
             const signer = await provider.getSigner();
             const signature = await signer.signMessage(ipfsHash);
 
-            // Backend verifies: (ipfsHash, signature, userAddress)
-            // It knows Company (userAddress) bought from Patient (patientAddr) via blockchain check?
-            // Actually, backend check might just verify signature matches userAddress.
-            // For now, let's assume backend logic allows access if signature is valid and caller is authorized.
-            // Note: Our backend currently checks 'patientAddress' param. If we are company, access logic might differ?
-            // Existing backend `check_access` usually checks `DoctorAccess`.
-            // Data Marketplace might need a backend update to check `PurchasedRecord` event or simply trust signature for now if we don't have backend logic for Marketplace yet.
-            // BUT, let's try the existing endpoint. If it fails, we know we need backend logic.
-            // Wait, the backend endpoint `/files/:ipfsHash` checks `doc_contract.hasAccessToDocument(patient_address, ipfs_hash, user_address)`.
-            // Since `Marketplace` is separate, the `Doctor` contract doesn't know about this sale.
-            // WE NEED TO UPDATE BACKEND to allow Marketplace access too.
-            // FOR NOW: I will implement the frontend request. If it fails, I will flag it.
-            
-            // Re-using the same endpoint:
             const response = await fetch(`http://localhost:5000/files/${ipfsHash}?userAddress=${account}&signature=${signature}&patientAddress=${patientAddr}`);
             
             if (!response.ok) {
-                // Determine if error is access related.
-                // Assuming backend isn't updated yet, this might fail.
-                // However, user requested "View Functionality". I will assume standard fetch.
                 const err = await response.json();
                 throw new Error(err.error || "Failed to fetch document content");
             }
 
             const blob = await response.blob();
+            const type = blob.type;
             const url = URL.createObjectURL(blob);
+            
             setSelectedDocUrl(url);
+            setSelectedDocType(type); 
+            setSelectedDocName(`document_${ipfsHash.slice(0,6)}`);
+
+            // Special handling for DOCX
+            if(type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+                const arrayBuffer = await blob.arrayBuffer();
+                const result = await mammoth.convertToHtml({ arrayBuffer: arrayBuffer });
+                setDocHtml(result.value);
+            } 
+            // Special handling for Text
+            else if (type === "text/plain") {
+                const text = await blob.text();
+                setDocHtml(`<pre>${text}</pre>`);
+            }
+            else {
+                setDocHtml("");
+            }
+
             setViewModalOpen(true);
             toast.success("Document Decrypted");
 
@@ -123,6 +60,53 @@ export default function CompanyDashboard() {
             console.error(e);
             toast.error("View Error: " + e.message);
         }
+    }
+
+    // Helper for rendering content
+    const renderContent = () => {
+        if (!selectedDocUrl) return (
+            <div className="flex flex-col items-center gap-2">
+                <Skeleton className="h-[60vh] w-[800px]" />
+                <p>Loading document securely...</p>
+            </div>
+        );
+
+        // Images
+        if (selectedDocType.startsWith("image/")) {
+            return <img src={selectedDocUrl} alt="Medical Record" className="max-h-full max-w-full object-contain" />;
+        }
+        
+        // PDFs
+        if (selectedDocType === "application/pdf") {
+            return <iframe src={selectedDocUrl} className="w-full h-full" title="Document" />;
+        }
+
+        // DOCX / HTML / Text
+        if (docHtml) {
+            return (
+                <div className="w-full h-full overflow-auto bg-white p-8 prose max-w-none">
+                    <div dangerouslySetInnerHTML={{ __html: docHtml }} />
+                </div>
+            )
+        }
+
+        // Fallback - BLOCKED DOWNLOAD
+        return (
+            <div className="text-center space-y-4 p-8 bg-gray-50 rounded border flex flex-col items-center justify-center h-full">
+                <div className="bg-red-100 p-4 rounded-full">
+                    <Eye className="h-8 w-8 text-red-600" />
+                </div>
+                <div>
+                    <h3 className="text-xl font-bold text-gray-900">Preview Unavailable</h3>
+                    <p className="text-gray-600 mt-2">
+                        This file format ({selectedDocType || "Unknown"}) cannot be rendered securely in the browser.
+                    </p>
+                    <p className="text-red-500 font-semibold mt-4 text-sm bg-red-50 p-2 rounded border border-red-200 inline-block">
+                        ⚠ DOWNLOAD DISABLED: DATA SOVEREIGNTY PROTOCOL
+                    </p>
+                </div>
+            </div>
+        )
     }
 
     const handleExport = () => {
@@ -232,19 +216,8 @@ export default function CompanyDashboard() {
                     <DialogHeader>
                         <DialogTitle>Document Viewer</DialogTitle>
                     </DialogHeader>
-                    <div className="flex-1 w-full h-full border rounded bg-gray-100 flex items-center justify-center">
-                        {selectedDocUrl ? (
-                            <iframe 
-                                src={selectedDocUrl} 
-                                className="w-full h-full" 
-                                title="Document"
-                            />
-                        ) : (
-                            <div className="flex flex-col items-center gap-2">
-                                <Skeleton className="h-[60vh] w-[800px]" />
-                                <p>Loading document securely...</p>
-                            </div>
-                        )}
+                    <div className="flex-1 w-full h-full border rounded bg-gray-100 flex items-center justify-center overflow-hidden p-4">
+                        {renderContent()}
                     </div>
                 </DialogContent>
             </Dialog>

@@ -1,12 +1,12 @@
 "use client"
-
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ethers } from "ethers"
 import { Eye } from "lucide-react"
-import { useEffect, useState } from "react"
+import mammoth from "mammoth"
+import React, { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 import { useWeb3 } from "../../../../context/Web3Context"
 
@@ -15,8 +15,10 @@ export default function RecordsPatient() {
   const [healthRecords, setHealthRecords] = useState([])
   const [loading, setLoading] = useState(true)
   
+  // Create Ref for File Input
+  const fileInputRef = React.useRef(null);
+  
   // Upload State
-  const [file, setFile] = useState(null)
   const [docName, setDocName] = useState("")
   const [docDate, setDocDate] = useState("")
   const [hospital, setHospital] = useState("")
@@ -25,6 +27,7 @@ export default function RecordsPatient() {
   // Document Viewing State
   const [viewModalOpen, setViewModalOpen] = useState(false)
   const [selectedDocUrl, setSelectedDocUrl] = useState("")
+  const [docHtml, setDocHtml] = useState("") // HTML content state for DOCX/Text
   const [viewingDoc, setViewingDoc] = useState(false)
 
   useEffect(() => {
@@ -62,54 +65,65 @@ export default function RecordsPatient() {
 
   const handleUpload = async (e) => {
     e.preventDefault();
-    if(!patientContract || !file || !docName || !docDate || !hospital) {
+    const currentFile = fileInputRef.current?.files?.[0]; // Get file from Ref
+    
+    console.log("Selected File:", currentFile);
+
+    if(!patientContract || !currentFile || !docName || !docDate || !hospital) {
         toast.error("Please fill all fields and select a file.");
+        return;
+    }
+
+    if (!(currentFile instanceof File)) {
+        toast.error("Invalid file object. Please try again.");
+        console.error("File is not instance of File:", currentFile);
         return;
     }
     
     setUploading(true);
-    
-    const uploadPromise = new Promise(async (resolve, reject) => {
-        try {
-            const formData = new FormData()
-            formData.append("file", file)
-            formData.append("userAddress", account); 
-      
-            const response = await fetch("http://localhost:5000/files", {
-              method: "POST",
-              body: formData,
-            })
-      
-            if (!response.ok) {
-              const errorData = await response.json();
-              throw new Error(errorData.error || "Failed to upload file")
-            }
-      
-            const data = await response.json()
-            const ipfsHash = data.ipfsHash
-            
-            const tx = await patientContract.addMedicalRecord(ipfsHash, docName, docDate, hospital)
-            await tx.wait()
-            
-            resolve();
-            window.location.reload(); 
-        } catch(e) {
-            reject(e);
-        } finally {
-            setUploading(false);
-        }
-    });
+    const toastId = toast.loading("Securely Uploading to IPFS...");
 
-    toast.promise(uploadPromise, {
-        loading: 'Minting NFT Record... (This may take a minute)',
-        success: 'Record Minted Successfully!',
-        error: (err) => `Error: ${err.message}`,
-    });
+    try {
+        // 1. Upload to Pinata (Backend)
+        const formData = new FormData();
+        formData.append("file", currentFile); 
+        formData.append("userAddress", account); 
+  
+        const response = await fetch("http://localhost:5000/files", {
+            method: "POST",
+            body: formData,
+        });
+  
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Failed to upload file");
+        }
+  
+        const data = await response.json();
+        const ipfsHash = data.ipfsHash;
+        
+        // 2. Mint NFT (Blockchain)
+        toast.loading("Minting NFT Record...", { id: toastId });
+        const tx = await patientContract.addMedicalRecord(ipfsHash, docName, docDate, hospital);
+        await tx.wait();
+        
+        toast.success("Record Minted & Secured!", { id: toastId });
+        window.location.reload(); 
+
+    } catch(e) {
+        console.error("Upload Error:", e);
+        toast.error(`Upload Failed: ${e.message}`, { id: toastId });
+    } finally {
+        setUploading(false);
+    }
   }
 
   const handleViewDocument = async (ipfsHash) => {
       try {
           setViewingDoc(true);
+          setDocHtml("");
+          setSelectedDocUrl("");
+          
           if (!window.ethereum) throw new Error("No crypto wallet found");
           const provider = new ethers.BrowserProvider(window.ethereum);
           const signer = await provider.getSigner();
@@ -123,8 +137,25 @@ export default function RecordsPatient() {
           }
 
           const blob = await response.blob();
-          const url = URL.createObjectURL(blob);
-          setSelectedDocUrl(url);
+          const type = blob.type;
+          
+          // DOCX Conversion
+          if(type.includes("wordprocessingml") || type.includes("docx")) {
+             const arrayBuffer = await blob.arrayBuffer();
+             const result = await mammoth.convertToHtml({ arrayBuffer });
+             setDocHtml(result.value);
+          } 
+          // Text
+          else if (type.startsWith("text/")) {
+             const text = await blob.text();
+             setDocHtml(`<pre>${text}</pre>`);
+          }
+          // PDF / Images
+          else {
+             const url = URL.createObjectURL(blob);
+             setSelectedDocUrl(url);
+          }
+          
           setViewModalOpen(true);
           toast.success("Document Decrypted!");
 
@@ -135,6 +166,31 @@ export default function RecordsPatient() {
           setViewingDoc(false);
       }
   };
+
+  const renderViewerContent = () => {
+      if (docHtml) {
+          return (
+             <div className="w-full h-full overflow-auto bg-white p-8 prose max-w-none">
+                <div dangerouslySetInnerHTML={{ __html: docHtml }} />
+             </div>
+          )
+      }
+      if (selectedDocUrl) {
+          return (
+             <iframe 
+                src={selectedDocUrl} 
+                className="w-full h-full" 
+                title="Document"
+             />
+          )
+      }
+      return (
+        <div className="flex flex-col items-center gap-2">
+            <Skeleton className="h-[60vh] w-[800px]" />
+            <p>Loading document securely...</p>
+        </div>
+      )
+  }
 
   return (
     <>
@@ -174,8 +230,9 @@ export default function RecordsPatient() {
                         required
                     />
                     <input 
-                        type="file" 
-                        onChange={(e) => setFile(e.target.files[0])}
+                        type="file"
+                        ref={fileInputRef}
+                        accept="application/pdf,image/*,.docx"
                         className="p-1 border rounded text-sm w-full bg-white"
                         required
                     />
@@ -236,20 +293,12 @@ export default function RecordsPatient() {
         <DialogContent className="max-w-4xl h-[80vh]">
             <DialogHeader>
                 <DialogTitle>Document Viewer</DialogTitle>
+                <DialogDescription>
+                    Securely viewing your decrypted medical record.
+                </DialogDescription>
             </DialogHeader>
-            <div className="flex-1 w-full h-full border rounded bg-gray-100 flex items-center justify-center">
-                {selectedDocUrl ? (
-                    <iframe 
-                        src={selectedDocUrl} 
-                        className="w-full h-full" 
-                        title="Document"
-                    />
-                ) : (
-                    <div className="flex flex-col items-center gap-2">
-                        <Skeleton className="h-[60vh] w-[800px]" />
-                        <p>Loading document securely...</p>
-                    </div>
-                )}
+            <div className="flex-1 w-full h-full border rounded bg-gray-100 flex items-center justify-center overflow-hidden">
+                {renderViewerContent()}
             </div>
         </DialogContent>
       </Dialog>

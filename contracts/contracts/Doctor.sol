@@ -18,6 +18,7 @@ contract Doctor {
         uint256 grantTime;
         uint256 duration;
         string reason; // NEW: Purpose of access
+        bool isEmergency; // NEW: Emergency flag
     }
 
     mapping(address => uint256) public walletToDoctorId;
@@ -33,7 +34,7 @@ contract Doctor {
         string ipfsHash,
         string fileName,
         uint256 duration,
-        string reason // NEW
+        string reason
     );
     event AccessGranted(
         address indexed patient,
@@ -52,6 +53,13 @@ contract Doctor {
         uint256 indexed doctorId,
         uint256 indexed patientId,
         address indexed doctor
+    );
+    event EmergencyAccessGranted(
+        address indexed doctor,
+        address indexed patient,
+        string ipfsHash,
+        string reason,
+        uint256 timestamp
     );
 
     function registerDoctor(
@@ -139,7 +147,8 @@ contract Doctor {
                 hasAccess: false,
                 grantTime: 0,
                 duration: _duration,
-                reason: _reason
+                reason: _reason,
+                isEmergency: false
             })
         );
 
@@ -150,6 +159,37 @@ contract Doctor {
             _fileName,
             _duration,
             _reason
+        );
+    }
+
+    function emergencyBreakGlass(
+        address _patient,
+        string memory _ipfsHash,
+        string memory _fileName,
+        string memory _reason
+    ) public {
+        uint256 doctorId = walletToDoctorId[msg.sender];
+        require(doctorId != 0, "Doctor not registered");
+
+        doctorAccessList[doctorId].push(
+            DocumentAccess({
+                patient: _patient,
+                ipfsHash: _ipfsHash,
+                fileName: _fileName,
+                hasAccess: true, // Auto Grant
+                grantTime: block.timestamp,
+                duration: 24 hours, // Fixed duration for emergency
+                reason: _reason,
+                isEmergency: true
+            })
+        );
+
+        emit EmergencyAccessGranted(
+            msg.sender,
+            _patient,
+            _ipfsHash,
+            _reason,
+            block.timestamp
         );
     }
 
