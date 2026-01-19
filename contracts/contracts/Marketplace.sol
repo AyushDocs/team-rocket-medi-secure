@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-contract Marketplace {
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+
+contract Marketplace is ReentrancyGuard {
     struct Company {
         uint256 id;
         address wallet;
@@ -111,13 +113,20 @@ contract Marketplace {
 
     // --- Patient Functions ---
 
-    function sellData(uint256 _offerId, string memory _ipfsHash) public {
+    function sellData(uint256 _offerId, string memory _ipfsHash) public nonReentrant {
         DataOffer storage offer = offers[_offerId];
 
         require(offer.isActive, "Offer is not active");
         require(offer.budget >= offer.price, "Offer budget exhausted");
 
-        // 1. Record the Purchase (Grant Access)
+        // 1. Update State (Effects)
+        offer.budget -= offer.price;
+
+        // Deactivate if empty
+        if (offer.budget < offer.price) {
+            offer.isActive = false;
+        }
+
         companyPurchases[offer.company].push(
             PurchasedRecord({
                 patient: msg.sender,
@@ -127,15 +136,9 @@ contract Marketplace {
             })
         );
 
-        // 2. Transfer Funds to Patient
-        offer.budget -= offer.price;
+        // 2. Interaction
         (bool sent, ) = payable(msg.sender).call{value: offer.price}("");
         require(sent, "Failed to send Ether to patient");
-
-        // 3. Deactivate if empty
-        if (offer.budget < offer.price) {
-            offer.isActive = false;
-        }
 
         emit DataSold(_offerId, offer.company, msg.sender, offer.price);
     }

@@ -1,0 +1,5 @@
+[compiler.solc]
+remappings = [
+    "@openzeppelin/contracts/=contracts/node_modules/@openzeppelin/contracts/",
+    "@openzeppelin/=contracts/node_modules/@openzeppelin/"
+]
