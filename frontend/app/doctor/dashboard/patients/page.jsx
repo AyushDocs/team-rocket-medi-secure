@@ -8,9 +8,12 @@ import toast from "react-hot-toast"
 import { useWeb3 } from "../../../../context/Web3Context"
 
 export default function PatientsDoctor() {
-  const { doctorContract, patientContract } = useWeb3()
+  const { doctorContract, patientContract, emergencyState, knownHospitals } = useWeb3()
   const [patientsList, setPatientsList] = useState([])
   const [selectedPatientAddr, setSelectedPatientAddr] = useState("")
+  const [manualPatientInput, setManualPatientInput] = useState("")
+  const [selectedAuthHospital, setSelectedAuthHospital] = useState(knownHospitals?.[0]?.address || "")
+  const [customAuthHospital, setCustomAuthHospital] = useState("")
   
   const [patientDocs, setPatientDocs] = useState([])
   const [selectedDocHash, setSelectedDocHash] = useState("")
@@ -18,7 +21,7 @@ export default function PatientsDoctor() {
   const [reason, setReason] = useState("") 
   
   const [loading, setLoading] = useState(false)
-  const [emergencyMode, setEmergencyMode] = useState(false)
+  const emergencyMode = emergencyState?.active;
 
   // Load Patients on Mount
   useEffect(() => {
@@ -44,21 +47,50 @@ export default function PatientsDoctor() {
     };
     fetchPatients();
   }, [doctorContract, patientContract]);
+  // Sync selected hospital from Global Emergency State
+  useEffect(() => {
+    if (emergencyState && emergencyState.active && emergencyState.hospital) {
+          const addr = emergencyState.hospital;
+          if (knownHospitals?.find(h => h.address.toLowerCase() === addr.toLowerCase())) {
+               setSelectedAuthHospital(addr);
+          } else {
+               setSelectedAuthHospital("custom");
+               setCustomAuthHospital(addr);
+          }
+      }
+  }, [emergencyState?.active, emergencyState?.hospital, knownHospitals]);
 
-  // Load Documents when Patient Selected
-  const handlePatientChange = async (e) => {
-      const addr = e.target.value;
-      setSelectedPatientAddr(addr);
-      setSelectedDocHash("");
-      setPatientDocs([]);
-      
-      if (!addr) return;
 
+
+  // Set initial hospital once list loads if not already set
+  useEffect(() => {
+      if (!selectedAuthHospital && knownHospitals?.[0]?.address) {
+          setSelectedAuthHospital(knownHospitals[0].address);
+      }
+  }, [knownHospitals, selectedAuthHospital]);
+
+  // Fetch Helper
+  const fetchRecordsForAddress = async (addr) => {
+      if (!addr || !patientContract) return;
       try {
-          const patient = patientsList.find(p => p.wallet === addr);
-          if (!patient) return;
+          let pid;
+          const patient = patientsList.find(p => p.wallet.toLowerCase() === addr.toLowerCase());
+          
+          if (patient) {
+              pid = patient.id;
+          } else {
+              // Resolve ID from chain
+              if (!patientContract) return;
+              const id = await patientContract.walletToPatientId(addr);
+              if (id.toString() === "0") {
+                  toast.error("Patient not registered");
+                  setPatientDocs([]);
+                  return;
+              }
+              pid = id;
+          }
 
-          const records = await patientContract.getMedicalRecords(patient.id);
+          const records = await patientContract.getMedicalRecords(pid);
           const docs = records.map((r) => ({
               hash: r.ipfsHash || r[0],
               name: r.fileName || r[1],
@@ -66,9 +98,30 @@ export default function PatientsDoctor() {
               hospital: r.hospital || r[3] || "Unknown Location"
           }));
           setPatientDocs(docs);
+          toast.success(`Loaded ${docs.length} records`);
       } catch (err) {
           console.error("Error fetching records:", err);
-          toast.error("Failed to fetch patient records");
+          toast.error("Failed to fetch records");
+          setPatientDocs([]);
+      }
+  };
+
+  const handlePatientChange = async (e) => {
+      const val = e.target.value;
+      if (val === "manual") {
+          setSelectedPatientAddr("manual");
+          setPatientDocs([]);
+      } else {
+          setSelectedPatientAddr(val);
+          setSelectedDocHash("");
+          fetchRecordsForAddress(val);
+      }
+  };
+
+  const handleManualBlur = (e) => {
+      const val = e.target.value;
+      if (val && val.startsWith("0x") && val.length === 42) {
+           fetchRecordsForAddress(val);
       }
   };
 
@@ -101,8 +154,15 @@ export default function PatientsDoctor() {
     else {
         const promise = new Promise(async (resolve, reject) => {
              try {
+                const targetHosp = selectedAuthHospital === "custom" ? customAuthHospital : selectedAuthHospital;
+                if (!targetHosp || targetHosp.length < 40) throw new Error("Invalid Authorizing Hospital Address");
+
+                // Resolve Patient Addr
+                const pAddr = selectedPatientAddr === "manual" ? manualPatientInput : selectedPatientAddr;
+                if (!pAddr || pAddr.length < 40) throw new Error("Invalid Patient Address");
+
                 const doc = patientDocs.find(d => d.hash === selectedDocHash);
-                const tx = await doctorContract.emergencyBreakGlass(selectedPatientAddr, selectedDocHash, doc.name, reason);
+                const tx = await doctorContract.emergencyBreakGlass(pAddr, selectedDocHash, doc.name, reason, targetHosp);
                 await tx.wait();
                 resolve();
              } catch(e) { reject(e); } finally { setLoading(false); }
@@ -137,11 +197,45 @@ export default function PatientsDoctor() {
       <CardContent className="space-y-4">
         
         {emergencyMode && (
-            <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded text-sm text-red-700 flex items-start gap-3">
-                <AlertTriangle className="h-5 w-5 shrink-0" />
-                <div>
-                    <strong className="block font-bold">WARNING: YOU ARE BREAKING GLASS.</strong>
-                    <p>This action will unintentionally grant access and trigger an immediate audit alert on the blockchain. Use ONLY for life-threatening situations.</p>
+            <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded text-sm text-red-700 space-y-3">
+                <div className="flex items-start gap-3">
+                    <AlertTriangle className="h-5 w-5 shrink-0" />
+                    <div>
+                        <strong className="block font-bold">WARNING: YOU ARE BREAKING GLASS.</strong>
+                        <p>This action will unintentionally grant access and trigger an immediate audit alert on the blockchain. Use ONLY for life-threatening situations.</p>
+                    </div>
+                </div>
+                
+                {/* Hospital Selection for Duty Verification */}
+                <div className="space-y-1">
+                    <label className="text-xs font-bold text-red-800 uppercase">Authorizing Duty Station</label>
+                    <select 
+                        className="w-full p-2 border border-red-300 rounded bg-red-100 text-red-900 font-medium"
+                        value={selectedAuthHospital}
+                        onChange={(e) => setSelectedAuthHospital(e.target.value)}
+                    >
+                         {[...(knownHospitals || [])].sort((a,b) => {
+                             const aActive = emergencyState?.active && a.address.toLowerCase() === emergencyState.hospital.toLowerCase();
+                             const bActive = emergencyState?.active && b.address.toLowerCase() === emergencyState.hospital.toLowerCase();
+                             if (aActive) return -1;
+                             if (bActive) return 1;
+                             return 0;
+                         }).map(h => (
+                             <option key={h.address} value={h.address}>
+                                {emergencyState?.active && h.address.toLowerCase() === emergencyState.hospital.toLowerCase() ? "🚨 BREAKGLASS ACTIVE: " : ""}{h.name}
+                             </option>
+                         ))}
+                         <option value="custom">Other (Enter via Custom)...</option>
+                    </select>
+                    {selectedAuthHospital === "custom" && (
+                        <input 
+                            type="text"
+                            className="w-full p-2 border border-red-300 rounded bg-white text-red-900 font-mono mt-2"
+                            placeholder="0x... (Hospital Address)"
+                            value={customAuthHospital}
+                            onChange={(e) => setCustomAuthHospital(e.target.value)}
+                        />
+                    )}
                 </div>
             </div>
         )}
@@ -160,7 +254,28 @@ export default function PatientsDoctor() {
                         {p.name} (@{p.username})
                     </option>
                 ))}
+                <option value="manual">➕ Enter Wallet Address Manually...</option>
             </select>
+            {selectedPatientAddr === "manual" && (
+                <div className="flex gap-2 mt-2">
+                    <input 
+                        type="text" 
+                        className="w-full p-2 border rounded font-mono text-sm"
+                        placeholder="Patient Wallet Address (0x...)"
+                        value={manualPatientInput}
+                        onChange={(e) => setManualPatientInput(e.target.value)}
+                        onBlur={handleManualBlur}
+                    />
+                    <Button 
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => fetchRecordsForAddress(manualPatientInput)}
+                        disabled={!manualPatientInput}
+                    >
+                        Load
+                    </Button>
+                </div>
+            )}
         </div>
 
         {/* Document Select */}

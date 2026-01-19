@@ -1,15 +1,27 @@
 "use client"
 
+import AnalyticsChart from "@/components/AnalyticsChart"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ethers } from "ethers"
-import { Activity, Check, ChevronLeft, ChevronRight, UserPlus, X } from "lucide-react"
-import { useState, useEffect } from "react"
+import { Activity, Check, ChevronLeft, ChevronRight, Siren, UserPlus, X } from "lucide-react"
+import { useEffect, useState } from "react"
+import toast from "react-hot-toast"
 import { CartesianGrid, Cell, Line, LineChart, Pie, PieChart, Tooltip as RechartsTooltip, ResponsiveContainer, XAxis, YAxis } from 'recharts'
 import { useWeb3 } from "../../../../context/Web3Context"
 
 export default function OverviewDoctor() {
-  const { doctorContract, patientContract, account } = useWeb3()
+  const { doctorContract, patientContract, hospitalContract, account, emergencyState, setEmergencyState, knownHospitals, addHospital } = useWeb3()
+  // Emergency State
+  const [selectedHospital, setSelectedHospital] = useState(knownHospitals?.[0]?.address || "")
+  const [customAddress, setCustomAddress] = useState("")
+  const isOnDuty = emergencyState?.active;
+  const [dutyLoading, setDutyLoading] = useState(false)
+  const [emergencyChartData, setEmergencyChartData] = useState([])
+  const [myTotalHours, setMyTotalHours] = useState(0)
+
+
   const [patientIdToAdd, setPatientIdToAdd] = useState("")
   const [status, setStatus] = useState("")
   
@@ -18,15 +30,11 @@ export default function OverviewDoctor() {
   const [acquisitionData, setAcquisitionData] = useState([])
   const [accessStats, setAccessStats] = useState([])
   
-  // Pagination
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 5
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
-  // ... imports
-
-  // ... inside component
   
   const loadDashboardData = async () => {
     if (!doctorContract || !patientContract) {
@@ -92,10 +100,106 @@ export default function OverviewDoctor() {
       ];
       setAcquisitionData(mockHistory);
 
+
+      // 3. Fetch Emergency Data
+      if (hospitalContract) {
+          // Fetch logs for Personal Analytics (My Logs)
+          const filterOut = hospitalContract.filters.LogPunchOut(account, null);
+          const eventsOut = await hospitalContract.queryFilter(filterOut);
+          
+          let totalSec = 0;
+          const dayMap = {};
+          eventsOut.forEach(e => {
+              const duration = Number(e.args[3]);
+              totalSec += duration;
+              const d = new Date(Number(e.args[2]) * 1000).toISOString().split('T')[0];
+              if (!dayMap[d]) dayMap[d] = 0;
+              dayMap[d] += (duration / 60);
+          });
+          
+          const chart = Object.keys(dayMap).map(d => ({
+              date: d,
+              minutes: Math.round(dayMap[d])
+          })).sort((a,b) => a.date.localeCompare(b.date));
+          
+          setEmergencyChartData(chart);
+          setMyTotalHours((totalSec/3600).toFixed(1));
+      }
+
     } catch (err) {
       console.error("Dashboard data load failed:", err)
     }
   }
+
+  // Sync selected hospital from Global Emergency State on mount or when state changes
+  useEffect(() => {
+      if (emergencyState?.active && emergencyState.hospital) {
+          const target = emergencyState.hospital;
+          if (knownHospitals?.find(h => h.address.toLowerCase() === target.toLowerCase())) {
+              setSelectedHospital(target);
+          } else {
+              setSelectedHospital("custom");
+              setCustomAddress(target);
+          }
+      }
+  }, [emergencyState?.active, emergencyState?.hospital, knownHospitals]);
+
+  // Set initial hospital once list loads if not already set by restore
+  useEffect(() => {
+      if (!selectedHospital && knownHospitals?.[0]?.address) {
+          setSelectedHospital(knownHospitals[0].address);
+      }
+  }, [knownHospitals, selectedHospital]);
+
+  // Effect to re-check duty if hospital selection changes
+  useEffect(() => {
+      const checkDuty = async () => {
+          const target = selectedHospital === "custom" ? customAddress : selectedHospital;
+          if (hospitalContract && account && target && ethers.isAddress(target)) {
+              try {
+                  const duty = await hospitalContract.isDoctorOnDuty(account, target);
+                  if (duty && !emergencyState?.active) {
+                      setEmergencyState({ active: true, hospital: target });
+                  }
+              } catch(e) { console.warn("Duty Check Failed", e); }
+          }
+      };
+      checkDuty();
+  }, [selectedHospital, customAddress, hospitalContract, account]);
+
+  const toggleDuty = async () => {
+      if (!hospitalContract) return;
+      
+      const target = selectedHospital === "custom" ? customAddress : selectedHospital;
+      if (!ethers.isAddress(target)) {
+          toast.error("Invalid Hospital Address");
+          return;
+      }
+
+      setDutyLoading(true);
+      try {
+          if (isOnDuty) {
+              const tx = await hospitalContract.punchOut(target);
+              await tx.wait();
+              toast.success("Punched Out!");
+              setEmergencyState({ active: false, hospital: "" });
+          } else {
+              const tx = await hospitalContract.punchIn(target);
+              await tx.wait();
+              toast.success("Punched In! You can now access emergency records.");
+              setEmergencyState({ active: true, hospital: target });
+              if (selectedHospital === "custom") {
+                  addHospital(target);
+              }
+          }
+          loadDashboardData();
+      } catch (err) {
+          console.error(err);
+          toast.error("Duty Action Failed: " + (err.reason || err.message));
+      } finally {
+          setDutyLoading(false);
+      }
+  };
 
   useEffect(() => {
     if (doctorContract && patientContract && account) {
@@ -170,6 +274,77 @@ export default function OverviewDoctor() {
 
   return (
     <div className="space-y-6">
+        {/* Emergency Duty Card */}
+        <Card className={`border-l-4 ${isOnDuty ? 'border-l-red-600 bg-red-50' : 'border-l-gray-300'}`}>
+            <CardHeader className="pb-2">
+                <CardTitle className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <Siren className={`h-6 w-6 ${isOnDuty ? 'text-red-600 animate-pulse' : 'text-gray-400'}`} />
+                        <span className={isOnDuty ? "text-red-700" : "text-gray-700"}>
+                            {isOnDuty ? "EMERGENCY DUTY ACTIVE" : "Emergency Standby"}
+                        </span>
+                    </div>
+                    {isOnDuty && <span className="text-xs font-mono bg-red-200 text-red-800 px-2 py-1 rounded">ON AIR</span>}
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="flex flex-col md:flex-row gap-4 items-end">
+                    <div className="w-full md:w-1/2 space-y-2">
+                        <label className="text-sm font-medium text-gray-600">Select Hospital Station</label>
+                        <Select value={selectedHospital} onValueChange={setSelectedHospital} disabled={isOnDuty}>
+                            <SelectTrigger className="bg-white">
+                                <SelectValue placeholder="Select Hospital" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {[...(knownHospitals || [])].sort((a, b) => {
+                                    const aActive = isOnDuty && a.address.toLowerCase() === selectedHospital.toLowerCase();
+                                    const bActive = isOnDuty && b.address.toLowerCase() === selectedHospital.toLowerCase();
+                                    if (aActive) return -1;
+                                    if (bActive) return 1;
+                                    return 0;
+                                }).map(h => (
+                                    <SelectItem key={h.address} value={h.address}>
+                                        {isOnDuty && h.address.toLowerCase() === selectedHospital.toLowerCase() ? "🚨 " : ""}{h.name}
+                                    </SelectItem>
+                                ))}
+                                <SelectItem value="custom">Custom Address...</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        {selectedHospital === "custom" && (
+                            <input 
+                                type="text"
+                                className="w-full p-2 border rounded text-sm font-mono mt-2"
+                                placeholder="0x... (Hospital Address)"
+                                value={customAddress}
+                                onChange={(e) => setCustomAddress(e.target.value)} 
+                            />
+                        )}
+                    </div>
+                    <Button 
+                        onClick={toggleDuty} 
+                        disabled={dutyLoading}
+                        className={`w-full md:w-auto min-w-[150px] ${
+                            isOnDuty 
+                            ? 'bg-red-600 hover:bg-red-700 text-white' 
+                            : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                        }`}
+                    >
+                        {dutyLoading ? "Processing..." : (isOnDuty ? "PUNCH OUT" : "PUNCH IN")}
+                    </Button>
+                </div>
+                {isOnDuty && <p className="text-xs text-red-600 mt-2">
+                    ⚠ While on duty, actions are logged for audit. "Break Glass" access is enabled for this hospital.
+                </p>}
+            </CardContent>
+        </Card>
+
+        {/* Analytics Section */}
+        {emergencyChartData.length > 0 && (
+            <div className="grid grid-cols-1">
+                 <AnalyticsChart data={emergencyChartData} title={`My Emergency Shift History (Total: ${myTotalHours} hrs)`} />
+            </div>
+        )}
+
         {/* Top Section: Welcome & Add Patient */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
              <Card className="md:col-span-2">

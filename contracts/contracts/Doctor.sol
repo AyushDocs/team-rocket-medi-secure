@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
+interface IHospital {
+    function isDoctorOnDuty(address _doctor, address _hospitalAddress) external view returns (bool);
+}
+
 contract Doctor {
     struct DoctorDetails {
         uint256 doctorId;
@@ -27,6 +31,10 @@ contract Doctor {
     mapping(uint256 => DocumentAccess[]) public doctorAccessList;
 
     uint256 private doctorIdCounter;
+
+    // Hospital Verification
+    address public owner;
+    address public hospitalContract;
 
     // --- EVENTS ---
     event AccessRequested(
@@ -69,6 +77,19 @@ contract Doctor {
         uint256 timestamp
     );
 
+    constructor() {
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner can call this");
+        _;
+    }
+
+    function setHospitalContract(address _addr) public onlyOwner {
+        hospitalContract = _addr;
+    }
+
     function registerDoctor(
         string memory _name,
         string memory _specialization,
@@ -82,7 +103,7 @@ contract Doctor {
         newDoctor.doctorId = doctorIdCounter;
         newDoctor.name = _name;
         newDoctor.specialization = _specialization;
-        newDoctor.email = _hospital;
+        newDoctor.email = _hospital; // Keeping legacy field mapping for now
     }
 
     function addPatient(uint256 _patientId) public {
@@ -174,10 +195,16 @@ contract Doctor {
         address _patient,
         string memory _ipfsHash,
         string memory _fileName,
-        string memory _reason
+        string memory _reason,
+        address _hospitalAddress
     ) public {
         uint256 doctorId = walletToDoctorId[msg.sender];
         require(doctorId != 0, "Doctor not registered");
+        require(hospitalContract != address(0), "Hospital verification system not set");
+        
+        // Verify with Hospital Contract
+        bool onDuty = IHospital(hospitalContract).isDoctorOnDuty(msg.sender, _hospitalAddress);
+        require(onDuty, "Doctor is not punched in for emergency duty at this hospital");
 
         doctorAccessList[doctorId].push(
             DocumentAccess({

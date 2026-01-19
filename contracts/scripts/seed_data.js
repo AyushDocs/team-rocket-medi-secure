@@ -1,12 +1,14 @@
 const Patient = artifacts.require("Patient");
 const Doctor = artifacts.require("Doctor");
 const Marketplace = artifacts.require("Marketplace");
+const Hospital = artifacts.require("Hospital");
 
 module.exports = async function(callback) {
   try {
     const patientContract = await Patient.deployed();
     const doctorContract = await Doctor.deployed();
     const marketplaceContract = await Marketplace.deployed();
+    const hospitalContract = await Hospital.deployed();
 
     const accounts = await web3.eth.getAccounts();
     const deployer = accounts[0];
@@ -14,6 +16,7 @@ module.exports = async function(callback) {
     const patients = [accounts[1], accounts[2], accounts[3]];
     const doctors = [accounts[4], accounts[5]];
     const companies = [accounts[6], accounts[7]];
+    const hospitalAdmins = [accounts[0], accounts[8]];
 
     console.log("--- STARTING FULL SEED ---");
 
@@ -52,7 +55,7 @@ module.exports = async function(callback) {
         } catch(e) { console.log(`  ! Skipped Patient ${i+1}: ${e.message}`); }
     }
 
-    // --- 2. REGISTER DOCTORS & REQUEST ACCESS ---
+    // --- 2. REGISTER DOCTORS ---
     const doctorProfiles = [
         { name: "Dr. Strange", spec: "Neurology", hosp: "Sanctum Medical" },
         { name: "Dr. House", spec: "Diagnostics", hosp: "Princeton Plainsboro" }
@@ -63,20 +66,58 @@ module.exports = async function(callback) {
         try {
             console.log(`Setting up Doctor ${i+1}: ${dAddr}`);
             await doctorContract.registerDoctor(doctorProfiles[i].name, doctorProfiles[i].spec, doctorProfiles[i].hosp, { from: dAddr });
-
-            // Request access to first patient's first record
-            // Need patient ID first? Logic might require address.
-            // Doctor contract requests by (patientAddress, ipfsHash...)
-            const targetPatient = patients[0];
-            const fakeHash = "QmFakeHash00XXXYYYZZZ"; // Predictable hash from above
             
+            // Note: Request Access logic moved later potentially? No, fine here.
+            const targetPatient = patients[0];
+            const fakeHash = "QmFakeHash00XXXYYYZZZ"; 
             await doctorContract.requestAccess(targetPatient, fakeHash, "Blood Test Report", 300, "Routine Checkup", { from: dAddr });
             console.log(`  > Requested Access to Patient 1`);
 
         } catch(e) { console.log(`  ! Skipped Doctor ${i+1}: ${e.message}`); }
     }
 
-    // --- 3. REGISTER COMPANIES & CREATE OFFERS ---
+    // --- 3. REGISTER HOSPITALS & LINK DOCTORS ---
+    console.log("--- REGISTERING HOSPITALS ---");
+    const hospitalData = [
+        { name: "City General", location: "NYC", reg: "REG123" },
+        { name: "Community Health", location: "LA", reg: "REG456" }
+    ];
+
+    for(let i=0; i<hospitalAdmins.length; i++) {
+        try {
+            // Check if already registered (primitive check via error)
+             console.log(`Setting up Hospital ${i+1}: ${hospitalData[i].name} (${hospitalAdmins[i]})`);
+            await hospitalContract.registerHospital(
+                hospitalData[i].name, 
+                `contact@${hospitalData[i].name.replace(/\s/g, '').toLowerCase()}.com`, 
+                hospitalData[i].location, 
+                hospitalData[i].reg, 
+                { from: hospitalAdmins[i] }
+            );
+            console.log(`  > Registered Hospital`);
+            
+            // Add Doctor
+            if (i < doctors.length) {
+                 await hospitalContract.addDoctor(doctors[i], { from: hospitalAdmins[i] });
+                 console.log(`  > Added Doctor ${i+1} to ${hospitalData[i].name}`);
+            }
+        } catch(e) { console.log(`  ! Skipped Hospital ${i+1}: ${e.message}`); }
+    }
+
+    // --- 4. SIMULATE PUNCH IN ---
+    try {
+        console.log(`Doctor 1 Punching In at City General...`);
+        // Doctor 1 is doctors[0], City General is hospitalAdmins[0]
+        await hospitalContract.punchIn(hospitalAdmins[0], { from: doctors[0] });
+        console.log(`  > Punched In!`);
+        
+        console.log(`Doctor 2 Punching In at Community Health...`);
+        await hospitalContract.punchIn(hospitalAdmins[1], { from: doctors[1] });
+        console.log(`  > Punched In!`);
+    } catch(e) { console.log(`  ! Punch In Failed: ${e.message}`); }
+
+
+    // --- 5. REGISTER COMPANIES & CREATE OFFERS ---
     const companyProfiles = [
         { name: "Pfizer Research", budget: "5" },
         { name: "HealthAI Corp", budget: "3" }
@@ -93,7 +134,6 @@ module.exports = async function(callback) {
             console.log(`Setting up Company ${i+1}: ${cAddr}`);
             
             // Register
-            const fees = web3.utils.toWei("0.1", "ether"); // Registration Fee
             await marketplaceContract.registerCompany(companyProfiles[i].name, `info@${companyProfiles[i].name.replace(/\s/g, '').toLowerCase()}.com`, { from: cAddr });
 
             // Create Offer
@@ -107,14 +147,10 @@ module.exports = async function(callback) {
         } catch(e) { console.log(`  ! Skipped Company ${i+1}: ${e.message}`); }
     }
 
-    // --- 4. SIMULATE TRANSACTIONS (Optional) ---
-    // Simulate Patient 1 selling data to Company 1
+    // --- 6. SIMULATE TRANSACTIONS ---
     try {
         console.log("Simulating Sale: Patient 1 -> Company 1");
-        // Get Offer ID 1
-        // Get Hash
         const saleHash = "QmFakeHash00XXXYYYZZZ";
-        // Marketplace offer IDs start at 1?
         await marketplaceContract.sellData(1, saleHash, { from: patients[0] });
         console.log("  > Sale Complete!");
     } catch(e) { console.log("  ! Sale failed (maybe already sold): " + e.message); }
@@ -123,6 +159,8 @@ module.exports = async function(callback) {
     console.log("Use these accounts for Demo:");
     console.log(`Patient 1: ${patients[0]}`);
     console.log(`Doctor 1: ${doctors[0]}`);
+    console.log(`Hospital 1 (City Gen): ${hospitalAdmins[0]}`);
+    console.log(`Hospital 2 (Community): ${hospitalAdmins[1]}`);
     console.log(`Company 1: ${companies[0]}`);
     
     callback();

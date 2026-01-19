@@ -9,13 +9,13 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Activity, Building2, Heart, Shield, Stethoscope } from "lucide-react";
+import { Activity, Briefcase, Building2, Heart, Shield, Stethoscope } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useWeb3 } from "../context/Web3Context";
 
 export default function HomePage() {
-    const { connect, isConnected, account, patientContract, doctorContract, marketplaceContract, loading: web3Loading, error: web3Error } = useWeb3();
+    const { connect, isConnected, account, patientContract, doctorContract, marketplaceContract, hospitalContract, loading: web3Loading, error: web3Error } = useWeb3();
     const router = useRouter();
     const [userType, setUserType] = useState("patient");
     const [isRouting, setIsRouting] = useState(false);
@@ -39,6 +39,12 @@ export default function HomePage() {
                 if (!marketplaceContract) throw new Error("Marketplace contract not loaded. Please wait.");
                 const exists = await marketplaceContract.isCompany(account);
                 router.push(exists ? "/company/dashboard" : "/company/signup");
+            } else if (userType === "hospital") {
+                if (!hospitalContract) throw new Error("Hospital contract not loaded. Please wait.");
+                const id = await hospitalContract.walletToHospitalId(account);
+                // Handle BigInt or BigNumber
+                const exists = id.toString() !== "0";
+                router.push(exists ? "/hospital/dashboard" : "/hospital/signup");
             } else {
                 if (!patientContract) throw new Error("Patient contract not loaded. Please wait.");
                 const exists = await patientContract.userExists(account);
@@ -138,7 +144,7 @@ export default function HomePage() {
                     </CardHeader>
                     <CardContent className="p-6">
                         <Tabs value={userType} onValueChange={setUserType} className="space-y-6">
-                            <TabsList className="grid w-full grid-cols-3 h-auto p-1 bg-gray-100 rounded-lg gap-1">
+                            <TabsList className="grid w-full grid-cols-4 h-auto p-1 bg-gray-100 rounded-lg gap-1">
                                 <TabsTrigger value="patient" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">
                                     <div className="flex flex-col items-center gap-1">
                                         <Heart className={`h-5 w-5 ${userType==='patient'?'text-red-500':'text-gray-500'}`} />
@@ -153,8 +159,14 @@ export default function HomePage() {
                                 </TabsTrigger>
                                 <TabsTrigger value="company" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">
                                     <div className="flex flex-col items-center gap-1">
-                                        <Building2 className={`h-5 w-5 ${userType==='company'?'text-purple-500':'text-gray-500'}`} />
+                                        <Briefcase className={`h-5 w-5 ${userType==='company'?'text-amber-600':'text-gray-500'}`} />
                                         <span>Company</span>
+                                    </div>
+                                </TabsTrigger>
+                                <TabsTrigger value="hospital" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">
+                                    <div className="flex flex-col items-center gap-1">
+                                        <Building2 className={`h-5 w-5 ${userType==='hospital'?'text-emerald-600':'text-gray-500'}`} />
+                                        <span>Hospital</span>
                                     </div>
                                 </TabsTrigger>
                             </TabsList>
@@ -164,6 +176,7 @@ export default function HomePage() {
                                     {userType === 'patient' && "Manage your records, control access, and earn from your data."}
                                     {userType === 'doctor' && "View patient history, request access, and provide better care."}
                                     {userType === 'company' && "Purchase ethical, consented medical datasets for research."}
+                                    {userType === 'hospital' && "Manage verification, staff duty, and emergency protocols."}
                                 </div>
 
                                 {localError && (
