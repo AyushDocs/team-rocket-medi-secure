@@ -11,12 +11,8 @@ module.exports = async function(callback) {
     const accounts = await web3.eth.getAccounts();
     const deployer = accounts[0];
 
-    // --- ROLES SETUP ---
-    // Patients: Accounts 1, 2, 3
     const patients = [accounts[1], accounts[2], accounts[3]];
-    // Doctors: Accounts 4, 5
     const doctors = [accounts[4], accounts[5]];
-    // Companies: Accounts 6, 7
     const companies = [accounts[6], accounts[7]];
 
     console.log("--- STARTING FULL SEED ---");
@@ -98,7 +94,7 @@ module.exports = async function(callback) {
             
             // Register
             const fees = web3.utils.toWei("0.1", "ether"); // Registration Fee
-            await marketplaceContract.registerCompany("Com", companyProfiles[i].name, { from: cAddr, value: fees });
+            await marketplaceContract.registerCompany(companyProfiles[i].name, `info@${companyProfiles[i].name.replace(/\s/g, '').toLowerCase()}.com`, { from: cAddr });
 
             // Create Offer
             const o = offers[i];

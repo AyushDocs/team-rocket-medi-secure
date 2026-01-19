@@ -33256,11 +33256,11 @@
     "1337": {
       "events": {},
       "links": {},
-      "address": "0x5017A545b09ab9a30499DE7F431DF0855bCb7275"
+      "address": "0x5b1869D9A4C187F2EAa108f3062412ecf0526b24"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2026-01-17T17:51:38.845Z",
+  "updatedAt": "2026-01-19T05:00:06.716Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",

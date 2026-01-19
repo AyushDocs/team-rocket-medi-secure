@@ -3,4 +3,5 @@ node_modules
 .next
 .vscode/
 ganache-db/
-build/
+**/build/**
+frontend/contracts

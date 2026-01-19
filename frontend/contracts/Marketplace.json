@@ -21603,11 +21603,11 @@
     "1337": {
       "events": {},
       "links": {},
-      "address": "0x86072CbFF48dA3C1F01824a6761A03F105BCC697"
+      "address": "0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2026-01-17T17:51:38.866Z",
+  "updatedAt": "2026-01-19T05:02:41.992Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
