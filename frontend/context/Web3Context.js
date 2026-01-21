@@ -6,6 +6,7 @@ import DoctorContractABI from "../contracts/Doctor.json";
 import HospitalContractABI from "../contracts/Hospital.json";
 import MarketplaceContractABI from "../contracts/Marketplace.json";
 import PatientContractABI from "../contracts/Patient.json";
+import PatientDetailsContractABI from "../contracts/PatientDetailsProxy.json";
 
 // Force HMR Check
 const Web3Context = createContext();
@@ -14,6 +15,7 @@ export const Web3Provider = ({ children }) => {
     const [doctorContract, setDoctorContract] = useState(null);
     const [marketplaceContract, setMarketplaceContract] = useState(null);
     const [hospitalContract, setHospitalContract] = useState(null);
+    const [patientDetailsContract, setPatientDetailsContract] = useState(null);
     const [emergencyState, setEmergencyState] = useState({ active: false, hospital: "" });
     const [knownHospitals, setKnownHospitals] = useState([
         { name: "City General (NYC)", address: "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1" },
@@ -43,6 +45,7 @@ export const Web3Provider = ({ children }) => {
             let doctorNetworkData = DoctorContractABI.networks[netId];
             let marketNetworkData = MarketplaceContractABI.networks[netId];
             let hospitalNetworkData = HospitalContractABI.networks[netId];
+            let patientDetailsNetworkData = PatientDetailsContractABI.networks[netId];
 
             if (!patientNetworkData) {
                 const pIds = Object.keys(PatientContractABI.networks);
@@ -80,7 +83,16 @@ export const Web3Provider = ({ children }) => {
                 }
             }
 
-            if (!patientNetworkData || !doctorNetworkData || !marketNetworkData || !hospitalNetworkData) {
+            if (!patientDetailsNetworkData) {
+                const pdIds = Object.keys(PatientDetailsContractABI.networks);
+                if (pdIds.length > 0) {
+                    const fallbackId = pdIds[pdIds.length - 1];
+                    console.warn(`PatientDetails Contract not found on network ${netId}. Falling back to ${fallbackId}`);
+                    patientDetailsNetworkData = PatientDetailsContractABI.networks[fallbackId];
+                }
+            }
+
+            if (!patientNetworkData || !doctorNetworkData || !marketNetworkData || !hospitalNetworkData || !patientDetailsNetworkData) {
                 throw new Error(`Contracts not deployed on this network (ID: ${netId})`);
             }
             
@@ -88,16 +100,19 @@ export const Web3Provider = ({ children }) => {
             console.log("Doctor Contract Address:", doctorNetworkData.address);
             console.log("Marketplace Contract Address:", marketNetworkData.address);
             console.log("Hospital Contract Address:", hospitalNetworkData.address);
+            console.log("PatientDetails Contract Address:", patientDetailsNetworkData.address);
 
             const patientContract = new ethers.Contract(patientNetworkData.address, PatientContractABI.abi, signer);
             const doctorContract = new ethers.Contract(doctorNetworkData.address, DoctorContractABI.abi, signer);
             const marketContract = new ethers.Contract(marketNetworkData.address, MarketplaceContractABI.abi, signer);
             const hospContract = new ethers.Contract(hospitalNetworkData.address, HospitalContractABI.abi, signer);
+            const pDetailsContract = new ethers.Contract(patientDetailsNetworkData.address, PatientDetailsContractABI.abi, signer);
 
             setPatientContract(patientContract);
             setDoctorContract(doctorContract);
             setMarketplaceContract(marketContract);
             setHospitalContract(hospContract);
+            setPatientDetailsContract(pDetailsContract);
             setAccount(address);
             setIsConnected(true);
         } catch (error) {
@@ -113,6 +128,7 @@ export const Web3Provider = ({ children }) => {
         setDoctorContract(null);
         setMarketplaceContract(null);
         setHospitalContract(null);
+        setPatientDetailsContract(null);
         setIsConnected(false);
         setAccount(null);
     }
@@ -203,6 +219,7 @@ export const Web3Provider = ({ children }) => {
         doctorContract,
         marketplaceContract,
         hospitalContract,
+        patientDetailsContract,
         emergencyState,
         setEmergencyState: updateEmergencyState,
         isConnected,

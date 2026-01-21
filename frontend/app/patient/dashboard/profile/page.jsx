@@ -11,9 +11,10 @@ import toast from "react-hot-toast"
 import { useWeb3 } from "../../../../context/Web3Context"
 
 export default function PatientProfile() {
-    const { patientContract, account } = useWeb3()
+    const { patientContract, patientDetailsContract, account } = useWeb3()
     const [loading, setLoading] = useState(true)
     const [updating, setUpdating] = useState(false)
+    const [updatingVitals, setUpdatingVitals] = useState(false)
     
     // Profile State
     const [profile, setProfile] = useState({
@@ -22,6 +23,16 @@ export default function PatientProfile() {
         email: "",
         age: "",
         bloodGroup: ""
+    })
+
+    // Health Vitals State
+    const [vitals, setVitals] = useState({
+        bloodPressure: "",
+        weight: "",
+        height: "",
+        heartRate: "",
+        temperature: "",
+        lastUpdated: 0
     })
 
     // Nominees State
@@ -61,6 +72,19 @@ export default function PatientProfile() {
                 const fetchedNominees = await patientContract.getNominees(patientId);
                 setNominees(fetchedNominees);
 
+                // Fetch Vitals from PatientDetails contract
+                if (patientDetailsContract) {
+                    const healthVitals = await patientDetailsContract.getVitals(account);
+                    setVitals({
+                        bloodPressure: healthVitals.bloodPressure,
+                        weight: healthVitals.weight,
+                        height: healthVitals.height,
+                        heartRate: healthVitals.heartRate,
+                        temperature: healthVitals.temperature,
+                        lastUpdated: Number(healthVitals.lastUpdated)
+                    });
+                }
+
             } catch (error) {
                 console.error("Error fetching profile:", error);
                 toast.error("Failed to load profile data.");
@@ -69,7 +93,7 @@ export default function PatientProfile() {
             }
         }
         fetchData();
-    }, [patientContract, account]);
+    }, [patientContract, patientDetailsContract, account]);
 
     const handleUpdateProfile = async (e) => {
         e.preventDefault();
@@ -124,6 +148,32 @@ export default function PatientProfile() {
         }
     };
 
+    const handleUpdateVitals = async (e) => {
+        e.preventDefault();
+        if (!patientDetailsContract) return;
+
+        try {
+            setUpdatingVitals(true);
+            const tx = await patientDetailsContract.setVitals(
+                vitals.bloodPressure,
+                vitals.weight,
+                vitals.height,
+                vitals.heartRate,
+                vitals.temperature
+            );
+            await tx.wait();
+            toast.success("Health vitals updated successfully!");
+            
+            // Update lastUpdated locally
+            setVitals(prev => ({ ...prev, lastUpdated: Math.floor(Date.now() / 1000) }));
+        } catch (error) {
+            console.error("Vitals update error:", error);
+            toast.error("Failed to update health vitals.");
+        } finally {
+            setUpdatingVitals(false);
+        }
+    };
+
     if (loading) {
         return <div className="p-8 space-y-4">
             <Skeleton className="h-12 w-full" />
@@ -140,7 +190,8 @@ export default function PatientProfile() {
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
-                {/* Personal Details Card */}
+                <div className="space-y-6">
+                    {/* Personal Details Card */}
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
@@ -203,7 +254,76 @@ export default function PatientProfile() {
                     </CardContent>
                 </Card>
 
-                {/* Nominee Section */}
+                {/* Health Vitals Card (Integrated from new Upgradable Contract) */}
+                <Card className="border-purple-100 shadow-md">
+                    <CardHeader className="bg-purple-50 rounded-t-xl">
+                        <CardTitle className="flex items-center gap-2 text-purple-800">
+                            <HeartPulse className="h-5 w-5 text-purple-600"/> 
+                            Health Vitals (Private)
+                        </CardTitle>
+                        <CardDescription className="text-purple-600">Securely stored encrypted health metrics.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                        <form onSubmit={handleUpdateVitals} className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label>Blood Pressure</Label>
+                                    <Input 
+                                        placeholder="e.g. 120/80" 
+                                        value={vitals.bloodPressure}
+                                        onChange={(e) => setVitals({...vitals, bloodPressure: e.target.value})}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Heart Rate</Label>
+                                    <Input 
+                                        placeholder="e.g. 72 bpm" 
+                                        value={vitals.heartRate}
+                                        onChange={(e) => setVitals({...vitals, heartRate: e.target.value})}
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-3 gap-4">
+                                <div className="space-y-2">
+                                    <Label>Weight</Label>
+                                    <Input 
+                                        placeholder="e.g. 70 kg" 
+                                        value={vitals.weight}
+                                        onChange={(e) => setVitals({...vitals, weight: e.target.value})}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Height</Label>
+                                    <Input 
+                                        placeholder="e.g. 175 cm" 
+                                        value={vitals.height}
+                                        onChange={(e) => setVitals({...vitals, height: e.target.value})}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Temp</Label>
+                                    <Input 
+                                        placeholder="e.g. 98.6 F" 
+                                        value={vitals.temperature}
+                                        onChange={(e) => setVitals({...vitals, temperature: e.target.value})}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between pt-2">
+                                <p className="text-[10px] text-gray-400">
+                                    {vitals.lastUpdated > 0 ? `Last Updated: ${new Date(vitals.lastUpdated * 1000).toLocaleString()}` : "Not yet updated"}
+                                </p>
+                                <Button type="submit" size="sm" disabled={updatingVitals} className="bg-purple-600 hover:bg-purple-700">
+                                    {updatingVitals ? "Syncing..." : "Sync to Blockchain"}
+                                </Button>
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
+                </div>
+
                 <div className="space-y-6">
                     {/* Add Nominee */}
                     <Card>

@@ -2,6 +2,7 @@ const Patient = artifacts.require("Patient");
 const Doctor = artifacts.require("Doctor");
 const Marketplace = artifacts.require("Marketplace");
 const Hospital = artifacts.require("Hospital");
+const PatientDetails = artifacts.require("PatientDetails");
 
 module.exports = async function(callback) {
   try {
@@ -9,6 +10,7 @@ module.exports = async function(callback) {
     const doctorContract = await Doctor.deployed();
     const marketplaceContract = await Marketplace.deployed();
     const hospitalContract = await Hospital.deployed();
+    const patientDetailsContract = await PatientDetails.deployed();
 
     const accounts = await web3.eth.getAccounts();
     const deployer = accounts[0];
@@ -33,26 +35,44 @@ module.exports = async function(callback) {
         const pAddr = patients[i];
         try {
             console.log(`Setting up Patient ${i+1}: ${pAddr}`);
-            await patientContract.registerPatient(`patient${i+1}`, `Patient ${i+1}`, `active${i+1}@demo.com`, 30+i, "O+", { from: pAddr });
+            try {
+                await patientContract.registerPatient(`patient${i+1}`, `Patient ${i+1}`, `active${i+1}@demo.com`, 30+i, "O+", { from: pAddr });
+                console.log(`  > Registered Patient ${i+1}`);
+            } catch(e) { console.log(`  > Patient ${i+1} already registered, skipping registration.`); }
             
             // Add 3-5 records per patient
             for (let j = 0; j < 3 + i; j++) {
                 const rec = recordData[j % recordData.length];
                 const ipfsHash = `QmFakeHash${i}${j}XXXYYYZZZ`; // Simulate hash
-                await patientContract.addMedicalRecord(ipfsHash, rec.name, rec.date, rec.hospital, { from: pAddr });
-                console.log(`  > Minted Record: ${rec.name}`);
+                try {
+                    await patientContract.addMedicalRecord(ipfsHash, rec.name, rec.date, rec.hospital, { from: pAddr });
+                    console.log(`  > Minted Record: ${rec.name}`);
+                } catch(e) { /* ignore duplicate records if any */ }
             }
 
             // Add Nominee
-            await patientContract.addNominee(`Nominee ${i+1}`, accounts[9], "Family", `555-010${i}`, { from: pAddr });
-            console.log(`  > Added Nominee: Nominee ${i+1}`);
+            try {
+                await patientContract.addNominee(`Nominee ${i+1}`, accounts[9], "Family", `555-010${i}`, { from: pAddr });
+                console.log(`  > Added Nominee: Nominee ${i+1}`);
+            } catch(e) { /* ignore */ }
+
+            // Set Vitals in the new PatientDetails contract
+            await patientDetailsContract.setVitals(
+                `${110 + i}/${70 + i}`, // BP
+                `${65 + i} kg`,         // Weight
+                `${170 + i} cm`,        // Height
+                `${70 + i} bpm`,        // Heart Rate
+                "98.6 F",               // Temp
+                { from: pAddr }
+            );
+            console.log(`  > Set Vitals for Patient ${i+1}`);
 
             // Test Profile Update for first patient
             if (i === 0) {
                  await patientContract.updatePatientDetails(`Patient One Updated`, `updated1@demo.com`, 31, "O+", { from: pAddr });
                  console.log(`  > Updated Profile for Patient 1`);
             }
-        } catch(e) { console.log(`  ! Skipped Patient ${i+1}: ${e.message}`); }
+        } catch(e) { console.log(`  ! Error in Patient ${i+1} setup: ${e.message}`); }
     }
 
     // --- 2. REGISTER DOCTORS ---

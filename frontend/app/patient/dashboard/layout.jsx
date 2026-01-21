@@ -148,10 +148,12 @@ export default function PatientDashboardLayout({ children }) {
          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">
-              <Avatar>
-                <AvatarImage src="/man.jpg" alt="Patient Avatar" />
-                <AvatarFallback>JD</AvatarFallback>
-              </Avatar>
+              <Link href="/patient/dashboard/profile">
+                <Avatar className="cursor-pointer hover:opacity-80 transition-opacity">
+                  <AvatarImage src="/man.jpg" alt="Patient Avatar" />
+                  <AvatarFallback>PD</AvatarFallback>
+                </Avatar>
+              </Link>
               <div>
                 <h1 className="text-xl font-semibold text-gray-900">My Health Dashboard</h1>
                 <p className="text-sm text-gray-600">Welcome back, {account}</p>

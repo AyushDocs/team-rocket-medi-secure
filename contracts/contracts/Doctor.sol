@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 interface IHospital {
     function isDoctorOnDuty(address _doctor, address _hospitalAddress) external view returns (bool);

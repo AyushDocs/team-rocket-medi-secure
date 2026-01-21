@@ -11,7 +11,7 @@
     "compile": "truffle compile",
     "dev:deploy": "truffle migrate --network development",
     "dev:reset": "truffle migrate --network development --reset",
-    "dev:ganache": "ganache",
+    "dev:ganache": "ganache --wallet.deterministic --database.dbPath ./ganache-db --server.port 7545 --chain.networkId 1337 --chain.chainId 1337",
     "seed": "truffle exec scripts/seed_data.js --network development"
   },
   "keywords": [
@@ -25,6 +25,8 @@
   "license": "ISC",
   "dependencies": {
     "@openzeppelin/contracts": "^5.4.0",
+    "@openzeppelin/contracts-upgradeable": "^5.4.0",
+    "@openzeppelin/truffle-upgrades": "^1.21.0",
     "web3": "^1.9.0"
   },
   "devDependencies": {

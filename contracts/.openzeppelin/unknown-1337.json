@@ -1,0 +1,120 @@
+{
+  "manifestVersion": "3.2",
+  "proxies": [
+    {
+      "address": "0x9561C133DD8580860B6b7E504bC5Aa500f0f06a7",
+      "txHash": "0x2be51655733f1fd3cf672531d1612dacd6e789f09248983246c04abc045e1662",
+      "kind": "uups"
+    },
+    {
+      "address": "0x6eD79Aa1c71FD7BdBC515EfdA3Bd4e26394435cC",
+      "txHash": "0xe9bc663c82bec95e5a0abd59a3f1b0fa96d97418f7e0d7358add679c90bed9bc",
+      "kind": "uups"
+    },
+    {
+      "address": "0x7C728214be9A0049e6a86f2137ec61030D0AA964",
+      "txHash": "0xd05742b057b7b2ff2cbb3dbab5154573a34c358fc3b60b01dd86726bf023d3c4",
+      "kind": "uups"
+    },
+    {
+      "address": "0x970e8f18ebfEa0B08810f33a5A40438b9530FBCF",
+      "txHash": "0x6d748bb8a0abda1547adf7ab0a8bdc243422c9467bd0692c3a09426f3541a52c",
+      "kind": "uups"
+    },
+    {
+      "address": "0x22d5C8BdD4346b390014a07109a8F830094d4abf",
+      "txHash": "0x1e0182dffce1b009ce461f7453c87b926a1d6f94408abe43ab6aa6d81918999d",
+      "kind": "uups"
+    }
+  ],
+  "impls": {
+    "675e9f0bc43fac915e5a27be87e165dcde49c3d69747aeba876fcf50675cd27d": {
+      "address": "0xD833215cBcc3f914bD1C9ece3EE7BF8B14f841bb",
+      "txHash": "0x17f1a68c191b5d2300489d534781324b6173be214fe6039b2ed6bf0d4bc0637a",
+      "layout": {
+        "solcVersion": "0.8.33",
+        "storage": [
+          {
+            "contract": "PatientDetails",
+            "label": "_patientVitals",
+            "type": "t_mapping(t_address,t_struct(Vitals)10422_storage)",
+            "src": "..\\project:\\contracts\\PatientDetails.sol:24"
+          }
+        ],
+        "types": {
+          "t_mapping(t_address,t_struct(Vitals)10422_storage)": {
+            "label": "mapping(address => struct PatientDetails.Vitals)"
+          },
+          "t_address": {
+            "label": "address"
+          },
+          "t_struct(Vitals)10422_storage": {
+            "label": "struct PatientDetails.Vitals",
+            "members": [
+              {
+                "label": "bloodPressure",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "weight",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "height",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "heartRate",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "temperature",
+                "type": "t_string_storage"
+              },
+              {
+                "label": "lastUpdated",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_uint64": {
+            "label": "uint64"
+          },
+          "t_bool": {
+            "label": "bool"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "..\\@openzeppelin\\contracts-upgradeable\\access\\OwnableUpgradeable.sol:24"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:69"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "..\\@openzeppelin\\contracts-upgradeable\\proxy\\utils\\Initializable.sol:73"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
