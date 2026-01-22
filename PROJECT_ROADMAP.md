@@ -1,18 +1,3 @@
-# 🚀 MediSecure: The Future of Sovereign Healthcare
-
-This roadmap outlines the evolution of MediSecure from a Web3-enabled medical record system to a global, AI-driven, privacy-first healthcare ecosystem.
-
----
-
-## 📅 Phase 1: The "Trustless Foundation" (Completed)
-*Goal: Establish secure, decentralized storage and identity.*
-- [x] Multi-user Dashboards (Patient, Doctor, Hospital, Company).
-- [x] IPFS-backed Encrypted Medical Records.
-- [x] Emergency "Break-glass" Access Protocol.
-- [x] Data Marketplace for Medical Research.
-
----
-
 ## 📅 Phase 2: The "User Empathy" Arc (Current Focus)
 *Goal: Remove the 'Crypto complexity' and make it feel like a modern SaaS.*
 
@@ -45,8 +30,6 @@ This roadmap outlines the evolution of MediSecure from a Web3-enabled medical re
 
 - [ ] **Compute-Over-Data (DeSci):**
     - Allow companies to run Python training scripts in a Docker sandbox without downloading raw patient data.
-- [ ] **Zero-Knowledge Proofs (ZKP):**
-    - Use `Circom` to prove "I am over 18" or "I have a valid vaccine" without revealing identity or full records.
 - [ ] **Decentralized Access Control (LIT Protocol):**
     - Dynamically grant decryption keys only if the requester is an "Active License" NFT holder or on-duty doctor.
 

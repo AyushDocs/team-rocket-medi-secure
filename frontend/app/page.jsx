@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 import { useWeb3 } from "../context/Web3Context";
 
 export default function HomePage() {
-    const { connect, isConnected, account, patientContract, doctorContract, marketplaceContract, hospitalContract, loading: web3Loading, error: web3Error } = useWeb3();
+    const { connect, isConnected, account, patientContract, doctorContract, marketplaceContract, hospitalContract, insuranceContract, loading: web3Loading, error: web3Error } = useWeb3();
     const router = useRouter();
     const [userType, setUserType] = useState("patient");
     const [isRouting, setIsRouting] = useState(false);
@@ -42,9 +42,12 @@ export default function HomePage() {
             } else if (userType === "hospital") {
                 if (!hospitalContract) throw new Error("Hospital contract not loaded. Please wait.");
                 const id = await hospitalContract.walletToHospitalId(account);
-                // Handle BigInt or BigNumber
                 const exists = id.toString() !== "0";
                 router.push(exists ? "/hospital/dashboard" : "/hospital/signup");
+            } else if (userType === "insurance") {
+                if (!insuranceContract) throw new Error("Insurance contract not loaded. Please wait.");
+                const exists = await insuranceContract.isInsuranceProvider(account);
+                router.push(exists ? "/insurance/dashboard" : "/insurance/signup");
             } else {
                 if (!patientContract) throw new Error("Patient contract not loaded. Please wait.");
                 const exists = await patientContract.userExists(account);
@@ -144,7 +147,7 @@ export default function HomePage() {
                     </CardHeader>
                     <CardContent className="p-6">
                         <Tabs value={userType} onValueChange={setUserType} className="space-y-6">
-                            <TabsList className="grid w-full grid-cols-4 h-auto p-1 bg-gray-100 rounded-lg gap-1">
+                            <TabsList className="grid w-full grid-cols-5 h-auto p-1 bg-gray-100 rounded-lg gap-1">
                                 <TabsTrigger value="patient" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">
                                     <div className="flex flex-col items-center gap-1">
                                         <Heart className={`h-5 w-5 ${userType==='patient'?'text-red-500':'text-gray-500'}`} />
@@ -169,6 +172,12 @@ export default function HomePage() {
                                         <span>Hospital</span>
                                     </div>
                                 </TabsTrigger>
+                                <TabsTrigger value="insurance" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">
+                                    <div className="flex flex-col items-center gap-1">
+                                        <Shield className={`h-5 w-5 ${userType==='insurance'?'text-blue-600':'text-gray-500'}`} />
+                                        <span>Insurance</span>
+                                    </div>
+                                </TabsTrigger>
                             </TabsList>
 
                             <div className="space-y-4">
@@ -177,6 +186,7 @@ export default function HomePage() {
                                     {userType === 'doctor' && "View patient history, request access, and provide better care."}
                                     {userType === 'company' && "Purchase ethical, consented medical datasets for research."}
                                     {userType === 'hospital' && "Manage verification, staff duty, and emergency protocols."}
+                                    {userType === 'insurance' && "Provide premiums and handle claims using ZK-Proofs."}
                                 </div>
 
                                 {localError && (

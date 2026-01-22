@@ -2,11 +2,6 @@
   "manifestVersion": "3.2",
   "proxies": [
     {
-      "address": "0x9561C133DD8580860B6b7E504bC5Aa500f0f06a7",
-      "txHash": "0x2be51655733f1fd3cf672531d1612dacd6e789f09248983246c04abc045e1662",
-      "kind": "uups"
-    },
-    {
       "address": "0x6eD79Aa1c71FD7BdBC515EfdA3Bd4e26394435cC",
       "txHash": "0xe9bc663c82bec95e5a0abd59a3f1b0fa96d97418f7e0d7358add679c90bed9bc",
       "kind": "uups"
@@ -25,30 +20,75 @@
       "address": "0x22d5C8BdD4346b390014a07109a8F830094d4abf",
       "txHash": "0x1e0182dffce1b009ce461f7453c87b926a1d6f94408abe43ab6aa6d81918999d",
       "kind": "uups"
+    },
+    {
+      "address": "0x9561C133DD8580860B6b7E504bC5Aa500f0f06a7",
+      "txHash": "0x2be51655733f1fd3cf672531d1612dacd6e789f09248983246c04abc045e1662",
+      "kind": "uups"
+    },
+    {
+      "address": "0x0E696947A06550DEf604e82C26fd9E493e576337",
+      "txHash": "0x50b2557289e4c61728fa6682c1724d94f2878edb9c57bb14d8e8329b36d0bb9f",
+      "kind": "uups"
+    },
+    {
+      "address": "0x4339316e04CFfB5961D1c41fEF8E44bfA2A7fBd1",
+      "txHash": "0x5bcb72857cb1416f251f5017bbc7766d9bc4ff3d7f7ce77dcaa2eb65c237e435",
+      "kind": "uups"
+    },
+    {
+      "address": "0xF16165f1046f1B3cDB37dA25E835B986E696313A",
+      "txHash": "0xa75c8546ed86023d3967631ab2c31c15f799457bea576d356bd5b658e448a473",
+      "kind": "uups"
+    },
+    {
+      "address": "0xfE82e8f24A51E670133f4268cDfc164c49FC3b37",
+      "txHash": "0x126856ba8cee22acfbe44c239b19f126d0c5c37debdaf8a7de5e28eb6a51c673",
+      "kind": "uups"
+    },
+    {
+      "address": "0x94dFeceb91678ec912ef8f14c72721c102ed2Df7",
+      "txHash": "0xdac9bd6f390fdc29181a4a5ae4239bdcc6e8e69508bf03ce4ea7d8d508a789da",
+      "kind": "uups"
+    },
+    {
+      "address": "0xe93e3B649d4E01e47dd2170CAFEf0651477649Da",
+      "txHash": "0x154f19c268b0a91054d40eba1c2f14b1f9348d1bd18841fde0f97514173a8943",
+      "kind": "uups"
+    },
+    {
+      "address": "0x8be8DFCDC90F50562b5022DE1f8D83fe93b0b055",
+      "txHash": "0x0fa84ca40544850d49ab3ca6016053bfc3eeab7567f14b3518e430e9770fe8e2",
+      "kind": "uups"
+    },
+    {
+      "address": "0x84b085c0d4B4D6fbf6490f8246Bc5cD317d2d4cD",
+      "txHash": "0x78786954ae4fc70d9f9b7187996377dcf35e697f7c38406e2ea3807794f636eb",
+      "kind": "uups"
     }
   ],
   "impls": {
     "675e9f0bc43fac915e5a27be87e165dcde49c3d69747aeba876fcf50675cd27d": {
-      "address": "0xD833215cBcc3f914bD1C9ece3EE7BF8B14f841bb",
-      "txHash": "0x17f1a68c191b5d2300489d534781324b6173be214fe6039b2ed6bf0d4bc0637a",
+      "address": "0x630589690929E9cdEFDeF0734717a9eF3Ec7Fcfe",
+      "txHash": "0xd797babd29287021bcb46962368ac7eb0b95e5ebcde6c34900acfa56036e8202",
       "layout": {
         "solcVersion": "0.8.33",
         "storage": [
           {
             "contract": "PatientDetails",
             "label": "_patientVitals",
-            "type": "t_mapping(t_address,t_struct(Vitals)10422_storage)",
+            "type": "t_mapping(t_address,t_struct(Vitals)10999_storage)",
             "src": "..\\project:\\contracts\\PatientDetails.sol:24"
           }
         ],
         "types": {
-          "t_mapping(t_address,t_struct(Vitals)10422_storage)": {
+          "t_mapping(t_address,t_struct(Vitals)10999_storage)": {
             "label": "mapping(address => struct PatientDetails.Vitals)"
           },
           "t_address": {
             "label": "address"
           },
-          "t_struct(Vitals)10422_storage": {
+          "t_struct(Vitals)10999_storage": {
             "label": "struct PatientDetails.Vitals",
             "members": [
               {

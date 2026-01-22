@@ -3,6 +3,7 @@ const Doctor = artifacts.require("Doctor");
 const Marketplace = artifacts.require("Marketplace");
 const Hospital = artifacts.require("Hospital");
 const PatientDetails = artifacts.require("PatientDetails");
+const Insurance = artifacts.require("Insurance");
 
 module.exports = async function(callback) {
   try {
@@ -11,6 +12,7 @@ module.exports = async function(callback) {
     const marketplaceContract = await Marketplace.deployed();
     const hospitalContract = await Hospital.deployed();
     const patientDetailsContract = await PatientDetails.deployed();
+    const insuranceContract = await Insurance.deployed();
 
     const accounts = await web3.eth.getAccounts();
     const deployer = accounts[0];
@@ -18,7 +20,8 @@ module.exports = async function(callback) {
     const patients = [accounts[1], accounts[2], accounts[3]];
     const doctors = [accounts[4], accounts[5]];
     const companies = [accounts[6], accounts[7]];
-    const hospitalAdmins = [accounts[0], accounts[8]];
+    const insuranceAdmins = [accounts[8]];
+    const hospitalAdmins = [accounts[0], accounts[9]];
 
     console.log("--- STARTING FULL SEED ---");
 
@@ -174,6 +177,43 @@ module.exports = async function(callback) {
         await marketplaceContract.sellData(1, saleHash, { from: patients[0] });
         console.log("  > Sale Complete!");
     } catch(e) { console.log("  ! Sale failed (maybe already sold): " + e.message); }
+    
+    // --- 7. INSURANCE SYSTEM ---
+    try {
+        console.log("--- SETTING UP INSURANCE ---");
+    const insurance1 = accounts[8];
+    // Register Provider
+    await insuranceContract.registerInsuranceProvider("SafeLife Insurance", { from: insurance1 });
+    console.log("  > Registered Insurance Provider: SafeLife");
+
+    // Create Policies with Dynamic Thresholds
+    await insuranceContract.createPolicy(
+        "Standard Silver Plan", 
+        "Basic coverage with $500 deductible.", 
+        web3.utils.toWei("0.05", "ether"), 
+        18, 140, 90, 1, // minAge, maxSys, maxDia, vaccine
+        { from: insurance1 }
+    );
+    await insuranceContract.createPolicy(
+        "Premium Gold Plan", 
+        "Comprehensive coverage with $100 deductible and ZK-verified discounts.", 
+        web3.utils.toWei("0.1", "ether"), 
+        21, 130, 85, 1,
+        { from: insurance1 }
+    );
+    await insuranceContract.createPolicy(
+        "Elite Platinum Plan", 
+        "Full coverage with zero deductible and worldwide assistance.", 
+        web3.utils.toWei("0.2", "ether"), 
+        25, 120, 80, 1,
+        { from: insurance1 }
+    );
+    console.log("  > Created 3 Policies for SafeLife with dynamic health criteria");
+
+    // Patient 1 requests quote for Policy 2 (Gold Plan)
+    await insuranceContract.requestInsuranceQuote(2, { from: patients[0] });
+    console.log("  > Patient 1 requested quote for Gold Plan (Policy #2)");
+    } catch(e) { console.log("  ! Insurance Seed failed: " + e.message); }
 
     console.log("--- SEED COMPLETE ---");
     console.log("Use these accounts for Demo:");
@@ -182,6 +222,7 @@ module.exports = async function(callback) {
     console.log(`Hospital 1 (City Gen): ${hospitalAdmins[0]}`);
     console.log(`Hospital 2 (Community): ${hospitalAdmins[1]}`);
     console.log(`Company 1: ${companies[0]}`);
+    console.log(`Insurance 1: ${insuranceAdmins[0]}`);
     
     callback();
     

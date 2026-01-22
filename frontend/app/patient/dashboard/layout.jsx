@@ -136,6 +136,7 @@ export default function PatientDashboardLayout({ children }) {
     if (pathname.includes("chat")) return "chat"
     if (pathname.includes("access-requests")) return "access-requests"
     if (pathname.includes("marketplace")) return "marketplace"
+    if (pathname.includes("insurance")) return "insurance"
     if (pathname.includes("profile")) return "profile"
     return "overview"
   }
@@ -202,7 +203,7 @@ export default function PatientDashboardLayout({ children }) {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <Tabs value={getValue()} className="w-full">
-          <TabsList className="grid w-full grid-cols-6 mb-6">
+          <TabsList className="grid w-full grid-cols-7 mb-6">
             <Link href="/patient/dashboard/overview" className="w-full">
                 <TabsTrigger value="overview" className="w-full flex items-center gap-2 cursor-pointer">
                     <Activity className="h-4 w-4" />
@@ -228,6 +229,12 @@ export default function PatientDashboardLayout({ children }) {
             <Link href="/patient/dashboard/marketplace" className="w-full">
                 <TabsTrigger value="marketplace" className="w-full flex items-center gap-2 cursor-pointer text-purple-700 font-bold">
                     Marketplace
+                </TabsTrigger>
+            </Link>
+            <Link href="/patient/dashboard/insurance" className="w-full">
+                <TabsTrigger value="insurance" className="w-full flex items-center gap-2 cursor-pointer text-blue-600 font-bold">
+                    <Shield className="h-4 w-4" />
+                    Insurance
                 </TabsTrigger>
             </Link>
             <Link href="/patient/dashboard/profile" className="w-full">
