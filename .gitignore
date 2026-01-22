@@ -5,3 +5,4 @@
 ganache-db/
 **/build/**
 frontend/contracts
+temp

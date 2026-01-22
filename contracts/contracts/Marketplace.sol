@@ -165,4 +165,14 @@ contract Marketplace is ReentrancyGuard {
     function isCompany(address _addr) public view returns (bool) {
         return companies[_addr].isRegistered;
     }
+
+    function hasPurchased(address _company, string memory _ipfsHash) public view returns (bool) {
+        PurchasedRecord[] storage records = companyPurchases[_company];
+        for (uint256 i = 0; i < records.length; i++) {
+            if (keccak256(abi.encodePacked(records[i].ipfsHash)) == keccak256(abi.encodePacked(_ipfsHash))) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

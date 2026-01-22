@@ -51,7 +51,6 @@ export default function InsuranceDashboard() {
                     name: data.name
                 })
 
-                // Fetch real data from contract
                 const [contractRequests, contractPolicies] = await Promise.all([
                     insuranceContract.getProviderInsuranceRequests(account),
                     insuranceContract.getProviderPolicies(account)
@@ -174,29 +173,29 @@ export default function InsuranceDashboard() {
     }
 
     if (loading && !providerData) return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-900">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="flex items-center justify-center min-h-screen bg-gray-50">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
     )
 
     return (
-        <div className="min-h-screen bg-[#0a0c10] text-gray-100 flex flex-col font-outfit">
-            {/* Glossy Header */}
-            <header className="bg-black/40 backdrop-blur-xl border-b border-white/5 sticky top-0 z-50">
+        <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
+            {/* Header */}
+            <header className="bg-white border-b shadow-sm sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-                    <div className="flex items-center space-x-3 group cursor-pointer" onClick={() => router.push('/')}>
-                        <div className="bg-gradient-to-br from-blue-500 to-indigo-600 p-2 rounded-xl shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-all">
+                    <div className="flex items-center space-x-3 cursor-pointer" onClick={() => router.push('/')}>
+                        <div className="bg-blue-600 p-2 rounded-lg shadow-md">
                             <Shield className="h-6 w-6 text-white" />
                         </div>
-                        <h1 className="text-xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">PROVIDER PORTAL</h1>
+                        <h1 className="text-xl font-bold tracking-tight text-gray-900">MediInsurance Portal</h1>
                     </div>
                     
                     <div className="flex items-center space-x-6">
-                        <div className="text-right border-r border-white/10 pr-6">
-                            <p className="text-sm font-black text-white leading-none mb-1">{providerData?.name}</p>
-                            <Badge className="bg-emerald-500/10 text-emerald-400 border-none text-[10px] font-black uppercase tracking-widest py-0.5">Verified Partner</Badge>
+                        <div className="text-right border-r pr-6 hidden sm:block">
+                            <p className="text-sm font-bold text-gray-900 leading-none mb-1">{providerData?.name}</p>
+                            <Badge className="bg-emerald-100 text-emerald-700 border-none text-[10px] uppercase tracking-wider py-0 px-2 font-bold">Verified Provider</Badge>
                         </div>
-                        <Button variant="ghost" onClick={disconnect} className="text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all font-bold">
+                        <Button variant="ghost" onClick={handleLogout} className="text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all font-semibold">
                             <LogOut className="h-4 w-4 mr-2" />
                             Log Out
                         </Button>
@@ -204,219 +203,203 @@ export default function InsuranceDashboard() {
                 </div>
             </header>
 
-            <main className="flex-1 max-w-7xl mx-auto px-6 py-10 w-full space-y-10">
-                <Tabs defaultValue="overview" className="space-y-10">
-                    <div className="flex justify-between items-end">
-                        <TabsList className="bg-white/5 border border-white/10 p-1.5 rounded-2xl">
-                            <TabsTrigger value="overview" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-blue-600 data-[state=active]:text-white transition-all flex items-center gap-2 font-bold">
-                                <LayoutDashboard className="h-4 w-4" /> Overview
-                            </TabsTrigger>
-                            <TabsTrigger value="policies" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-blue-600 data-[state=active]:text-white transition-all flex items-center gap-2 font-bold">
-                                <ScrollText className="h-4 w-4" /> Manage Policies
-                            </TabsTrigger>
-                        </TabsList>
-                        
-                        <Dialog open={isPolicyModalOpen} onOpenChange={setIsPolicyModalOpen}>
-                            <DialogTrigger asChild>
-                                <Button className="bg-blue-600 hover:bg-blue-500 text-white rounded-2xl px-6 py-6 font-black shadow-xl shadow-blue-500/20 flex items-center gap-3 transition-all active:scale-95">
-                                    <Plus className="h-5 w-5" /> NEW POLICY
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="bg-[#12141c] border-white/10 text-white rounded-[2rem]">
-                                <DialogHeader>
-                                    <DialogTitle className="text-2xl font-black">{editingPolicy ? 'EDIT POLICY' : 'NEW INSURANCE PLAN'}</DialogTitle>
-                                </DialogHeader>
-                                <div className="space-y-6 py-4">
+            <main className="flex-1 max-w-7xl mx-auto px-6 py-8 w-full space-y-8">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 className="text-3xl font-bold text-gray-900">Dashboard</h2>
+                        <p className="text-gray-500 text-sm">Manage your insurance policies and verify patient eligibility.</p>
+                    </div>
+                    <Dialog open={isPolicyModalOpen} onOpenChange={setIsPolicyModalOpen}>
+                        <DialogTrigger asChild>
+                            <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6 h-12 font-bold shadow-lg shadow-blue-500/20 flex items-center gap-2">
+                                <Plus className="h-5 w-5" /> NEW POLICY
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[500px] rounded-2xl">
+                            <DialogHeader>
+                                <DialogTitle className="text-2xl font-bold">{editingPolicy ? 'Edit Policy' : 'Create New Policy'}</DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-4 py-4">
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-semibold text-gray-700">Policy Name</Label>
+                                    <Input 
+                                        value={policyForm.name} 
+                                        onChange={(e) => setPolicyForm({...policyForm, name: e.target.value})}
+                                        placeholder="e.g. Standard Health Plan" 
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-semibold text-gray-700">Description</Label>
+                                    <Textarea 
+                                        value={policyForm.description} 
+                                        onChange={(e) => setPolicyForm({...policyForm, description: e.target.value})}
+                                        placeholder="What does this coverage include?" 
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label className="text-xs font-black text-gray-400 uppercase tracking-widest">Plan Name</Label>
-                                        <Input 
-                                            value={policyForm.name} 
-                                            onChange={(e) => setPolicyForm({...policyForm, name: e.target.value})}
-                                            placeholder="e.g. Platinum Health Plus" 
-                                            className="bg-white/5 border-white/10 rounded-xl h-12 focus:ring-blue-500"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label className="text-xs font-black text-gray-400 uppercase tracking-widest">Description</Label>
-                                        <Textarea 
-                                            value={policyForm.description} 
-                                            onChange={(e) => setPolicyForm({...policyForm, description: e.target.value})}
-                                            placeholder="What does this coverage include?" 
-                                            className="bg-white/5 border-white/10 rounded-xl min-h-[100px] focus:ring-blue-500"
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label className="text-xs font-black text-gray-400 uppercase tracking-widest leading-none">Base Premium (ETH)</Label>
+                                        <Label className="text-sm font-semibold text-gray-700">Base Premium (ETH)</Label>
                                         <Input 
                                             type="number"
                                             value={policyForm.premium} 
                                             onChange={(e) => setPolicyForm({...policyForm, premium: e.target.value})}
-                                            placeholder="0.1" 
-                                            className="bg-white/5 border-white/10 rounded-xl h-11 focus:ring-blue-500"
+                                            placeholder="0.05" 
                                         />
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <Label className="text-xs font-black text-gray-400 uppercase tracking-widest leading-none">Min Age</Label>
-                                            <Input 
-                                                type="number"
-                                                value={policyForm.minAge} 
-                                                onChange={(e) => setPolicyForm({...policyForm, minAge: e.target.value})}
-                                                placeholder="18" 
-                                                className="bg-white/5 border-white/10 rounded-xl h-11 focus:ring-blue-500"
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="text-xs font-black text-gray-400 uppercase tracking-widest leading-none">Vaccine Stat (0/1)</Label>
-                                            <Input 
-                                                type="number"
-                                                value={policyForm.requiredVaccine} 
-                                                onChange={(e) => setPolicyForm({...policyForm, requiredVaccine: e.target.value})}
-                                                placeholder="1" 
-                                                className="bg-white/5 border-white/10 rounded-xl h-11 focus:ring-blue-500"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <Label className="text-xs font-black text-gray-400 uppercase tracking-widest leading-none">Max Systolic BP</Label>
-                                            <Input 
-                                                type="number"
-                                                value={policyForm.maxSystolic} 
-                                                onChange={(e) => setPolicyForm({...policyForm, maxSystolic: e.target.value})}
-                                                placeholder="140" 
-                                                className="bg-white/5 border-white/10 rounded-xl h-11 focus:ring-blue-500"
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="text-xs font-black text-gray-400 uppercase tracking-widest leading-none">Max Diastolic BP</Label>
-                                            <Input 
-                                                type="number"
-                                                value={policyForm.maxDiastolic} 
-                                                onChange={(e) => setPolicyForm({...policyForm, maxDiastolic: e.target.value})}
-                                                placeholder="90" 
-                                                className="bg-white/5 border-white/10 rounded-xl h-11 focus:ring-blue-500"
-                                            />
-                                        </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-sm font-semibold text-gray-700">Min Age Requirement</Label>
+                                        <Input 
+                                            type="number"
+                                            value={policyForm.minAge} 
+                                            onChange={(e) => setPolicyForm({...policyForm, minAge: e.target.value})}
+                                            placeholder="18" 
+                                        />
                                     </div>
                                 </div>
-                                <DialogFooter>
-                                    <Button onClick={handleCreateUpdatePolicy} className="w-full bg-blue-600 hover:bg-blue-500 text-white rounded-xl h-12 font-black transition-all">
-                                        {editingPolicy ? 'SAVE CHANGES' : 'DEPLOY POLICY'}
-                                    </Button>
-                                </DialogFooter>
-                            </DialogContent>
-                        </Dialog>
-                    </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label className="text-sm font-semibold text-gray-700">Max Systolic BP</Label>
+                                        <Input 
+                                            type="number"
+                                            value={policyForm.maxSystolic} 
+                                            onChange={(e) => setPolicyForm({...policyForm, maxSystolic: e.target.value})}
+                                            placeholder="140" 
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-sm font-semibold text-gray-700">Max Diastolic BP</Label>
+                                        <Input 
+                                            type="number"
+                                            value={policyForm.maxDiastolic} 
+                                            onChange={(e) => setPolicyForm({...policyForm, maxDiastolic: e.target.value})}
+                                            placeholder="90" 
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Button onClick={handleCreateUpdatePolicy} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold h-12">
+                                    {editingPolicy ? 'Update Policy' : 'Create Policy'}
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                </div>
 
-                    <TabsContent value="overview" className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <Tabs defaultValue="overview" className="space-y-6">
+                    <TabsList className="bg-white border p-1 rounded-xl h-auto">
+                        <TabsTrigger value="overview" className="rounded-lg px-6 py-2.5 data-[state=active]:bg-blue-600 data-[state=active]:text-white transition-all flex items-center gap-2 font-bold">
+                            <LayoutDashboard className="h-4 w-4" /> Overview
+                        </TabsTrigger>
+                        <TabsTrigger value="policies" className="rounded-lg px-6 py-2.5 data-[state=active]:bg-blue-600 data-[state=active]:text-white transition-all flex items-center gap-2 font-bold">
+                            <ScrollText className="h-4 w-4" /> Manage Policies
+                        </TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="overview" className="space-y-8 mt-0">
                         {/* Stats Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             {[
-                                { label: "TOTAL CUSTOMERS", val: requests.length, icon: Users, color: "from-blue-500 to-indigo-600" },
-                                { label: "ZK-ELIGIBLE LEADS", val: requests.filter(r => r.isVerified).length, icon: FileCheck, color: "from-emerald-500 to-teal-600" },
-                                { label: "ACTIVE PLANS", val: policies.length, icon: ScrollText, color: "from-purple-500 to-pink-600" }
+                                { label: "TOTAL CUSTOMERS", val: requests.length, icon: Users, color: "text-blue-600", bg: "bg-blue-50" },
+                                { label: "ZK-ELIGIBLE LEADS", val: requests.filter(r => r.isVerified).length, icon: FileCheck, color: "text-emerald-600", bg: "bg-emerald-50" },
+                                { label: "ACTIVE PLANS", val: policies.length, icon: ScrollText, color: "text-purple-600", bg: "bg-purple-50" }
                             ].map((s, i) => (
-                                <Card key={i} className="bg-white/5 border-white/5 shadow-2xl overflow-hidden relative group">
-                                    <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${s.color} opacity-10 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-700`}></div>
-                                    <CardHeader className="pb-2 relative z-10">
-                                        <s.icon className="h-5 w-5 text-gray-500 mb-2" />
-                                        <CardTitle className="text-xs font-black text-gray-500 uppercase tracking-[0.2em]">{s.label}</CardTitle>
+                                <Card key={i} className="border-none shadow-sm">
+                                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                                        <CardTitle className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.1em]">{s.label}</CardTitle>
+                                        <div className={`p-2 rounded-lg ${s.bg}`}>
+                                            <s.icon className={`h-4 w-4 ${s.color}`} />
+                                        </div>
                                     </CardHeader>
-                                    <CardContent className="relative z-10">
-                                        <p className="text-4xl font-black text-white tracking-tight">{s.val}</p>
+                                    <CardContent>
+                                        <p className="text-3xl font-bold text-gray-900">{s.val}</p>
                                     </CardContent>
                                 </Card>
                             ))}
                         </div>
 
                         {/* Requests Table */}
-                        <div className="bg-white/5 border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl backdrop-blur-sm">
-                            <div className="p-10 border-b border-white/5 flex justify-between items-center">
-                                <div>
-                                    <h2 className="text-2xl font-black text-white">Service Requests</h2>
-                                    <p className="text-sm text-gray-500 font-medium mt-1 uppercase tracking-widest text-[10px]">Recent quote applications from network patients</p>
-                                </div>
-                            </div>
-                            <div className="divide-y divide-white/5">
+                        <Card className="border-none shadow-sm overflow-hidden">
+                            <CardHeader className="border-b bg-white">
+                                <CardTitle className="text-xl font-bold">Service Requests</CardTitle>
+                                <CardDescription>Recent quote applications from network patients</CardDescription>
+                            </CardHeader>
+                            <CardContent className="p-0">
                                 {requests.length === 0 ? (
-                                    <div className="py-24 text-center">
-                                        <Users className="h-10 w-10 text-gray-800 mx-auto mb-4" />
-                                        <p className="text-gray-500 font-bold tracking-tight">No incoming requests detected on chain.</p>
+                                    <div className="py-20 text-center">
+                                        <Users className="h-10 w-10 text-gray-300 mx-auto mb-4" />
+                                        <p className="text-gray-500 font-medium">No incoming requests detected on chain.</p>
                                     </div>
                                 ) : (
-                                    requests.map((req) => (
-                                        <div key={req.id} className="p-8 flex flex-col sm:flex-row sm:items-center justify-between hover:bg-white/[0.02] transition-colors group">
-                                            <div className="flex items-center gap-6">
-                                                <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center font-black text-blue-500 border border-white/5 group-hover:border-blue-500/30 transition-all">
-                                                    #{req.id}
-                                                </div>
-                                                <div>
-                                                    <div className="flex items-center gap-3 mb-1.5">
-                                                        <p className="font-bold text-lg text-white font-mono">{req.patient.substring(0,8)}...{req.patient.substring(36)}</p>
-                                                        {req.isVerified && <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full text-[9px] font-black uppercase">ZK-Eligible</Badge>}
-                                                        {req.isFinalized && <Badge className="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest">Active Policy</Badge>}
+                                    <div className="divide-y">
+                                        {requests.map((req) => (
+                                            <div key={req.id} className="p-6 flex flex-col sm:flex-row sm:items-center justify-between hover:bg-gray-50 transition-colors gap-4">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center font-bold text-gray-600 border">
+                                                        #{req.id}
                                                     </div>
-                                                    <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Policy Selection: Plan #{req.policyId} • Status: {req.isFinalized ? "Completed" : "Action Required"}</p>
+                                                    <div>
+                                                        <div className="flex items-center gap-2 mb-1">
+                                                            <p className="font-bold text-gray-900 font-mono">{req.patient.substring(0,8)}...{req.patient.substring(36)}</p>
+                                                            {req.isVerified && <Badge className="bg-emerald-100 text-emerald-700 border-none font-bold">ZK-Eligible</Badge>}
+                                                            {req.isFinalized && <Badge className="bg-blue-100 text-blue-700 border-none font-bold">Active Policy</Badge>}
+                                                        </div>
+                                                        <p className="text-xs text-gray-500 font-medium">Policy Selection: Plan #{req.policyId} • {req.isFinalized ? "Completed" : "Action Required"}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-6">
+                                                    <div className="text-right">
+                                                        <p className="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-0.5">Final Premium</p>
+                                                        <p className="text-xl font-bold text-blue-600">{req.finalPremium} <span className="text-xs ml-0.5">ETH</span></p>
+                                                    </div>
+                                                    <Button 
+                                                        onClick={() => handleFinalize(req.id)}
+                                                        disabled={!req.isVerified || req.isFinalized || loading}
+                                                        size="sm"
+                                                        className={`font-bold h-10 px-5 rounded-lg ${
+                                                            req.isFinalized 
+                                                            ? "bg-emerald-50 text-emerald-600 border border-emerald-100" 
+                                                            : req.isVerified 
+                                                            ? "bg-blue-600 hover:bg-blue-700 text-white" 
+                                                            : "bg-gray-100 text-gray-400 border cursor-not-allowed"
+                                                        }`}
+                                                    >
+                                                        {req.isFinalized ? <><CheckCircle2 className="h-4 w-4 mr-2" /> Activated</> : "Authorize"}
+                                                    </Button>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-10 mt-6 sm:mt-0">
-                                                <div className="text-right">
-                                                    <p className="text-[10px] text-gray-500 uppercase font-black tracking-[0.2em] mb-1">Final Premium</p>
-                                                    <p className="text-2xl font-black text-blue-500 leading-none">{req.finalPremium} <span className="text-xs text-blue-900 ml-1 uppercase">eth</span></p>
-                                                </div>
-                                                <Button 
-                                                    onClick={() => handleFinalize(req.id)}
-                                                    disabled={!req.isVerified || req.isFinalized || loading}
-                                                    className={`h-14 rounded-2xl px-10 font-black shadow-2xl transition-all active:scale-95 flex items-center gap-2 ${
-                                                        req.isFinalized 
-                                                        ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" 
-                                                        : req.isVerified 
-                                                        ? "bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/20" 
-                                                        : "bg-white/5 text-gray-600 border border-white/5"
-                                                    }`}
-                                                >
-                                                    {req.isFinalized ? <><CheckCircle2 className="h-5 w-5" /> ACTIVATED</> : "AUTHORIZE COVERAGE"}
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    ))
+                                        ))}
+                                    </div>
                                 )}
-                            </div>
-                        </div>
+                            </CardContent>
+                        </Card>
                     </TabsContent>
 
-                    <TabsContent value="policies" className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <TabsContent value="policies" className="space-y-6 mt-0">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             {policies.map((p) => (
-                                <Card key={p.id} className="bg-white/5 border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden group hover:border-blue-500/30 transition-all duration-500">
-                                    <CardHeader className="p-10 pb-6">
-                                        <div className="flex justify-between items-start mb-6">
-                                            <div className={`p-3 rounded-2xl ${p.isActive ? 'bg-emerald-500/10 text-emerald-400' : 'bg-gray-500/10 text-gray-400'}`}>
-                                                <ScrollText className="h-6 w-6" />
+                                <Card key={p.id} className="border-none shadow-sm hover:shadow-md transition-shadow">
+                                    <CardHeader>
+                                        <div className="flex justify-between items-start mb-2">
+                                            <div className={`p-2.5 rounded-xl ${p.isActive ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-50 text-gray-400'}`}>
+                                                <ScrollText className="h-5 w-5" />
                                             </div>
-                                            <div className="flex gap-2">
-                                                <Button onClick={() => openEditModal(p)} variant="ghost" className="bg-white/5 hover:bg-white/10 rounded-xl h-10 w-10 p-0 text-gray-400 hover:text-white">
-                                                    <Edit2 className="h-4 w-4" />
-                                                </Button>
-                                            </div>
+                                            <Button onClick={() => openEditModal(p)} variant="ghost" size="sm" className="text-gray-400 hover:text-blue-600 hover:bg-blue-50">
+                                                <Edit2 className="h-4 w-4 mr-2" /> Edit
+                                            </Button>
                                         </div>
-                                        <CardTitle className="text-2xl font-black text-white mb-2">{p.name}</CardTitle>
-                                        <CardDescription className="text-gray-500 text-base leading-relaxed font-medium">
-                                            {p.description}
-                                        </CardDescription>
+                                        <CardTitle className="text-xl font-bold text-gray-900">{p.name}</CardTitle>
+                                        <CardDescription className="line-clamp-2">{p.description}</CardDescription>
                                     </CardHeader>
-                                    <div className="px-10 pb-10 flex items-center justify-between">
-                                        <div className="flex items-baseline gap-2">
-                                            <p className="text-3xl font-black text-blue-500">{p.basePremium}</p>
-                                            <p className="text-sm font-bold text-gray-600 uppercase">ETH Base</p>
+                                    <CardContent className="flex items-center justify-between border-t pt-4">
+                                        <div className="flex items-baseline gap-1">
+                                            <p className="text-2xl font-bold text-blue-600">{p.basePremium}</p>
+                                            <p className="text-xs font-bold text-gray-500 uppercase font-mono">ETH</p>
                                         </div>
-                                        <Badge className={`${p.isActive ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'} border-none rounded-lg px-4 py-1.5 font-bold uppercase tracking-widest text-[9px]`}>
-                                            {p.isActive ? "Published & Live" : "Inactive"}
+                                        <Badge variant="outline" className={`${p.isActive ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-gray-200 bg-gray-50 text-gray-500'} font-bold`}>
+                                            {p.isActive ? "Active" : "Inactive"}
                                         </Badge>
-                                    </div>
+                                    </CardContent>
                                 </Card>
                             ))}
                         </div>

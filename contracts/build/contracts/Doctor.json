@@ -33212,11 +33212,11 @@
     "1337": {
       "events": {},
       "links": {},
-      "address": "0xEdCD6442143188Deb586e182B7900dFb8707Bc27"
+      "address": "0xbCFC9461B73D7Fb423552d6cd594f406F7B0585D"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2026-01-22T11:16:55.538Z",
+  "updatedAt": "2026-01-22T12:11:33.236Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
