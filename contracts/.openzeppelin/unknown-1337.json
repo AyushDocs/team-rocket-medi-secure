@@ -65,30 +65,45 @@
       "address": "0x84b085c0d4B4D6fbf6490f8246Bc5cD317d2d4cD",
       "txHash": "0x78786954ae4fc70d9f9b7187996377dcf35e697f7c38406e2ea3807794f636eb",
       "kind": "uups"
+    },
+    {
+      "address": "0x86072CbFF48dA3C1F01824a6761A03F105BCC697",
+      "txHash": "0x67209a348d48309b15d59a9e7719dfca4f58251f3f7d217d21b15dd7f0bb307f",
+      "kind": "uups"
+    },
+    {
+      "address": "0xb09bCc172050fBd4562da8b229Cf3E45Dc3045A6",
+      "txHash": "0x290d5a5ef6e370e74cb3aa6e1b9dc779da70abada0ff5b2830c87ffde9a05363",
+      "kind": "uups"
+    },
+    {
+      "address": "0x0290FB167208Af455bB137780163b7B7a9a10C16",
+      "txHash": "0x0b4f046bf38554c438e9a8c9cdf32f9efcfaf1a9446239b58e6c25a4586124f1",
+      "kind": "uups"
     }
   ],
   "impls": {
     "675e9f0bc43fac915e5a27be87e165dcde49c3d69747aeba876fcf50675cd27d": {
-      "address": "0x630589690929E9cdEFDeF0734717a9eF3Ec7Fcfe",
-      "txHash": "0xd797babd29287021bcb46962368ac7eb0b95e5ebcde6c34900acfa56036e8202",
+      "address": "0x59d3631c86BbE35EF041872d502F218A39FBa150",
+      "txHash": "0x417c19bbb12511032d34ace6e27c7299049f13df75ece62122a1cfe110cbc185",
       "layout": {
         "solcVersion": "0.8.33",
         "storage": [
           {
             "contract": "PatientDetails",
             "label": "_patientVitals",
-            "type": "t_mapping(t_address,t_struct(Vitals)10999_storage)",
+            "type": "t_mapping(t_address,t_struct(Vitals)11625_storage)",
             "src": "..\\project:\\contracts\\PatientDetails.sol:24"
           }
         ],
         "types": {
-          "t_mapping(t_address,t_struct(Vitals)10999_storage)": {
+          "t_mapping(t_address,t_struct(Vitals)11625_storage)": {
             "label": "mapping(address => struct PatientDetails.Vitals)"
           },
           "t_address": {
             "label": "address"
           },
-          "t_struct(Vitals)10999_storage": {
+          "t_struct(Vitals)11625_storage": {
             "label": "struct PatientDetails.Vitals",
             "members": [
               {

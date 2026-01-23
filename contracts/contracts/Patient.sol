@@ -19,6 +19,7 @@ contract Patient is ERC721URIStorage {
         string fileName;
         string recordDate;
         string hospital;
+        bool isEmergencyViewable;
     }
 
     struct PatientDetails {
@@ -43,6 +44,17 @@ contract Patient is ERC721URIStorage {
     }
 
     mapping(uint256 => Nominee[]) public patientNominees;
+    mapping(uint256 => bytes32) public emergencyAccessHashes;
+
+    function setEmergencyAccessHash(bytes32 _hash) public {
+        uint256 patientId = walletToPatientId[msg.sender];
+        require(patientId != 0, "Patient not registered");
+        emergencyAccessHashes[patientId] = _hash;
+    }
+
+    function verifyEmergencyHash(uint256 _patientId, bytes32 _hash) public view returns (bool) {
+        return emergencyAccessHashes[_patientId] == _hash;
+    }
 
     constructor() ERC721("MediSecure Record", "MEDREC") {}
 
@@ -118,7 +130,8 @@ contract Patient is ERC721URIStorage {
         string memory _ipfsHash,
         string memory _fileName,
         string memory _recordDate,
-        string memory _hospital
+        string memory _hospital,
+        bool _isEmergencyViewable
     ) public {
         uint256 patientId = walletToPatientId[msg.sender];
         require(patientId != 0, "Patient not registered");
@@ -134,9 +147,18 @@ contract Patient is ERC721URIStorage {
                 ipfsHash: _ipfsHash,
                 fileName: _fileName,
                 recordDate: _recordDate,
-                hospital: _hospital
+                hospital: _hospital,
+                isEmergencyViewable: _isEmergencyViewable
             })
         );
+    }
+
+    function toggleEmergencyVisibility(uint256 _recordIndex) public {
+        uint256 patientId = walletToPatientId[msg.sender];
+        require(patientId != 0, "Patient not registered");
+        require(_recordIndex < patients[patientId].medicalRecords.length, "Invalid record index");
+
+        patients[patientId].medicalRecords[_recordIndex].isEmergencyViewable = !patients[patientId].medicalRecords[_recordIndex].isEmergencyViewable;
     }
 
     function getPatientDetails(

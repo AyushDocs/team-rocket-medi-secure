@@ -67,7 +67,13 @@ module.exports = {
     development: {
      host: "127.0.0.1",     // Localhost (default: none)
      port: 7545,            // Standard Ethereum port (default: none)
-     network_id: "1337",    // Any network (default: none)     // Gas limit - How much gas is allowed for each transaction (default: ~6700000)
+     network_id: "1337",    // Any network (default: none)
+     gas: 6721975,
+     gasPrice: 20000000000,
+     networkCheckTimeout: 1000000, // Very high timeout for Windows/OpenZeppelin
+     timeoutBlocks: 500,
+     pollingInterval: 2000,
+     skipDryRun: true
     },
     //
     // An additional network, but with some advanced options…

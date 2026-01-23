@@ -48,8 +48,10 @@ module.exports = async function(callback) {
                 const rec = recordData[j % recordData.length];
                 const ipfsHash = `QmFakeHash${i}${j}XXXYYYZZZ`; // Simulate hash
                 try {
-                    await patientContract.addMedicalRecord(ipfsHash, rec.name, rec.date, rec.hospital, { from: pAddr });
-                    console.log(`  > Minted Record: ${rec.name}`);
+                    // Set alternating records to be emergency viewable for testing
+                    const isEmergency = (j % 2 === 0);
+                    await patientContract.addMedicalRecord(ipfsHash, rec.name, rec.date, rec.hospital, isEmergency, { from: pAddr });
+                    console.log(`  > Minted Record: ${rec.name} (Emergency: ${isEmergency})`);
                 } catch(e) { /* ignore duplicate records if any */ }
             }
 
@@ -70,11 +72,12 @@ module.exports = async function(callback) {
             );
             console.log(`  > Set Vitals for Patient ${i+1}`);
 
-            // Test Profile Update for first patient
-            if (i === 0) {
-                 await patientContract.updatePatientDetails(`Patient One Updated`, `updated1@demo.com`, 31, "O+", { from: pAddr });
-                 console.log(`  > Updated Profile for Patient 1`);
-            }
+            // Set Emergency Access Hash for Demo (Match the secret in user's URL)
+            const demoSecret = i === 0 ? "demo_secret_1" : `secret_${i+1}`;
+            // Note: Contract expects keccak256 hash of the secret
+            const hashedSecret = web3.utils.keccak256(demoSecret);
+            await patientContract.setEmergencyAccessHash(hashedSecret, { from: pAddr });
+            console.log(`  > Set Emergency Access for Patient ${i+1} (Secret: ${demoSecret})`);
         } catch(e) { console.log(`  ! Error in Patient ${i+1} setup: ${e.message}`); }
     }
 

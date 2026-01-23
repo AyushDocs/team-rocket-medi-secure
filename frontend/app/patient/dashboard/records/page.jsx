@@ -21,7 +21,8 @@ export default function RecordsPatient() {
   // Upload State
   const [docName, setDocName] = useState("")
   const [docDate, setDocDate] = useState("")
-  const [hospital, setHospital] = useState("")
+  const [ hospital, setHospital] = useState("")
+  const [isEmergency, setIsEmergency] = useState(false)
   const [uploading, setUploading] = useState(false)
 
   // Document Viewing State
@@ -50,6 +51,7 @@ export default function RecordsPatient() {
             fileName: record.fileName || record[2],
             date: record.recordDate || record[3] || "Unknown Date",
             hospital: record.hospital || record[4] || "Unknown Location",
+            isEmergencyViewable: record.isEmergencyViewable || record[5],
             shared: true,
           }))
         )
@@ -104,7 +106,7 @@ export default function RecordsPatient() {
         
         // 2. Mint NFT (Blockchain)
         toast.loading("Minting NFT Record...", { id: toastId });
-        const tx = await patientContract.addMedicalRecord(ipfsHash, docName, docDate, hospital);
+        const tx = await patientContract.addMedicalRecord(ipfsHash, docName, docDate, hospital, isEmergency);
         await tx.wait();
         
         toast.success("Record Minted & Secured!", { id: toastId });
@@ -115,6 +117,19 @@ export default function RecordsPatient() {
         toast.error(`Upload Failed: ${e.message}`, { id: toastId });
     } finally {
         setUploading(false);
+    }
+  }
+
+  const handleToggleEmergency = async (recordId, currentIndex) => {
+    try {
+        const toastId = toast.loading("Updating visibility...");
+        const tx = await patientContract.toggleEmergencyVisibility(currentIndex);
+        await tx.wait();
+        toast.success("Emergency visibility updated!", { id: toastId });
+        window.location.reload();
+    } catch (err) {
+        console.error("Toggle visibility error:", err);
+        toast.error("Failed to update visibility");
     }
   }
 
@@ -236,6 +251,18 @@ export default function RecordsPatient() {
                         className="p-1 border rounded text-sm w-full bg-white"
                         required
                     />
+                    <div className="flex items-center space-x-2">
+                        <input 
+                            type="checkbox" 
+                            id="isEmergency"
+                            checked={isEmergency}
+                            onChange={(e) => setIsEmergency(e.target.checked)}
+                            className="w-4 h-4 text-purple-600"
+                        />
+                        <label htmlFor="isEmergency" className="text-sm font-medium text-gray-700">
+                             Make Viewable in Emergency
+                        </label>
+                    </div>
                 </div>
                 <Button type="submit" size="sm" disabled={uploading} className="bg-[#703FA1] hover:bg-[#5a2f81]">
                     {uploading ? "Minting..." : "Mint NFT Record"}
@@ -273,15 +300,28 @@ export default function RecordsPatient() {
                     </p>
                     <p className="text-xs text-gray-400 truncate max-w-xs">{/*record.ipfsHash*/ "Secured on Blockchain"}</p>
                 </div>
-                <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => handleViewDocument(record.ipfsHash)}
-                    disabled={viewingDoc}
-                >
-                   <Eye className="w-4 h-4 mr-2" />
-                   View
-                </Button>
+                <div className="flex items-center gap-2">
+                    <div className="flex flex-col items-end mr-4">
+                        <p className="text-[10px] text-gray-500 uppercase font-bold">Emergency View</p>
+                        <Button 
+                            variant={record.isEmergencyViewable ? "default" : "outline"} 
+                            size="sm" 
+                            className={`h-6 text-[10px] px-2 ${record.isEmergencyViewable ? 'bg-red-100 text-red-700 hover:bg-red-200 border-red-200' : ''}`}
+                            onClick={() => handleToggleEmergency(record.id, record.id - 1)}
+                        >
+                            {record.isEmergencyViewable ? "ENABLED" : "DISABLED"}
+                        </Button>
+                    </div>
+                    <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleViewDocument(record.ipfsHash)}
+                        disabled={viewingDoc}
+                    >
+                       <Eye className="w-4 h-4 mr-2" />
+                       View
+                    </Button>
+                </div>
               </li>
             ))}
           </ul>

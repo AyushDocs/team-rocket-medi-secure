@@ -33238,11 +33238,11 @@
     "1337": {
       "events": {},
       "links": {},
-      "address": "0xbCFC9461B73D7Fb423552d6cd594f406F7B0585D"
+      "address": "0x5b1869D9A4C187F2EAa108f3062412ecf0526b24"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2026-01-22T12:07:42.072Z",
+  "updatedAt": "2026-01-23T07:16:58.335Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
@@ -33254,7 +33254,5 @@
     "methods": {},
     "version": 1
   },
-  "timeoutBlocks": 0,
-  "autoGas": true,
-  "gasMultiplier": 1.25
+  "timeoutBlocks": 500
 }

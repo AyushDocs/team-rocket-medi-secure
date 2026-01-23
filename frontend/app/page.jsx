@@ -127,61 +127,61 @@ export default function HomePage() {
             </header>
 
             {/* Main Content */}
-            <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col items-center justify-center">
-                <div className="text-center mb-12 space-y-4">
-                    <h2 className="text-5xl font-extrabold text-gray-900 tracking-tight">
+            <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col items-center justify-center">
+                <div className="text-center mb-6 space-y-2">
+                    <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight">
                         Your Health Data. <span className="text-[#703FA1]">Your Control.</span>
                     </h2>
-                    <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                    <p className="text-lg text-gray-600 max-w-2xl mx-auto">
                         The first decentralized platform for secure medical records, instant doctor access, and ethical data monetization.
                     </p>
                 </div>
 
                 {/* Authentication Card */}
-                <Card className="max-w-xl w-full mx-auto shadow-xl border-t-4 border-[#703FA1]">
-                    <CardHeader className="text-center pb-2">
-                        <CardTitle className="text-2xl">Choose Your Role</CardTitle>
-                        <CardDescription>
+                <Card className="max-w-xl w-full mx-auto shadow-lg border-t-4 border-[#703FA1]">
+                    <CardHeader className="text-center pb-2 pt-4">
+                        <CardTitle className="text-xl">Choose Your Role</CardTitle>
+                        <CardDescription className="text-xs">
                             Connect your wallet to enter the secure portal
                         </CardDescription>
                     </CardHeader>
-                    <CardContent className="p-6">
-                        <Tabs value={userType} onValueChange={setUserType} className="space-y-6">
+                    <CardContent className="p-4 pt-2">
+                        <Tabs value={userType} onValueChange={setUserType} className="space-y-4">
                             <TabsList className="grid w-full grid-cols-5 h-auto p-1 bg-gray-100 rounded-lg gap-1">
-                                <TabsTrigger value="patient" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">
+                                <TabsTrigger value="patient" className="py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">
                                     <div className="flex flex-col items-center gap-1">
-                                        <Heart className={`h-5 w-5 ${userType==='patient'?'text-red-500':'text-gray-500'}`} />
-                                        <span>Patient</span>
+                                        <Heart className={`h-4 w-4 ${userType==='patient'?'text-red-500':'text-gray-500'}`} />
+                                        <span className="text-[10px] sm:text-xs">Patient</span>
                                     </div>
                                 </TabsTrigger>
-                                <TabsTrigger value="doctor" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">
+                                <TabsTrigger value="doctor" className="py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">
                                     <div className="flex flex-col items-center gap-1">
-                                        <Stethoscope className={`h-5 w-5 ${userType==='doctor'?'text-blue-500':'text-gray-500'}`} />
-                                        <span>Doctor</span>
+                                        <Stethoscope className={`h-4 w-4 ${userType==='doctor'?'text-blue-500':'text-gray-500'}`} />
+                                        <span className="text-[10px] sm:text-xs">Doctor</span>
                                     </div>
                                 </TabsTrigger>
-                                <TabsTrigger value="company" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">
+                                <TabsTrigger value="company" className="py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">
                                     <div className="flex flex-col items-center gap-1">
-                                        <Briefcase className={`h-5 w-5 ${userType==='company'?'text-amber-600':'text-gray-500'}`} />
-                                        <span>Company</span>
+                                        <Briefcase className={`h-4 w-4 ${userType==='company'?'text-amber-600':'text-gray-500'}`} />
+                                        <span className="text-[10px] sm:text-xs">Company</span>
                                     </div>
                                 </TabsTrigger>
-                                <TabsTrigger value="hospital" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">
+                                <TabsTrigger value="hospital" className="py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">
                                     <div className="flex flex-col items-center gap-1">
-                                        <Building2 className={`h-5 w-5 ${userType==='hospital'?'text-emerald-600':'text-gray-500'}`} />
-                                        <span>Hospital</span>
+                                        <Building2 className={`h-4 w-4 ${userType==='hospital'?'text-emerald-600':'text-gray-500'}`} />
+                                        <span className="text-[10px] sm:text-xs">Hospital</span>
                                     </div>
                                 </TabsTrigger>
-                                <TabsTrigger value="insurance" className="py-3 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">
+                                <TabsTrigger value="insurance" className="py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">
                                     <div className="flex flex-col items-center gap-1">
-                                        <Shield className={`h-5 w-5 ${userType==='insurance'?'text-blue-600':'text-gray-500'}`} />
-                                        <span>Insurance</span>
+                                        <Shield className={`h-4 w-4 ${userType==='insurance'?'text-blue-600':'text-gray-500'}`} />
+                                        <span className="text-[10px] sm:text-xs">Insurance</span>
                                     </div>
                                 </TabsTrigger>
                             </TabsList>
 
                             <div className="space-y-4">
-                                <div className="p-4 bg-gray-50 rounded-lg border text-sm text-gray-600 text-center min-h-[60px] flex items-center justify-center">
+                                <div className="p-3 bg-gray-50 rounded-lg border text-xs text-gray-600 text-center min-h-[50px] flex items-center justify-center">
                                     {userType === 'patient' && "Manage your records, control access, and earn from your data."}
                                     {userType === 'doctor' && "View patient history, request access, and provide better care."}
                                     {userType === 'company' && "Purchase ethical, consented medical datasets for research."}
@@ -190,7 +190,7 @@ export default function HomePage() {
                                 </div>
 
                                 {localError && (
-                                    <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm text-center">
+                                    <div className="bg-red-50 text-red-600 p-2 rounded-lg text-xs text-center">
                                         {localError}
                                     </div>
                                 )}
@@ -199,14 +199,14 @@ export default function HomePage() {
                                     onClick={handleConnect}
                                     disabled={web3Loading}
                                     size="lg"
-                                    className="w-full bg-[#703FA1] hover:bg-[#5a2f81] text-lg py-6 shadow-lg shadow-purple-200 transition-all hover:scale-[1.02]"
+                                    className="w-full bg-[#703FA1] hover:bg-[#5a2f81] text-base py-4 shadow-md shadow-purple-200 transition-all hover:scale-[1.02]"
                                 >
                                     {web3Loading ? "Connecting..." : (isConnected && account
                                         ? `Enter as ${userType.charAt(0).toUpperCase() + userType.slice(1)}`
                                         : "Connect Wallet")}
                                 </Button>
                                 {isConnected && (
-                                    <p className="text-xs text-center text-gray-400 font-mono">
+                                    <p className="text-[10px] text-center text-gray-400 font-mono">
                                         Connected: {account}
                                     </p>
                                 )}
@@ -216,24 +216,25 @@ export default function HomePage() {
                 </Card>
                 
                 {/* Footer Badges */}
-                <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 text-center opacity-70">
-                    <div className="flex flex-col items-center gap-2">
-                        <Activity className="h-6 w-6 text-blue-500" />
-                        <span className="font-semibold text-gray-800">100% Uptime</span>
-                        <span className="text-xs text-gray-500">Decentralized IPFS Storage</span>
+                <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-center opacity-70 scale-90">
+                    <div className="flex flex-col items-center gap-1">
+                        <Activity className="h-5 w-5 text-blue-500" />
+                        <span className="font-semibold text-gray-800 text-sm">100% Uptime</span>
+                        <span className="text-[10px] text-gray-500">Decentralized IPFS Storage</span>
                     </div>
-                    <div className="flex flex-col items-center gap-2">
-                        <Shield className="h-6 w-6 text-green-500" />
-                        <span className="font-semibold text-gray-800">On-Chain Audit</span>
-                        <span className="text-xs text-gray-500">Every view is immutably logged</span>
+                    <div className="flex flex-col items-center gap-1">
+                        <Shield className="h-5 w-5 text-green-500" />
+                        <span className="font-semibold text-gray-800 text-sm">On-Chain Audit</span>
+                        <span className="text-[10px] text-gray-500">Every view is immutably logged</span>
                     </div>
-                    <div className="flex flex-col items-center gap-2">
-                         <Building2 className="h-6 w-6 text-purple-500" />
-                        <span className="font-semibold text-gray-800">Ethical Data</span>
-                        <span className="text-xs text-gray-500">Patient-owned data economy</span>
+                    <div className="flex flex-col items-center gap-1">
+                         <Building2 className="h-5 w-5 text-purple-500" />
+                        <span className="font-semibold text-gray-800 text-sm">Ethical Data</span>
+                        <span className="text-[10px] text-gray-500">Patient-owned data economy</span>
                     </div>
                 </div>
             </main>
+
         </div>
     );
 }

@@ -9,12 +9,12 @@ import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 import { useWeb3 } from "../../../context/Web3Context"
+import RoleGuard from "@/components/RoleGuard"
 
 export default function PatientDashboardLayout({ children }) {
-  const { account, disconnect, patientContract, doctorContract, loading } = useWeb3()
+  const { account, disconnect, doctorContract } = useWeb3()
   const router = useRouter()
   const pathname = usePathname()
-  const [verifying, setVerifying] = useState(true)
   const [emergencyAlert, setEmergencyAlert] = useState(null) // { doctor, timestamp, reason }
 
   const handleLogout = () => {
@@ -23,22 +23,6 @@ export default function PatientDashboardLayout({ children }) {
   }
 
   useEffect(() => {
-      const verifyPatient = async () => {
-          if (!loading && patientContract && account) {
-              try {
-                  const exists = await patientContract.userExists(account);
-                  if (!exists) {
-                      console.warn("Account is not a registered patient. Redirecting.");
-                      router.push("/patient/signup"); 
-                  }
-              } catch (err) {
-                  console.error("Patient verification failed:", err);
-              } finally {
-                  setVerifying(false);
-              }
-          }
-      };
-      
       const checkEmergencies = async () => {
           if(!doctorContract || !account) return;
           try {
@@ -107,9 +91,8 @@ export default function PatientDashboardLayout({ children }) {
           } catch(e) { console.error("Emergency Check Failed:", e); }
       }
 
-      verifyPatient();
       checkEmergencies();
-  }, [account, patientContract, doctorContract, loading, router]); // Keep dependencies
+  }, [account, doctorContract, router]); // Keep dependencies
 
   const handleResolveEmergency = async () => {
       if (!emergencyAlert || !doctorContract) return;
@@ -245,7 +228,9 @@ export default function PatientDashboardLayout({ children }) {
             </Link>
           </TabsList>
             
-          {children}
+          <RoleGuard role="patient">
+            {children}
+          </RoleGuard>
         </Tabs>
       </div>
     </div>

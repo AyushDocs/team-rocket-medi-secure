@@ -11,7 +11,6 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import io from "socket.io-client"
 import { useWeb3 } from "../context/Web3Context"
-
 export default function PatientDashboard() {
   const { patientContract, doctorContract, account, disconnect } = useWeb3()
   const router = useRouter()
@@ -144,7 +143,7 @@ export default function PatientDashboard() {
         throw new Error("Patient not registered.")
       }
 
-      const tx = await patientContract.addMedicalRecord(ipfsHash)
+      const tx = await patientContract.addMedicalRecord(ipfsHash, "New Record", new Date().toISOString().split("T")[0], "Unknown Hospital", false)
       await tx.wait()
 
       // Update health records

@@ -9,7 +9,7 @@ import { AlertTriangle, EyeOff, Lock, ShieldAlert } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { useWeb3 } from "../context/Web3Context"
 
-export default function SafeDocumentViewer({ ipfsHash, patientAddress, onClose }) {
+export default function SafeDocumentViewer({ ipfsHash, patientAddress, onClose, emergencyToken }) {
   const { account } = useWeb3()
   const [agreed, setAgreed] = useState(false)
   const [fileUrl, setFileUrl] = useState("")
@@ -63,15 +63,24 @@ export default function SafeDocumentViewer({ ipfsHash, patientAddress, onClose }
       setLoading(true)
       setError("")
 
-      if (!window.ethereum) throw new Error("No crypto wallet found");
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      
-      // 1. Sign the request
-      const signature = await signer.signMessage(ipfsHash);
+      let fetchUrl = `http://localhost:5000/files/${ipfsHash}?patientAddress=${patientAddress}`;
+      let headers = {};
+
+      if (emergencyToken) {
+          // Skip signature if we have an emergency token
+          headers["Authorization"] = `Bearer ${emergencyToken}`;
+      } else {
+          if (!window.ethereum) throw new Error("No crypto wallet found");
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          const signer = await provider.getSigner();
+          
+          // 1. Sign the request
+          const signature = await signer.signMessage(ipfsHash);
+          fetchUrl += `&userAddress=${account}&signature=${signature}`;
+      }
 
       // 2. Fetch from backend
-      const response = await fetch(`http://localhost:5000/files/${ipfsHash}?userAddress=${account}&signature=${signature}&patientAddress=${patientAddress}`);
+      const response = await fetch(fetchUrl, { headers });
 
       if (!response.ok) {
            const err = await response.json();
@@ -174,7 +183,7 @@ export default function SafeDocumentViewer({ ipfsHash, patientAddress, onClose }
                 <div className={`absolute inset-0 pointer-events-none z-20 flex flex-wrap content-center justify-center opacity-15 select-none ${isBlurred ? 'hidden' : ''}`}>
                      {Array.from({ length: 12 }).map((_, i) => (
                         <div key={i} className="text-white/20 text-xl font-bold m-12 transform -rotate-45 whitespace-nowrap">
-                            DONOTSHARE • {account?.slice(0,6)}...
+                            DONOTSHARE • {account ? `${account.slice(0,6)}...` : "EMERGENCY"}
                         </div>
                      ))}
                 </div>

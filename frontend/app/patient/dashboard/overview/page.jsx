@@ -1,11 +1,12 @@
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Activity, Calendar, FileText, Stethoscope, Users,User } from "lucide-react"
+import { Activity, Calendar, FileText, Stethoscope, User, Users } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { useWeb3 } from "../../../../context/Web3Context"
-
+import EmergencyMagicLink from "@/components/EmergencyMagicLink"
+import RoleGuard from "@/components/RoleGuard"
 export default function OverviewPatient() {
   const { patientContract, doctorContract, account } = useWeb3()
   
@@ -142,6 +143,10 @@ export default function OverviewPatient() {
                   </div>
               </CardContent>
           </Card>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+          <EmergencyMagicLink />
       </div>
 
       {/* Stats Cards */}

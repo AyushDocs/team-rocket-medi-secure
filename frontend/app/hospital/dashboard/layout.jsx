@@ -1,42 +1,19 @@
 "use client"
-import { useEffect, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { useWeb3 } from "@/context/Web3Context"
 import { Hospital, Shield } from "lucide-react"
 import { useRouter } from "next/navigation"
 
+
 export default function HospitalDashboardLayout({ children }) {
-  const { account, disconnect, hospitalContract, loading } = useWeb3()
+  const { account, disconnect } = useWeb3()
   const router = useRouter()
-  const [verifying, setVerifying] = useState(true)
 
   const handleLogout = () => {
       disconnect();
       router.push("/");
   }
-
-  useEffect(() => {
-      const verifyUser = async () => {
-          if (!loading && hospitalContract && account) {
-              try {
-                  const id = await hospitalContract.walletToHospitalId(account);
-                  if (id.toString() === "0") {
-                      console.warn("Account is not a registered hospital. Redirecting.");
-                      router.push("/hospital/signup"); 
-                  }
-              } catch (err) {
-                  console.error("Hospital verification failed:", err);
-              } finally {
-                  setVerifying(false);
-              }
-          } else if (!loading && !account) {
-               router.push("/");
-          }
-      };
-      
-      verifyUser();
-  }, [account, hospitalContract, loading, router]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -64,9 +41,10 @@ export default function HospitalDashboardLayout({ children }) {
         </div>
       </header>
 
-      {/* Main */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-           {children}
+           <RoleGuard role="hospital">
+                {children}
+           </RoleGuard>
       </div>
     </div>
   )

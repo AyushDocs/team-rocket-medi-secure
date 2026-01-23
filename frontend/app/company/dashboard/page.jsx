@@ -13,10 +13,9 @@ import mammoth from "mammoth"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
-import { useWeb3 } from "../../../context/Web3Context"
 
 const CompanyDashboard = () => {
-    const { marketplaceContract, account, disconnect, loading: web3Loading } = useWeb3()
+    const { marketplaceContract, account, disconnect } = useWeb3()
     const router = useRouter()
     
     // State
@@ -166,130 +165,132 @@ const CompanyDashboard = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
-            {/* Header */}
-            <header className="bg-white border-b py-4 sticky top-0 z-50">
-                <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-                    <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push("/")}>
-                        <Shield className="h-6 w-6 text-purple-700" />
-                        <span className="font-bold text-xl text-gray-800">MediMarketplace</span>
+        <RoleGuard role="company">
+            <div className="min-h-screen bg-gray-50 flex flex-col">
+                {/* Header */}
+                <header className="bg-white border-b py-4 sticky top-0 z-50">
+                    <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
+                        <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push("/")}>
+                            <Shield className="h-6 w-6 text-purple-700" />
+                            <span className="font-bold text-xl text-gray-800">MediMarketplace</span>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            {account && <span className="text-xs font-mono bg-gray-100 px-2 py-1 rounded hidden sm:block">{account.slice(0,6)}...{account.slice(-4)}</span>}
+                            <Button variant="ghost" onClick={handleLogout} className="text-gray-600 hover:text-red-600 hover:bg-red-50 font-bold">
+                                <LogOut className="h-4 w-4 mr-2" />
+                                Log Out
+                            </Button>
+                        </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                        {account && <span className="text-xs font-mono bg-gray-100 px-2 py-1 rounded hidden sm:block">{account.slice(0,6)}...{account.slice(-4)}</span>}
-                        <Button variant="ghost" onClick={handleLogout} className="text-gray-600 hover:text-red-600 hover:bg-red-50 font-bold">
-                            <LogOut className="h-4 w-4 mr-2" />
-                            Log Out
-                        </Button>
+                </header>
+
+                <main className="flex-1 p-8 space-y-8 max-w-7xl mx-auto w-full">
+                    <div className="flex justify-between items-center">
+                        <h1 className="text-3xl font-bold text-gray-800 tracking-tight">Company Dashboard</h1>
+                        <div className="flex items-center gap-2 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-semibold border border-purple-200">
+                            <Cpu u className="h-4 w-4" />
+                            DeSci Compute Ready
+                        </div>
                     </div>
-                </div>
-            </header>
+                    
+                    <Tabs defaultValue="overview" className="space-y-6">
+                        <TabsList className="bg-white border p-1 h-12">
+                            <TabsTrigger value="overview" className="px-6 data-[state=active]:bg-purple-600 data-[state=active]:text-white">Overview</TabsTrigger>
+                            <TabsTrigger value="compute" className="px-6 data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+                                <PlayCircle className="w-4 h-4 mr-2" />
+                                Compute Sandbox
+                            </TabsTrigger>
+                        </TabsList>
 
-            <main className="flex-1 p-8 space-y-8 max-w-7xl mx-auto w-full">
-                <div className="flex justify-between items-center">
-                    <h1 className="text-3xl font-bold text-gray-800 tracking-tight">Company Dashboard</h1>
-                    <div className="flex items-center gap-2 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-semibold border border-purple-200">
-                        <Cpu u className="h-4 w-4" />
-                        DeSci Compute Ready
-                    </div>
-                </div>
-                
-                <Tabs defaultValue="overview" className="space-y-6">
-                    <TabsList className="bg-white border p-1 h-12">
-                        <TabsTrigger value="overview" className="px-6 data-[state=active]:bg-purple-600 data-[state=active]:text-white">Overview</TabsTrigger>
-                        <TabsTrigger value="compute" className="px-6 data-[state=active]:bg-purple-600 data-[state=active]:text-white">
-                            <PlayCircle className="w-4 h-4 mr-2" />
-                            Compute Sandbox
-                        </TabsTrigger>
-                    </TabsList>
+                        <TabsContent value="overview" className="space-y-8 mt-0">
+                            <Card>
+                                <CardHeader><CardTitle>Create Data Offer (Ad)</CardTitle></CardHeader>
+                                <CardContent className="space-y-4">
+                                    <Input placeholder="Offer Title (e.g. Buying X-Rays)" value={offerTitle} onChange={e=>setOfferTitle(e.target.value)} />
+                                    <Textarea placeholder="Description & Requirements" value={offerDesc} onChange={e=>setOfferDesc(e.target.value)} />
+                                    <div className="flex gap-4">
+                                        <Input type="number" step="0.001" placeholder="Price Per Record (ETH)" value={price} onChange={e=>setPrice(e.target.value)} />
+                                        <Input type="number" step="0.01" placeholder="Total Budget (ETH)" value={budget} onChange={e=>setBudget(e.target.value)} />
+                                    </div>
+                                    <Button onClick={createOffer} disabled={loading} className="w-full bg-[#703FA1]">
+                                        {loading ? "Creating..." : "Launch Offer"}
+                                    </Button>
+                                </CardContent>
+                            </Card>
 
-                    <TabsContent value="overview" className="space-y-8 mt-0">
-                        <Card>
-                            <CardHeader><CardTitle>Create Data Offer (Ad)</CardTitle></CardHeader>
-                            <CardContent className="space-y-4">
-                                <Input placeholder="Offer Title (e.g. Buying X-Rays)" value={offerTitle} onChange={e=>setOfferTitle(e.target.value)} />
-                                <Textarea placeholder="Description & Requirements" value={offerDesc} onChange={e=>setOfferDesc(e.target.value)} />
-                                <div className="flex gap-4">
-                                    <Input type="number" step="0.001" placeholder="Price Per Record (ETH)" value={price} onChange={e=>setPrice(e.target.value)} />
-                                    <Input type="number" step="0.01" placeholder="Total Budget (ETH)" value={budget} onChange={e=>setBudget(e.target.value)} />
-                                </div>
-                                <Button onClick={createOffer} disabled={loading} className="w-full bg-[#703FA1]">
-                                    {loading ? "Creating..." : "Launch Offer"}
-                                </Button>
-                            </CardContent>
-                        </Card>
+                            <Card>
+                                <CardHeader><CardTitle>My Active Campaigns</CardTitle></CardHeader>
+                                <CardContent>
+                                    {loadingData ? <div className="space-y-2"><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /></div> : myOffers.length === 0 ? <p>No active campaigns.</p> : (
+                                        <ul className="space-y-2">
+                                            {myOffers.map((o, i) => (
+                                                <li key={i} className="p-3 border rounded bg-white flex justify-between">
+                                                    <span className="font-medium">{o.title}</span>
+                                                    <span className="font-mono text-green-600">{ethers.formatEther(o.budget)} ETH remaining</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </CardContent>
+                            </Card>
 
-                        <Card>
-                            <CardHeader><CardTitle>My Active Campaigns</CardTitle></CardHeader>
-                            <CardContent>
-                                {loadingData ? <div className="space-y-2"><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /></div> : myOffers.length === 0 ? <p>No active campaigns.</p> : (
-                                    <ul className="space-y-2">
-                                        {myOffers.map((o, i) => (
-                                            <li key={i} className="p-3 border rounded bg-white flex justify-between">
-                                                <span className="font-medium">{o.title}</span>
-                                                <span className="font-mono text-green-600">{ethers.formatEther(o.budget)} ETH remaining</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )}
-                            </CardContent>
-                        </Card>
+                            <Card>
+                                <CardHeader className="flex flex-row items-center justify-between">
+                                    <CardTitle>Purchased Data</CardTitle>
+                                    <Button variant="outline" size="sm" onClick={handleExport} disabled={purchases.length===0}>
+                                        <Download className="w-4 h-4 mr-2" />
+                                        Export CSV
+                                    </Button>
+                                </CardHeader>
+                                <CardContent>
+                                    {loadingData ? <div className="space-y-2"><Skeleton className="h-16 w-full" /><Skeleton className="h-16 w-full" /><Skeleton className="h-16 w-full" /></div> : purchases.length === 0 ? <p>No data purchased yet.</p> : (
+                                        <ul className="space-y-2">
+                                            {purchases.map((p, i) => (
+                                                <li key={i} className="p-3 border rounded bg-white flex justify-between items-center group hover:border-purple-300 transition-colors">
+                                                    <div>
+                                                        <p className="font-bold text-sm truncate w-64">{p.ipfsHash}</p>
+                                                        <p className="text-xs text-gray-500">From: {p.patient.slice(0,6)}...{p.patient.slice(-4)} • {new Date(Number(p.timestamp)*1000).toLocaleDateString()}</p>
+                                                    </div>
+                                                    <Button size="sm" variant="ghost" className="text-blue-600" onClick={() => handleView(p.ipfsHash, p.patient)}>
+                                                        <Eye className="w-4 h-4 mr-1" /> View
+                                                    </Button>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
 
-                        <Card>
-                            <CardHeader className="flex flex-row items-center justify-between">
-                                <CardTitle>Purchased Data</CardTitle>
-                                <Button variant="outline" size="sm" onClick={handleExport} disabled={purchases.length===0}>
-                                    <Download className="w-4 h-4 mr-2" />
-                                    Export CSV
-                                </Button>
-                            </CardHeader>
-                            <CardContent>
-                                {loadingData ? <div className="space-y-2"><Skeleton className="h-16 w-full" /><Skeleton className="h-16 w-full" /><Skeleton className="h-16 w-full" /></div> : purchases.length === 0 ? <p>No data purchased yet.</p> : (
-                                    <ul className="space-y-2">
-                                        {purchases.map((p, i) => (
-                                            <li key={i} className="p-3 border rounded bg-white flex justify-between items-center group hover:border-purple-300 transition-colors">
-                                                <div>
-                                                    <p className="font-bold text-sm truncate w-64">{p.ipfsHash}</p>
-                                                    <p className="text-xs text-gray-500">From: {p.patient.slice(0,6)}...{p.patient.slice(-4)} • {new Date(Number(p.timestamp)*1000).toLocaleDateString()}</p>
-                                                </div>
-                                                <Button size="sm" variant="ghost" className="text-blue-600" onClick={() => handleView(p.ipfsHash, p.patient)}>
-                                                    <Eye className="w-4 h-4 mr-1" /> View
-                                                </Button>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )}
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
+                        <TabsContent value="compute" className="mt-0">
+                            <Card className="border-none shadow-none bg-transparent">
+                                <CardHeader className="px-0">
+                                    <CardTitle className="text-2xl font-bold">Compute-Over-Data (DeSci)</CardTitle>
+                                    <CardDescription>
+                                        Securely train your models on patient data without downloading raw records. 
+                                        Your script runs in a isolated Docker sandbox and only returns logs and specific artifacts.
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent className="px-0">
+                                    <ComputeSandbox purchasedData={purchases} account={account} />
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+                    </Tabs>
+                </main>
 
-                    <TabsContent value="compute" className="mt-0">
-                        <Card className="border-none shadow-none bg-transparent">
-                            <CardHeader className="px-0">
-                                <CardTitle className="text-2xl font-bold">Compute-Over-Data (DeSci)</CardTitle>
-                                <CardDescription>
-                                    Securely train your models on patient data without downloading raw records. 
-                                    Your script runs in a isolated Docker sandbox and only returns logs and specific artifacts.
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="px-0">
-                                <ComputeSandbox purchasedData={purchases} account={account} />
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
-                </Tabs>
-            </main>
-
-            <Dialog open={viewModalOpen} onOpenChange={setViewModalOpen}>
-                <DialogContent className="max-w-4xl h-[80vh]">
-                    <DialogHeader>
-                        <DialogTitle>Document Viewer</DialogTitle>
-                    </DialogHeader>
-                    <div className="flex-1 w-full h-full border rounded bg-gray-100 flex items-center justify-center overflow-hidden p-4">
-                        {renderContent()}
-                    </div>
-                </DialogContent>
-            </Dialog>
-        </div>
+                <Dialog open={viewModalOpen} onOpenChange={setViewModalOpen}>
+                    <DialogContent className="max-w-4xl h-[80vh]">
+                        <DialogHeader>
+                            <DialogTitle>Document Viewer</DialogTitle>
+                        </DialogHeader>
+                        <div className="flex-1 w-full h-full border rounded bg-gray-100 flex items-center justify-center overflow-hidden p-4">
+                            {renderContent()}
+                        </div>
+                    </DialogContent>
+                </Dialog>
+            </div>
+        </RoleGuard>
     )
 }
 export default CompanyDashboard;

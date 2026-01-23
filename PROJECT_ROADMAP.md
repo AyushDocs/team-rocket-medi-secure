@@ -4,7 +4,17 @@
 - [ ] **Gasless Transactions (Paymasters):**
     - Implement **Biconomy Paymaster** so the platform pays gas fees.
     - Remove "Confirm Transaction" popup fatigue for a seamless experience.
-- [ ] **Emergency Magic Link:**
-    - Generatable QR codes for physical cards/bracelets that grant 1-hour "view-only" access to first responders.
 - [ ] **FHIR Interoperability:**
     - Compliance with HL7 FHIR standards to allow data porting from Epic/Cerner systems.
+- [ ] **Selective Disclosure 2.0 (ZKP Enhancements):**
+    - Implement recursive proofs or Batch Verification for high-volume insurance claims.
+    - Add support for **Zero-Knowledge Machine Learning (ZKML)** to verify AI-driven health predictions without exposing models.
+- [ ] **IoT & Wearable Integration:**
+    - Real-time data sync with Apple HealthKit/Google Fit using decentralized oracles (Chainlink).
+    - Emergency "Dead Man's Switch" for automated record release to next-of-kin.
+- [ ] **Decentralized Identity (DID):**
+    - Transition to **WorldID** or **ENS** for global, sybil-resistant patient identity verification.
+- [ ] **Mobile-First Experience:**
+    - Develop a React Native wrapper with biometric auth (FaceID/TouchID) for rapid data access during emergencies.
+- [ ] **Governance (DAO):**
+    - Implement a token-weighted voting system for community-approved medical research grants.
