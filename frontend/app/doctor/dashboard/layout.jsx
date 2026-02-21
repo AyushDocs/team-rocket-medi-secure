@@ -6,7 +6,7 @@ import { Activity, Calendar, FileText, Heart, Shield, Users } from "lucide-react
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useWeb3 } from "../../../context/Web3Context"
-
+import RoleGuard from '../../../components/RoleGuard'
 
 export default function DoctorDashboardLayout({ children }) {
   const { account, disconnect } = useWeb3()

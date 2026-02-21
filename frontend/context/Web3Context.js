@@ -185,12 +185,20 @@ export const Web3Provider = ({ children }) => {
     }, []);
 
     const updateEmergencyState = (state) => {
+        console.log(state)
         setEmergencyState(state);
         if (state.active && state.hospital) {
             localStorage.setItem("mediSecure_dutyHospital", state.hospital);
         } else {
             localStorage.removeItem("mediSecure_dutyHospital");
         }
+    };
+
+    const toggleEmergencyMode = () => {
+        setEmergencyState(prev => ({
+            active: !prev.active,
+            hospital: prev.hospital
+        }));
     };
 
     // Load custom hospitals from LocalStorage
@@ -239,6 +247,7 @@ export const Web3Provider = ({ children }) => {
         insuranceContract,
         emergencyState,
         setEmergencyState: updateEmergencyState,
+        toggleEmergencyMode,
         isConnected,
         account,
         loading,

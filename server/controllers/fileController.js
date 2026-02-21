@@ -71,13 +71,18 @@ export const getFile = async (req, res) => {
         }
 
         if (!hasAccess) return res.status(403).json({ error: CONFIG.MESSAGES.ACCESS_DENIED });
-
-        const response = await getFileStream(hash);
-        res.setHeader("Content-Type", response.headers["content-type"]);
-        response.data.pipe(res);
+        console.log(`[fileController] Fetching hash: ${hash}`);
+        try {
+            const response = await getFileStream(hash);
+            res.setHeader("Content-Type", response.headers["content-type"]);
+            response.data.pipe(res);
+        } catch (fetchErr) {
+            console.error("[fileController] Fetch Error Details:", fetchErr.message, fetchErr.code, fetchErr.status);
+            return res.status(502).json({ error: `Failed to fetch file from IPFS: ${fetchErr.message}` });
+        }
 
     } catch (error) {
-        console.error("Fetch Error:", error.message);
-        res.status(500).json({ error: "Failed to fetch file" });
+        console.error("[fileController] Auth/Access Error:", error.message);
+        res.status(500).json({ error: error.message || "Failed to process request" });
     }
 };

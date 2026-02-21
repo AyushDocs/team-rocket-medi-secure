@@ -219,7 +219,7 @@ export default function HomePage() {
                 <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-center opacity-70 scale-90">
                     <div className="flex flex-col items-center gap-1">
                         <Activity className="h-5 w-5 text-blue-500" />
-                        <span className="font-semibold text-gray-800 text-sm">100% Uptime</span>
+                        <span className="font-semibold text-gray-800 text-sm">99% Uptime</span>
                         <span className="text-[10px] text-gray-500">Decentralized IPFS Storage</span>
                     </div>
                     <div className="flex flex-col items-center gap-1">

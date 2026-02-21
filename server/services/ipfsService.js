@@ -50,10 +50,32 @@ export const uploadToIPFS = async (fileBuffer, fileName, userAddress) => {
 };
 
 /**
- * Fetches a file stream from Pinata Gateway.
+ * Fetches a file stream from Pinata Gateway with retries and timeout.
  */
 export const getFileStream = async (hash) => {
-    const gatewayUrl = `${CONFIG.PINATA.GATEWAY_URL}${hash}`;
-    const response = await axios.get(gatewayUrl, { responseType: 'stream' });
-    return response;
+    const maxRetries = 2;
+    let lastError;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const gateway = CONFIG.PINATA.GATEWAYS[0];
+            const gatewayUrl = `${gateway}${hash}`;
+            console.log(`[ipfsService] Attempt ${attempt}: Fetching ${gatewayUrl}`);
+            
+            const response = await axios.get(gatewayUrl, { 
+                responseType: 'stream',
+                timeout: 30000
+            });
+            console.log(`[ipfsService] Success fetching hash: ${hash}`);
+            return response;
+        } catch (err) {
+            lastError = err;
+            console.error(`[ipfsService] Attempt ${attempt} failed:`, err.message, err.code);
+            if (attempt < maxRetries) {
+                await new Promise(r => setTimeout(r, 1000));
+            }
+        }
+    }
+
+    throw new Error(`Failed to fetch from IPFS after ${maxRetries} attempts: ${lastError.message}`);
 };

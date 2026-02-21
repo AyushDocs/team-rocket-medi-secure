@@ -7,8 +7,9 @@ import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 import { useWeb3 } from "../../../../context/Web3Context"
 
+
 export default function PatientsDoctor() {
-  const { doctorContract, patientContract, emergencyState, knownHospitals } = useWeb3()
+  const { doctorContract, patientContract, emergencyState, knownHospitals, setEmergencyState, toggleEmergencyMode } = useWeb3()
   const [patientsList, setPatientsList] = useState([])
   const [selectedPatientAddr, setSelectedPatientAddr] = useState("")
   const [manualPatientInput, setManualPatientInput] = useState("")
@@ -22,7 +23,7 @@ export default function PatientsDoctor() {
   
   const [loading, setLoading] = useState(false)
   const emergencyMode = emergencyState?.active;
-
+    console.log(emergencyState)
   // Load Patients on Mount
   useEffect(() => {
     const fetchPatients = async () => {
@@ -175,7 +176,7 @@ export default function PatientsDoctor() {
         });
     }
   }
-
+  console.log(emergencyMode)
   return (
     <Card className={emergencyMode ? "border-red-500 shadow-red-100 shadow-lg transition-all" : "transition-all"}>
       <CardHeader>
@@ -187,7 +188,7 @@ export default function PatientsDoctor() {
             <Button 
                 variant={emergencyMode ? "destructive" : "outline"}
                 size="sm"
-                onClick={() => setEmergencyMode(!emergencyMode)}
+                onClick={toggleEmergencyMode}
                 className={emergencyMode ? "animate-pulse font-bold" : ""}
             >
                 {emergencyMode ? "Disable Emergency Mode" : "⚠ Emergency Override"}

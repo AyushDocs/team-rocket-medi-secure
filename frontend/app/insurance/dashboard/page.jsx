@@ -13,7 +13,8 @@ import { CheckCircle2, Edit2, FileCheck, LayoutDashboard, LogOut, Plus, ScrollTe
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { toast } from "react-hot-toast"
-
+import { useWeb3 } from "@/context/Web3Context"
+import RoleGuard from "@/components/RoleGuard"
 export default function InsuranceDashboard() {
     const { account, insuranceContract, disconnect } = useWeb3()
     const router = useRouter()
@@ -373,7 +374,7 @@ export default function InsuranceDashboard() {
                                             </div>
                                             <CardTitle className="text-xl font-bold text-gray-900">{p.name}</CardTitle>
                                             <CardDescription className="line-clamp-2">{p.description}</CardDescription>
-                                        </Header>
+                                        </CardHeader>
                                         <CardContent className="flex items-center justify-between border-t pt-4">
                                             <div className="flex items-baseline gap-1">
                                                 <p className="text-2xl font-bold text-blue-600">{p.basePremium}</p>

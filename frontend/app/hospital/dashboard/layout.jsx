@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { useWeb3 } from "@/context/Web3Context"
 import { Hospital, Shield } from "lucide-react"
 import { useRouter } from "next/navigation"
-
+import RoleGuard from "@/components/RoleGuard"
 
 export default function HospitalDashboardLayout({ children }) {
   const { account, disconnect } = useWeb3()

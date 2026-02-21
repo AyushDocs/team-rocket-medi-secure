@@ -13,7 +13,8 @@ import mammoth from "mammoth"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
-
+import { useWeb3 } from "@/context/Web3Context"
+import RoleGuard from "@/components/RoleGuard"
 const CompanyDashboard = () => {
     const { marketplaceContract, account, disconnect } = useWeb3()
     const router = useRouter()
