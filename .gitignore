@@ -1,0 +1,9 @@
+**/node_modules/**
+.env*
+.next
+.vscode/
+ganache-db/
+**/build/**
+frontend/contracts
+temp
+.vscode

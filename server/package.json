@@ -1,0 +1,47 @@
+{
+  "name": "medi-secure-server",
+  "version": "1.0.0",
+  "description": "Medi Secure Server for Safety Features",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules NODE_ENV=test jest",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate deploy",
+    "prisma:studio": "prisma studio"
+  },
+  "type": "module",
+  "keywords": [
+    "medi-secure",
+    "blockchain",
+    "ipfs",
+    "web3"
+  ],
+  "author": "Ayush Dubey",
+  "license": "ISC",
+  "dependencies": {
+    "@pinata/sdk": "^2.1.0",
+    "@prisma/client": "^5.8.0",
+    "axios": "^1.13.2",
+    "cors": "^2.8.5",
+    "dockerode": "^4.0.9",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "form-data": "^4.0.5",
+    "fs-extra": "^11.3.3",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.0.2",
+    "snarkjs": "^0.7.6",
+    "socket.io": "^4.8.3",
+    "uuid": "^13.0.0",
+    "web3": "^4.16.0"
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0",
+    "jest": "^30.2.0",
+    "nodemon": "^3.1.11",
+    "prisma": "^5.8.0",
+    "supertest": "^7.2.2"
+  }
+}

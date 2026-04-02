@@ -1,0 +1,41 @@
+{
+  "name": "medi-secure-contracts",
+  "version": "1.0.0",
+  "description": "Smart contracts for MediSecure",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "truffle test",
+    "compile": "truffle compile",
+    "dev:deploy": "truffle migrate --network development",
+    "dev:reset": "truffle migrate --network development --reset",
+    "dev:ganache": "ganache --wallet.deterministic --database.dbPath ./ganache-db --server.port 8545 --chain.networkId 1337 --chain.chainId 1337",
+    "seed": "truffle exec scripts/seed_data.js --network development"
+  },
+  "keywords": [
+    "ethereum",
+    "solidity",
+    "truffle",
+    "ganache",
+    "web3"
+  ],
+  "author": "Ayush Dubey",
+  "license": "ISC",
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.4.0",
+    "@openzeppelin/contracts-upgradeable": "^5.4.0",
+    "@openzeppelin/truffle-upgrades": "^1.21.0",
+    "web3": "^1.9.0",
+    "axios": "^1.6.0",
+    "form-data": "^4.0.0",
+    "socket.io-client": "^4.6.1",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "ganache": "^7.9.2",
+    "truffle": "^5.11.5"
+  }
+}
