@@ -1,0 +1,71 @@
+[
+  {
+    "date": "2026-04-02",
+    "title": "The Foundation: Sanjeevni Genesis",
+    "description": "Initialization of the Sanjeevni ecosystem with core decentralized infrastructure.",
+    "milestones": [
+      {
+        "time": "09:00 AM",
+        "label": "Project Kickoff",
+        "description": "Scaffolded Next.js and Node.js backend with full ZK-Proof support."
+      },
+      {
+        "time": "12:30 PM",
+        "label": "Smart Contract Deployment",
+        "description": "Successfully deployed Patient and Doctor management contracts with role-based access control."
+      },
+      {
+        "time": "03:45 PM",
+        "label": "IPFS Integration",
+        "description": "Integrated decentralized storage for medical records with on-chain authorization logic."
+      },
+      {
+        "time": "06:15 PM",
+        "label": "Secure Document Viewer",
+        "description": "Developed the watermarked, sandboxed medical record viewer for patient-doctor document exchange."
+      },
+      {
+        "time": "09:30 PM",
+        "label": "Doctor & Patient Portals",
+        "description": "Launched initial dashboards with real-time patient-doctor chat and record management."
+      }
+    ]
+  },
+  {
+    "date": "2026-04-03",
+    "title": "The Expansion: Ecosystem Scaling",
+    "description": "Rapid scaling of features with advanced privacy, multi-role access, and clinical deployment.",
+    "milestones": [
+      {
+        "time": "08:30 AM",
+        "label": "ZK-Proof Integration",
+        "description": "Implemented Circom-based zero-knowledge proofs for trustless insurance claims verification."
+      },
+      {
+        "time": "11:00 AM",
+        "label": "Hospital & Insurance Modules",
+        "description": "Launched dedicated portals for Hospital administrators and Insurance providers."
+      },
+      {
+        "time": "01:30 PM",
+        "label": "Turso Data Migration",
+        "description": "Migrated clinical data to Turso (LibSQL) for high-performance serverless edge stability."
+      },
+      {
+        "time": "04:00 PM",
+        "label": "ERP & Admin Systems",
+        "description": "Finalized tiered ERP subscription system with real-time Google Sheets synchronization."
+      },
+      {
+        "time": "05:45 PM",
+        "label": "Clinical Deployment",
+        "description": "Successfully deployed production-ready build to Netlify with full SEO and performance optimizations."
+      },
+      {
+        "time": "06:15 PM",
+        "label": "Development Timeline",
+        "description": "Visualization of the 48-hour development blitz for transparency and progress tracking."
+      }
+    ]
+  }
+]
