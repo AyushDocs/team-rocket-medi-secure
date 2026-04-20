@@ -4,14 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useWeb3 } from "../context/Web3Context";
 
 export default function SignupPatient() {
-  const { patientContract, account } = useWeb3();
+  const { patientContract, account, custodianUser } = useWeb3();
   const router = useRouter();
 
-  const [username, setUsername] = useState(""); // 1. Add username state
+  const [username, setUsername] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [age, setAge] = useState("");
@@ -19,6 +19,13 @@ export default function SignupPatient() {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (custodianUser) {
+        if (custodianUser.displayName && !name) setName(custodianUser.displayName);
+        if (custodianUser.email && !email) setEmail(custodianUser.email);
+    }
+  }, [custodianUser]);
 
   const handleSignup = async () => {
     if (!patientContract) {

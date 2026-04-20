@@ -1,0 +1,8 @@
+{
+  "PatientUpgradeable": "0x718e1497188318aDdf7e38b8318747006541F888",
+  "DoctorUpgradeable": "0x32e02F2934824ec085298E2B4e0e07935Ec6DaeC",
+  "InsuranceUpgradeable": "0x6082Ac385d4c63be87d5146b3c43E5E826A7341C",
+  "network": "localhost (Ganache)",
+  "deployedVia": "Hardhat with @openzeppelin/hardhat-upgrades",
+  "timestamp": "2026-04-13T22:12:30.936Z"
+}

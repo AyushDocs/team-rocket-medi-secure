@@ -1,0 +1,110 @@
+type Patient @entity(immutable: false) {
+  id: ID!
+  patientId: BigInt!
+  wallet: Bytes!
+  username: String!
+  name: String!
+  email: String!
+  age: BigInt!
+  bloodGroup: String!
+  recordCount: BigInt!
+  createdAt: BigInt!
+  updatedAt: BigInt!
+}
+
+type MedicalRecord @entity(immutable: false) {
+  id: ID!
+  tokenId: BigInt!
+  patient: String!
+  ipfsHash: String!
+  fileName: String!
+  recordDate: String!
+  hospital: String!
+  isEmergencyViewable: Boolean!
+  createdAt: BigInt!
+}
+
+type Doctor @entity(immutable: false) {
+  id: ID!
+  doctorId: BigInt!
+  wallet: Bytes!
+  name: String!
+  specialization: String!
+  email: String!
+  patientCount: BigInt!
+  createdAt: BigInt!
+}
+
+type InsuranceProvider @entity(immutable: false) {
+  id: ID!
+  wallet: Bytes!
+  name: String!
+  isActive: Boolean!
+  policyCount: BigInt!
+  createdAt: BigInt!
+}
+
+type Policy @entity(immutable: false) {
+  id: ID!
+  policyId: BigInt!
+  provider: String!
+  name: String!
+  description: String!
+  basePremium: BigInt!
+  isActive: Boolean!
+  minAge: BigInt!
+  createdAt: BigInt!
+}
+
+type InsuranceRequest @entity(immutable: false) {
+  id: ID!
+  requestId: BigInt!
+  patient: Bytes!
+  provider: String!
+  policy: String!
+  finalPremium: BigInt!
+  isVerified: Boolean!
+  isFinalized: Boolean!
+  createdAt: BigInt!
+}
+
+type Claim @entity(immutable: false) {
+  id: ID!
+  claimId: BigInt!
+  patient: Bytes!
+  provider: String!
+  procedureName: String!
+  cost: BigInt!
+  status: String!
+  timestamp: BigInt!
+}
+
+type AccessGrant @entity(immutable: false) {
+  id: ID!
+  patient: Bytes!
+  doctor: String!
+  ipfsHash: String!
+  hasAccess: Boolean!
+  grantTime: BigInt!
+  duration: BigInt!
+  reason: String!
+}
+
+type EmergencyAccessLog @entity(immutable: false) {
+  id: ID!
+  patientId: BigInt!
+  accessor: Bytes!
+  reason: String!
+  timestamp: BigInt!
+}
+
+type Transaction @entity(immutable: false) {
+  id: ID!
+  hash: Bytes!
+  from: Bytes!
+  to: Bytes!
+  value: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  status: String!
+}

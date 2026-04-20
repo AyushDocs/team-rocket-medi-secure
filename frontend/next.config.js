@@ -1,3 +1,5 @@
+const webpack = require('webpack');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
@@ -21,11 +23,24 @@ const nextConfig = {
         child_process: false,
         net: false,
         tls: false,
+        buffer: require.resolve('buffer/'),
+        process: require.resolve('process/browser'),
+        util: require.resolve('util/'),
+        stream: require.resolve('stream-browserify'),
+        crypto: require.resolve('crypto-browserify'),
+        path: require.resolve('path-browserify'),
       };
+
+      config.plugins.push(
+        new webpack.ProvidePlugin({
+          Buffer: ['buffer', 'Buffer'],
+          process: 'process/browser',
+        })
+      );
     }
     config.module.exprContextCritical = false;
     return config;
   },
 }
 
-module.exports = nextConfig
+module.exports = nextConfig;

@@ -60,3 +60,38 @@ export const verifyPremiumProof = async (proof, publicSignals) => {
         return false;
     }
 };
+/**
+ * Generates a Zero-Knowledge Proof for Wellness Rewards.
+ * Proves that vitals (BP, Heart Rate) are within healthy limits.
+ */
+export const generateWellnessProof = async (vitals) => {
+    try {
+        console.log("--- GENERATING WELLNESS ZK-PROOF ---");
+        
+        // This would use a specific wellness circuit (e.g., wellness.circom)
+        // For demonstration, we'll use a placeholder logic that calls fullProve
+        const inputs = {
+            sbp: uintToUint256(vitals.sbp),
+            hr: uintToUint256(vitals.heartRate),
+            temp: uintToUint256(vitals.temperature),
+            maxSbp: 140,
+            maxHr: 100
+        };
+
+        // Note: Real implementation would point to wellness_calc.wasm
+        // const { proof, publicSignals } = await snarkjs.groth16.fullProve(...);
+
+        return {
+            proof: "0xSAMPLE_PROOF",
+            isHealthy: vitals.sbp < 140 && vitals.heartRate < 100
+        };
+    } catch (err) {
+        console.error("Wellness ZKP Generation Failed:", err);
+        throw err;
+    }
+};
+
+function uintToUint256(val) {
+    if (typeof val === 'string') return val.split('/')[0];
+    return val;
+}

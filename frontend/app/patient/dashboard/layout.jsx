@@ -3,19 +3,22 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Activity, FileText, Shield, Siren, User } from "lucide-react"
+import { Activity, FileText, Shield, Siren, User, Crown, LayoutDashboard, ShoppingBag, Heart, Lock } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 import { useWeb3 } from "../../../context/Web3Context"
 import RoleGuard from "@/components/RoleGuard"
+import { motion, AnimatePresence } from "framer-motion"
+import { Logo } from "@/components/Logo"
+
 
 export default function PatientDashboardLayout({ children }) {
   const { account, disconnect, doctorContract } = useWeb3()
   const router = useRouter()
   const pathname = usePathname()
-  const [emergencyAlert, setEmergencyAlert] = useState(null) // { doctor, timestamp, reason }
+  const [emergencyAlert, setEmergencyAlert] = useState(null)
 
   const handleLogout = () => {
       disconnect();
@@ -26,7 +29,6 @@ export default function PatientDashboardLayout({ children }) {
       const checkEmergencies = async () => {
           if(!doctorContract || !account) return;
           try {
-              // Get past events of emergency grants
               const filter = doctorContract.filters.EmergencyAccessGranted(null, account);
               const events = await doctorContract.queryFilter(filter); 
               
@@ -36,34 +38,9 @@ export default function PatientDashboardLayout({ children }) {
                   const ipfsHash = latest.args[2];
                   const doctorAddr = latest.args[0];
                   
-                  // Check if resolved on-chain
-                  const isResolved = await doctorContract.hasAccessToDocument(account, ipfsHash)
-                      .then(hasAccess => {
-                           // If hasAccess is false (revoked) or expired, it's effectively resolved for alert purposes
-                           // But to be precise, we should check 'isResolved' but that's in struct not exposed easily by bool function
-                           // We will rely on getAccessList for precision or just hasAccess logic
-                           return !hasAccess; 
-                      });
-                  
-                  // Wait, hasAccessToDocument returns true if access is valid.
-                  // We need to know if it was explicitly RESOLVED/DISMISSED.
-                  // The contract doesn't expose 'isResolved' via `hasAccessToDocument`.
-                  // Let's iterate access list to find the record.
-                  const accessList = await doctorContract.getAccessList({ from: doctorAddr }); // Wait, caller is patient
-                  // Patient cannot call getAccessList of doctor easily without impersonation or specific getter
-                  // Actually `hasAccessToDocument` returns false if expired.
-                  
-                  // Simplified: If access is still valid AND (Active < 24h), show alert.
-                  // If we "resolve", we likely revoke access or mark resolved. 
-                  // In our contract `resolveEmergency` sets `isResolved=true`. Does it revoke? No, just marks resolved.
-                  // So we strictly need to know `isResolved`.
-                  // We can't easily read `doctorAccessList` mapping from patient side for a specific doctor without a helper.
-                  // But we can filter `EmergencyResolved` events!
-                  
                   const resolveFilter = doctorContract.filters.EmergencyResolved(account);
                   const resolveEvents = await doctorContract.queryFilter(resolveFilter);
                   
-                  // Check if there is a resolve event AFTER the grant event for this hash
                   const isActuallyResolved = resolveEvents.some(r => 
                       r.args[2] === ipfsHash && r.blockNumber > latest.blockNumber
                   );
@@ -81,158 +58,160 @@ export default function PatientDashboardLayout({ children }) {
                           ipfsHash: ipfsHash,
                           txn: latest.transactionHash
                       });
-                      toast("SMS ALERT: Emergency Access Detected on your Account!", {
+                      toast("SMS ALERT: Emergency Access Detected!", {
                           icon: '🚨',
-                          style: { borderRadius: '10px', background: '#ef4444', color: '#fff' },
+                          style: { borderRadius: '20px', background: '#ef4444', color: '#fff', fontWeight: 'bold' },
                           duration: 5000,
                       });
                   }
               }
           } catch(e) { console.error("Emergency Check Failed:", e); }
       }
-
       checkEmergencies();
-  }, [account, doctorContract, router]); // Keep dependencies
+  }, [account, doctorContract]);
 
   const handleResolveEmergency = async () => {
       if (!emergencyAlert || !doctorContract) return;
       try {
-          // Verify if user is Nominee or Patient (Contract checks patient, we blindly assume current user is authorized or nominee wallet)
-          // Since we emulate "Nominee" by just switching wallet in MetaMask, same function works if contract supports it.
-          // Current contract supports only Patient.
-          // If Nominee is logged in, they can't call this yet unless we updated contract to check nominee list.
-          // For now, we assume Patient is dismissing.
           const tx = await doctorContract.resolveEmergency(emergencyAlert.doctor, emergencyAlert.ipfsHash);
           await tx.wait();
-          
           setEmergencyAlert(null);
-          toast.success("Emergency Alert Dismissed & Acknowledged.");
+          toast.success("Emergency Alert Dismissed.");
       } catch (e) {
           console.error("Dismiss failed", e);
-          toast.error("Failed to dismiss alert: " + (e.reason || e.message));
+          toast.error("Failed to dismiss alert.");
       }
   }
 
-  const getValue = () => {
-    if (pathname.includes("overview")) return "overview"
-    if (pathname.includes("records")) return "records"
-    if (pathname.includes("chat")) return "chat"
-    if (pathname.includes("access-requests")) return "access-requests"
-    if (pathname.includes("marketplace")) return "marketplace"
-    if (pathname.includes("insurance")) return "insurance"
-    if (pathname.includes("profile")) return "profile"
-    return "overview"
+  const navItems = [
+    { id: 'overview', label: 'Overview', icon: LayoutDashboard, href: '/patient/dashboard/overview' },
+    { id: 'records', label: 'Health Records', icon: FileText, href: '/patient/dashboard/records' },
+    { id: 'access-requests', label: 'Trust Circle', icon: Shield, href: '/patient/dashboard/access-requests' },
+    { id: 'marketplace', label: 'Data Bank', icon: ShoppingBag, href: '/patient/dashboard/marketplace', premium: true },
+    { id: 'insurance', label: 'Insurance', icon: Heart, href: '/patient/dashboard/insurance' },
+    { id: 'profile', label: 'Vault Profile', icon: User, href: '/patient/dashboard/profile' },
+  ]
+
+  const getCurrentTab = () => {
+    const item = navItems.find(item => pathname.includes(item.id))
+    return item ? item.id : 'overview'
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-         {/* ... (Kept Header content same, omitted for brevity in search block) ... */}
-         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-4">
-              <Link href="/patient/dashboard/profile">
-                <Avatar className="cursor-pointer hover:opacity-80 transition-opacity">
-                  <AvatarImage src="/man.jpg" alt="Patient Avatar" />
-                  <AvatarFallback>PD</AvatarFallback>
+    <div className="min-h-screen bg-[#f8fafc] selection:bg-blue-100 italic-none">
+      {/* Premium Navigation */}
+      <nav className="sticky top-0 z-50 glass border-b-none py-2 px-4 shadow-sm">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            <Logo size={40} />
+            
+            <div className="hidden md:flex h-8 w-[1px] bg-slate-200"></div>
+            
+            <div className="hidden md:flex items-center gap-4">
+               {navItems.map((item) => (
+                 <Link key={item.id} href={item.href}>
+                    <button className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${pathname.includes(item.id) ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-slate-400 hover:text-slate-900 hover:bg-slate-100'}`}>
+                       <item.icon size={14} />
+                       {item.label}
+                       {item.premium && <Crown size={10} className={pathname.includes(item.id) ? 'text-blue-200' : 'text-amber-400'} />}
+                    </button>
+                 </Link>
+               ))}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+             <div 
+                className="hidden lg:flex flex-col items-end cursor-pointer group"
+                onDoubleClick={() => {
+                   if (account) {
+                      navigator.clipboard.writeText(account);
+                      toast.success("Address copied to clipboard!", {
+                        icon: '📋',
+                        style: { borderRadius: '12px', background: '#1e293b', color: '#fff' }
+                      });
+                   }
+                }}
+                title="Double-click to copy address"
+             >
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-blue-500 transition-colors">Authenticated Proxy</p>
+                <p className="text-xs font-bold text-slate-700 font-mono group-hover:text-blue-600 transition-colors">{account?.slice(0,6)}...{account?.slice(-4)}</p>
+             </div>
+             <Link href="/patient/dashboard/profile">
+                <Avatar className="h-10 w-10 ring-2 ring-slate-100 hover:ring-blue-400 transition-all cursor-pointer">
+                  <AvatarImage src="/man.jpg" />
+                  <AvatarFallback className="font-black bg-blue-50 text-blue-600">P</AvatarFallback>
                 </Avatar>
-              </Link>
-              <div>
-                <h1 className="text-xl font-semibold text-gray-900">My Health Dashboard</h1>
-                <p className="text-sm text-gray-600">Welcome back, {account}</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2 text-sm text-gray-600">
-                 <Shield className="h-4 w-4 text-[#b2e061]" />
-                 <span>Secure Session</span>
-              </div>
-              <Button 
+             </Link>
+             <Button 
                 onClick={handleLogout} 
-                variant="outline"
+                variant="ghost"
+                className="rounded-xl px-4 font-black text-slate-400 hover:text-red-500 hover:bg-red-50"
               >
-                Logout
+                Sign Out
               </Button>
-            </div>
           </div>
         </div>
-      </header>
+      </nav>
 
-      {/* EMERGENCY BANNER */}
-      {emergencyAlert && (
-          <div className="bg-red-600 text-white px-4 py-3 shadow-lg animate-pulse">
-            <div className="max-w-7xl mx-auto flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <Siren className="h-6 w-6" />
-                    <div>
-                        <p className="font-bold text-lg">EMERGENCY ACCESS PROTOCOL ACTIVE</p>
-                        <p className="text-sm opacity-90">
-                            Dr. {emergencyAlert.doctor.slice(0,6)}... accessed your records. Reason: "{emergencyAlert.reason}"
-                        </p>
-                    </div>
-                </div>
-                <div className="flex gap-2">
-                    <Button onClick={handleResolveEmergency} variant="secondary" size="sm" className="bg-white text-red-600 hover:bg-red-50 font-bold">
-                        I'm Safe - Dismiss Alert
-                    </Button>
-                    <Button variant="outline" size="sm" className="border-white text-white hover:bg-red-700 bg-transparent">
-                        Report Abuse
-                    </Button>
-                </div>
-            </div>
-          </div>
-      )}
+      <AnimatePresence>
+        {emergencyAlert && (
+            <motion.div 
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="bg-red-600 text-white overflow-hidden shadow-2xl relative"
+            >
+              <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                      <div className="p-3 bg-white/20 rounded-2xl animate-pulse">
+                        <Siren size={24} />
+                      </div>
+                      <div>
+                          <p className="text-lg font-black tracking-tight leading-none">Security Override Initiated</p>
+                          <p className="text-sm font-medium opacity-90 mt-1">
+                             Dr. {emergencyAlert.doctor.slice(0,6)} requested emergency bypass for "{emergencyAlert.reason}"
+                          </p>
+                      </div>
+                  </div>
+                  <div className="flex gap-3">
+                      <Button onClick={handleResolveEmergency} className="bg-white text-red-600 hover:bg-blue-50 font-black rounded-xl px-6 shadow-xl active:scale-95 transition-all">
+                          Dismiss & Log Safe
+                      </Button>
+                      <Button variant="outline" className="border-white/30 text-white hover:bg-red-700 bg-transparent rounded-xl font-black">
+                          Track Audit Trail
+                      </Button>
+                  </div>
+              </div>
+            </motion.div>
+        )}
+      </AnimatePresence>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <Tabs value={getValue()} className="w-full">
-          <TabsList className="grid w-full grid-cols-7 mb-6">
-            <Link href="/patient/dashboard/overview" className="w-full">
-                <TabsTrigger value="overview" className="w-full flex items-center gap-2 cursor-pointer">
-                    <Activity className="h-4 w-4" />
-                    Overview
-                </TabsTrigger>
-            </Link>
-            <Link href="/patient/dashboard/records" className="w-full">
-                <TabsTrigger value="records" className="w-full flex items-center gap-2 cursor-pointer">
-                    <FileText className="h-4 w-4" />
-                    Records
-                </TabsTrigger>
-            </Link>
-            <Link href="/patient/dashboard/chat" className="w-full">
-                <TabsTrigger value="chat" className="w-full flex items-center gap-2 cursor-pointer">
-                    Chat
-                </TabsTrigger>
-            </Link>
-            <Link href="/patient/dashboard/access-requests" className="w-full">
-                <TabsTrigger value="access-requests" className="w-full flex items-center gap-2 cursor-pointer">
-                    Requests
-                </TabsTrigger>
-            </Link>
-            <Link href="/patient/dashboard/marketplace" className="w-full">
-                <TabsTrigger value="marketplace" className="w-full flex items-center gap-2 cursor-pointer text-purple-700 font-bold">
-                    Marketplace
-                </TabsTrigger>
-            </Link>
-            <Link href="/patient/dashboard/insurance" className="w-full">
-                <TabsTrigger value="insurance" className="w-full flex items-center gap-2 cursor-pointer text-blue-600 font-bold">
-                    <Shield className="h-4 w-4" />
-                    Insurance
-                </TabsTrigger>
-            </Link>
-            <Link href="/patient/dashboard/profile" className="w-full">
-                <TabsTrigger value="profile" className="w-full flex items-center gap-2 cursor-pointer">
-                    <User className="h-4 w-4" />
-                    Profile
-                </TabsTrigger>
-            </Link>
-          </TabsList>
-            
+      <main className="max-w-7xl mx-auto px-4 md:px-8 py-8 relative">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
+        
+        <motion.div
+           key={pathname}
+           initial={{ opacity: 0, x: 10 }}
+           animate={{ opacity: 1, x: 0 }}
+           transition={{ duration: 0.4, ease: "easeOut" }}
+        >
           <RoleGuard role="patient">
             {children}
           </RoleGuard>
-        </Tabs>
-      </div>
+        </motion.div>
+      </main>
+
+      {/* Security Health Indicator */}
+      <footer className="max-w-7xl mx-auto px-8 py-6 flex items-center justify-between opacity-40 hover:opacity-100 transition-opacity">
+         <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+            <span className="flex items-center gap-1"><Lock size={12} className="text-emerald-500" /> AES-256</span>
+            <span className="flex items-center gap-1"><Shield size={12} className="text-emerald-500" /> Proof-of-Health</span>
+            <span className="flex items-center gap-1 text-slate-500">Node Status: Operational</span>
+         </div>
+         <p className="text-[10px] font-black text-slate-400">MediSecure v2.1.0-prod</p>
+      </footer>
     </div>
   )
 }

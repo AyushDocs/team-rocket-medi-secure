@@ -2,39 +2,40 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { useEffect, useState } from "react"
 import { useWeb3 } from "../../../../context/Web3Context"
+import toast from "react-hot-toast"
+import { motion, AnimatePresence } from "framer-motion"
+import { Shield, ShieldAlert, Clock, History, Check, X, Zap, ArrowRight, User, Lock } from "lucide-react"
 
 export default function AccessRequestsPatient() {
-  const { doctorContract, account } = useWeb3()
+  const { doctorContract, account, signGrantConsent } = useWeb3()
   const [accessRequests, setAccessRequests] = useState([])
   const [activeAccess, setActiveAccess] = useState([])
   const [historyLogs, setHistoryLogs] = useState([])
   const [modifiedDurations, setModifiedDurations] = useState({}) 
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if(!doctorContract || !account) return;
 
-    // 1. Fetch Pending Requests
     const fetchRequests = async () => {
       try {
         const filter = doctorContract.filters.AccessRequested(account);
-        // Note: New contract has more args. We might need to handle old events gracefully?
-        // Actually, re-deployed contract means old events are gone (fresh Ganache).
         const events = await doctorContract.queryFilter(filter);
         
         const pastRequests = events.map(event => ({
-          doctor: event.args[1], 
-          ipfsHash: event.args[2], 
+          doctor: String(event.args[1]), 
+          ipfsHash: String(event.args[2]), 
           fileName: event.args[3] || "Unnamed Document",
           duration: event.args[4] ? event.args[4].toString() : "300",
-          reason: event.args[5] || "No Reason Provided" // Arg 5 is reason
+          reason: event.args[5] || "No Reason Provided"
         }));
         setAccessRequests(pastRequests);
       } catch (error) { console.error(error); }
     };
 
-    // 2. Fetch History & Active State
     const fetchHistory = async () => {
         try {
             const grantFilter = doctorContract.filters.AccessGranted(account);
@@ -47,38 +48,35 @@ export default function AccessRequestsPatient() {
                 doctorContract.queryFilter(requestFilter)
             ]);
             
-            // Map requests to look up reasons
             const requestMap = new Map();
             requests.forEach(e => {
-                const key = `${e.args[1]}-${e.args[2]}`; // doc-hash
-                if(e.args[5]) requestMap.set(key, e.args[5]);
+                const key = `${String(e.args[1])}-${String(e.args[2])}`;
+                if(e.args[5]) requestMap.set(key, String(e.args[5]));
             });
 
-            // Explicitly map args by index to avoid 'undefined' issues
             const allEvents = [
                 ...grants.map(e => {
-                   const key = `${e.args[1]}-${e.args[2]}`;
+                   const key = `${String(e.args[1])}-${String(e.args[2])}`;
                    return { 
                     type: 'GRANTED', 
-                    doctor: e.args[1], 
-                    ipfsHash: e.args[2],
-                    timestamp: e.args[3], 
-                    duration: e.args[4],
+                    doctor: String(e.args[1]), 
+                    ipfsHash: String(e.args[2]),
+                    timestamp: Number(e.args[3]), 
+                    duration: Number(e.args[4]),
                     reason: requestMap.get(key) || "Unknown Reason",
                     blockNumber: e.blockNumber 
                 }}),
                 ...revokes.map(e => ({ 
                     type: 'REVOKED', 
-                    doctor: e.args[1], 
-                    ipfsHash: e.args[2],
-                    timestamp: e.args[3], 
+                    doctor: String(e.args[1]), 
+                    ipfsHash: String(e.args[2]),
+                    timestamp: Number(e.args[3]), 
                     blockNumber: e.blockNumber 
                 }))
             ].sort((a,b) => b.blockNumber - a.blockNumber); 
 
             setHistoryLogs(allEvents);
 
-            // Determine Active Access
             const now = Math.floor(Date.now() / 1000);
             const uniquePairs = new Set();
             const activeList = [];
@@ -104,27 +102,20 @@ export default function AccessRequestsPatient() {
                 }
             }
             setActiveAccess(activeList);
-
         } catch(e) { console.error("History error:", e); }
     }
 
     fetchRequests();
     fetchHistory();
 
-    // Listeners
-    const handleRequested = (p, d, h, f, dur, r) => {
-        if(p.toLowerCase() === account.toLowerCase()) 
-            setAccessRequests(prev => [...prev, { doctor: d, ipfsHash: h, fileName: f, duration: dur.toString(), reason: r }]);
-    }
-    
-    const handleStateChange = () => { fetchHistory(); };
+    const handleStateChange = () => { fetchHistory(); fetchRequests(); };
 
-    doctorContract.on("AccessRequested", handleRequested);
+    doctorContract.on("AccessRequested", handleStateChange);
     doctorContract.on("AccessGranted", handleStateChange);
     doctorContract.on("AccessRevoked", handleStateChange);
 
     return () => {
-        doctorContract.off("AccessRequested", handleRequested);
+        doctorContract.off("AccessRequested", handleStateChange);
         doctorContract.off("AccessGranted", handleStateChange);
         doctorContract.off("AccessRevoked", handleStateChange);
     };
@@ -132,22 +123,64 @@ export default function AccessRequestsPatient() {
 
   const handleAccessResponse = async (doctor, ipfsHash, grant) => {
     if(!doctorContract) return;
+    setLoading(true);
     try {
       if (grant) {
         const key = `${doctor}-${ipfsHash}`;
         const req = accessRequests.find(r => r.doctor === doctor && r.ipfsHash === ipfsHash);
         const finalDuration = modifiedDurations[key] || req?.duration || "300";
+        
         const tx = await doctorContract.grantAccess(doctor, ipfsHash, finalDuration);
+        toast.loading("Transaction in flight...");
         await tx.wait();
+        toast.success("Active Session Established.");
       }
       setAccessRequests(prev => prev.filter(r => r.doctor !== doctor || r.ipfsHash !== ipfsHash));
-    } catch (error) { console.error(error); }
+    } catch (error) { 
+        console.error(error); 
+        toast.error("Handshake failed");
+    } finally {
+        setLoading(false);
+    }
+  };
+
+  const handlePermanentConsentGasless = async (doctor) => {
+    setLoading(true);
+    try {
+        const signature = await signGrantConsent(doctor, "Permanent Medical Access");
+        
+        const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000"
+        const response = await fetch(`${baseUrl}/api/v1/patient/consent/gasless`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                doctorAddress: doctor,
+                patientAddress: account,
+                signature,
+                metadataURI: "ipfs://permanent-consent-sbt"
+            })
+        });
+
+        const responseJson = await response.json();
+        if (!response.ok) throw new Error(responseJson.error || "Relay failed");
+
+        const data = responseJson.data || responseJson;
+
+        toast.success("Soulbound Consent Minted (Gasless)!");
+        setAccessRequests(prev => prev.filter(r => r.doctor !== doctor));
+    } catch (e) {
+        console.error(e);
+        toast.error(e.message);
+    } finally {
+        setLoading(false);
+    }
   };
 
   const handleRevoke = async (doctor, ipfsHash) => {
       try {
           const tx = await doctorContract.revokeAccess(doctor, ipfsHash);
           await tx.wait();
+          toast.success("Permission Revoked.");
       } catch(e) { console.error(e); }
   }
 
@@ -160,115 +193,207 @@ export default function AccessRequestsPatient() {
   }
 
   return (
-    <div className="space-y-6">
-    {/* Active Access Section */}
-    <Card className="border-green-100 bg-green-50/30">
-        <CardHeader><CardTitle className="text-green-800">Active Permissions</CardTitle></CardHeader>
-        <CardContent>
-            {activeAccess.length === 0 ? <p className="text-gray-500 text-sm">No active access grants.</p> : (
-                <ul className="space-y-3">
-                    {activeAccess.map((item, i) => (
-                        <li key={i} className="flex justify-between items-center p-3 bg-white border border-green-200 rounded-lg">
-                            <div>
-                                <p className="font-medium text-gray-800">Doctor: {item.doctor.slice(0,8)}...</p>
-                                <p className="text-xs text-green-600 font-bold">Expires in: {formatDuration(item.remaining)}</p>
-                                <p className="text-xs text-gray-400">Doc: {item.ipfsHash.slice(0,10)}...</p>
-                                {item.reason && <p className="text-xs text-blue-600 mt-1 italic">Reason: "{item.reason}"</p>}
-                            </div>
-                            <Button onClick={() => handleRevoke(item.doctor, item.ipfsHash)} variant="destructive" size="sm">
-                                Revoke
-                            </Button>
-                        </li>
-                    ))}
-                </ul>
-            )}
-        </CardContent>
-    </Card>
+    <motion.div 
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="space-y-8 pb-20"
+    >
+        <div className="flex justify-between items-end">
+            <div>
+                <h2 className="text-4xl font-black text-slate-900 tracking-tight">Trust Circle</h2>
+                <p className="text-slate-500 font-medium">Manage who can view your medical blueprint.</p>
+            </div>
+            <div className="flex gap-2">
+                <Badge className="bg-emerald-100 text-emerald-700 border-none font-black px-4 py-1.5 rounded-full uppercase tracking-tighter">
+                   {activeAccess.length} Active Sessions
+                </Badge>
+            </div>
+        </div>
 
-    {/* Pending Requests */}
-    <Card>
-      <CardHeader>
-        <CardTitle>Pending Requests</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {accessRequests.length === 0 ? (
-          <p className="text-gray-500">No pending access requests.</p>
-        ) : (
-          <ul className="space-y-4">
-            {accessRequests.map((request, index) => {
-               const key = `${request.doctor}-${request.ipfsHash}`;
-               const currentDuration = modifiedDurations[key] || request.duration;
-               
-               return (
-              <li key={index} className="p-4 border rounded-lg bg-white shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">{request.fileName}</h3>
-                    <p className="text-sm text-gray-600">Requested by: <span className="font-mono bg-gray-100 px-1 rounded">{request.doctor.slice(0,8)}...</span></p>
-                    <p className="text-sm font-medium text-blue-700 mt-1">Reason: "{request.reason}"</p>
-                    
-                    <div className="mt-2 flex items-center gap-2">
-                         <span className="text-xs font-medium text-gray-500">Access Duration:</span>
-                         <select 
-                            className="text-sm border rounded bg-gray-50 p-1"
-                            value={currentDuration}
-                            onChange={(e) => setModifiedDurations({...modifiedDurations, [key]: e.target.value})}
-                         >
-                            <option value="300">5 Mins</option>
-                            <option value="900">15 Mins</option>
-                            <option value="3600">1 Hour</option>
-                            <option value="86400">24 Hours</option>
-                            <option value="604800">7 Days</option>
-                         </select>
-                         <span className="text-xs text-blue-600">({formatDuration(currentDuration)})</span>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-8">
+                {/* Pending Requests Section */}
+                <section>
+                    <div className="flex items-center gap-2 mb-4 text-xs font-black uppercase tracking-[0.2em] text-slate-400">
+                        <ShieldAlert size={14} className="text-amber-500" /> Inbound Requests
                     </div>
-                </div>
-                <div className="flex space-x-2">
-                  <Button
-                    onClick={() => handleAccessResponse(request.doctor, request.ipfsHash, true)}
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                    size="sm"
-                  >
-                    Grant
-                  </Button>
-                  <Button
-                    onClick={() => handleAccessResponse(request.doctor, request.ipfsHash, false)}
-                    className="bg-red-600 hover:bg-red-700 text-white"
-                    size="sm"
-                  >
-                    Reject
-                  </Button>
-                </div>
-              </li>
-            )})}
-          </ul>
-        )}
-      </CardContent>
-    </Card>
-    
-    {/* Audit Log */}
-    <Card className="border-gray-200 bg-gray-50">
-        <CardHeader><CardTitle className="text-gray-600 text-base">Audit Log</CardTitle></CardHeader>
-        <CardContent>
-            <div className="max-h-60 overflow-y-auto space-y-2">
-                {historyLogs.map((log, i) => (
-                    <div key={i} className="text-xs flex gap-2 items-center text-gray-600 border-b pb-1 last:border-0">
-                        <span className={`font-bold px-1.5 py-0.5 rounded ${log.type === 'GRANTED' ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'}`}>
-                            {log.type}
-                        </span>
-                        <span className="text-gray-500">{new Date(Number(log.timestamp) * 1000).toLocaleString()}</span>
-                        <span>- Doc: {log.doctor.slice(0,6)}...</span>
-                        {log.type === 'GRANTED' && (
-                            <span className="text-blue-600 font-medium">
-                                For {formatDuration(log.duration || log[4])} 
-                                <span className="ml-1 italic text-gray-500">("{log.reason}")</span>
-                            </span>
+                    
+                    <div className="space-y-4">
+                        {accessRequests.length === 0 ? (
+                            <div className="card-premium bg-slate-50 p-12 text-center border-slate-100 border-dashed border-2">
+                                <p className="text-slate-400 font-bold">Safe & Clean. No pending requests found.</p>
+                            </div>
+                        ) : (
+                            <AnimatePresence>
+                                {accessRequests.map((request, index) => {
+                                    const key = `${request.doctor}-${request.ipfsHash}`;
+                                    const currentDuration = modifiedDurations[key] || request.duration;
+                                    
+                                    return (
+                                        <motion.div
+                                            key={key}
+                                            initial={{ x: -20, opacity: 0 }}
+                                            animate={{ x: 0, opacity: 1 }}
+                                            exit={{ x: 20, opacity: 0 }}
+                                            transition={{ delay: index * 0.1 }}
+                                        >
+                                            <Card className="card-premium bg-white border-none shadow-xl shadow-slate-200 group overflow-hidden">
+                                                <div className="absolute top-0 left-0 w-2 h-full bg-amber-400"></div>
+                                                <CardContent className="p-8">
+                                                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+                                                        <div className="flex-1 space-y-4">
+                                                            <div className="flex items-center gap-4">
+                                                                <div className="h-14 w-14 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600">
+                                                                    <User size={28} />
+                                                                </div>
+                                                                <div>
+                                                                    <h3 className="text-xl font-black text-slate-900 tracking-tight uppercase">{request.fileName}</h3>
+                                                                    <p className="text-xs font-mono text-slate-400">DOC: {request.doctor.slice(0,12)}...</p>
+                                                                </div>
+                                                            </div>
+                                                            <div className="p-4 bg-blue-50/50 border border-blue-100/50 rounded-2xl italic">
+                                                                <p className="text-sm font-bold text-slate-700">"{request.reason}"</p>
+                                                            </div>
+                                                            <div className="flex items-center gap-4">
+                                                                <div className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-100">
+                                                                    <Clock size={14} className="text-slate-400" />
+                                                                    <select 
+                                                                        className="bg-transparent text-sm font-black text-slate-700 focus:outline-none"
+                                                                        value={currentDuration}
+                                                                        onChange={(e) => setModifiedDurations({...modifiedDurations, [key]: e.target.value})}
+                                                                    >
+                                                                        <option value="300">5 Mins</option>
+                                                                        <option value="3600">1 Hour</option>
+                                                                        <option value="86400">24 Hours</option>
+                                                                        <option value="604800">7 Days</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex flex-col gap-3 w-full md:w-auto">
+                                                            <Button
+                                                                onClick={() => handleAccessResponse(request.doctor, request.ipfsHash, true)}
+                                                                className="bg-emerald-600 hover:bg-emerald-700 text-white font-black py-6 rounded-2xl shadow-lg shadow-emerald-100 flex items-center gap-2 px-8"
+                                                                disabled={loading}
+                                                            >
+                                                                <Check size={18} /> Grant Session
+                                                            </Button>
+                                                            <Button
+                                                                onClick={() => handlePermanentConsentGasless(request.doctor)}
+                                                                className="bg-indigo-600 hover:bg-indigo-700 text-white font-black py-6 rounded-2xl shadow-lg shadow-indigo-100 flex items-center gap-2 px-8"
+                                                                disabled={loading}
+                                                            >
+                                                                <Zap size={18} /> Forever (Gasless)
+                                                            </Button>
+                                                            <Button
+                                                                onClick={() => handleAccessResponse(request.doctor, request.ipfsHash, false)}
+                                                                variant="ghost"
+                                                                className="text-red-500 font-black hover:bg-red-50 rounded-2xl"
+                                                                disabled={loading}
+                                                            >
+                                                                <X size={18} className="mr-2" /> Reject
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        </motion.div>
+                                    )
+                                })}
+                            </AnimatePresence>
                         )}
                     </div>
-                ))}
-                {historyLogs.length === 0 && <p className="text-gray-400 text-xs">No history found.</p>}
+                </section>
+
+                {/* Active Permissions Section */}
+                <section>
+                    <div className="flex items-center gap-2 mb-4 text-xs font-black uppercase tracking-[0.2em] text-slate-400">
+                        <Clock size={14} className="text-emerald-500" /> Active Sessions
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {activeAccess.map((item, i) => (
+                            <motion.div 
+                                key={i}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="p-6 bg-emerald-50/50 border border-emerald-100 rounded-[2rem] flex flex-col justify-between gap-4 group hover:bg-emerald-50 transition-colors"
+                            >
+                                <div className="flex justify-between items-start">
+                                    <div className="bg-white p-3 rounded-2xl shadow-sm">
+                                        <Shield className="text-emerald-600" size={20} />
+                                    </div>
+                                    <Badge className="bg-white text-emerald-600 border-emerald-100 font-black uppercase text-[9px] tracking-widest">
+                                        {formatDuration(item.remaining)} Left
+                                    </Badge>
+                                </div>
+                                <div>
+                                    <p className="text-xs font-black text-emerald-800 uppercase tracking-widest opacity-60">Authorized Doctor</p>
+                                    <p className="text-lg font-black text-slate-800 tracking-tight">{item.doctor.slice(0,10)}...</p>
+                                    <p className="text-[10px] font-mono text-slate-400 truncate mt-1">{item.ipfsHash}</p>
+                                </div>
+                                <Button 
+                                    onClick={() => handleRevoke(item.doctor, item.ipfsHash)} 
+                                    variant="outline" 
+                                    className="w-full border-none bg-white font-black text-red-500 hover:bg-red-500 hover:text-white rounded-xl shadow-sm"
+                                >
+                                    Instant Revoke
+                                </Button>
+                            </motion.div>
+                        ))}
+                    </div>
+                </section>
             </div>
-        </CardContent>
-    </Card>
-    </div>
+
+            <div className="space-y-8">
+                {/* Audit History Sidebar */}
+                <Card className="card-premium border-none shadow-2xl shadow-slate-100 bg-white sticky top-28">
+                    <CardHeader className="pb-4">
+                        <CardTitle className="text-xl font-black flex items-center gap-2">
+                            <History size={20} className="text-indigo-600" />
+                            Audit Trail
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                            {historyLogs.map((log, i) => (
+                                <div key={i} className="relative pl-6 pb-6 last:pb-0 group">
+                                    <div className="absolute left-0 top-0 h-full w-[2px] bg-slate-100"></div>
+                                    <div className={`absolute left-[-4px] top-1.5 h-2.5 w-2.5 rounded-full ${log.type === 'GRANTED' ? 'bg-emerald-500' : 'bg-red-500'} ring-4 ring-white`}></div>
+                                    
+                                    <div className="space-y-1">
+                                        <div className="flex items-center justify-between">
+                                            <span className={`text-[10px] font-black uppercase tracking-tighter ${log.type === 'GRANTED' ? 'text-emerald-600' : 'text-red-500'}`}>
+                                                {log.type}
+                                            </span>
+                                            <span className="text-[9px] font-bold text-slate-400">
+                                                {new Date(Number(log.timestamp) * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs font-black text-slate-700">Dr. {log.doctor.slice(0,8)}...</p>
+                                        <p className="text-[10px] text-slate-400 font-medium italic">"{log.reason}"</p>
+                                        <div className="pt-2">
+                                           <div className="h-[1px] w-full bg-slate-50"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                            {historyLogs.length === 0 && (
+                                <p className="text-slate-300 text-sm font-black text-center py-20 italic">No events logged yet.</p>
+                            )}
+                        </div>
+                        
+                        <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
+                                <Lock size={12} className="text-indigo-600" /> Compliance Note
+                            </div>
+                            <p className="text-[10px] text-slate-500 font-medium leading-relaxed">
+                                All access events are cryptographically hashed and indexed in the MediSecure Audit Registry. This log is immutable.
+                            </p>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
+    </motion.div>
   )
 }

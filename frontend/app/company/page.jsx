@@ -17,8 +17,8 @@ export default function CompanyLanding() {
         if (marketplaceContract && account) {
             setChecking(true);
             try {
-                const isCompany = await marketplaceContract.isCompany(account);
-                if (isCompany) {
+                const company = await marketplaceContract.companies(account);
+                if (company.isRegistered) {
                     router.push("/company/dashboard");
                 }
             } catch(e) {

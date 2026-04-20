@@ -1,10 +1,15 @@
-import { patientDetailsContract } from "../config/contracts.js";
+import { patientDetailsContract, patientContract, handoffManagerContract, wellnessRewardsContract } from "../config/contracts.js";
 import web3 from "../config/web3.js";
 import { generatePremiumProof, verifyPremiumProof } from "../services/zkpService.js";
+import { resolvePatientAddress, getPatientByIdentifier } from "../services/patientResolver.js";
+import { estimateGas, sendTransaction, handleContractError } from "../services/web3Helpers.js";
+import { vitalService, userService, auditService } from "../services/database.js";
+import { invalidateCache } from "../services/cache.js";
+import { generateWellnessProof } from "../services/zkpService.js";
 
 /**
  * Sync vitals from an authorized provider (like PremKatha Clinical Engine)
- * This writes to the PatientDetails smart contract.
+ * This writes to the PatientDetails smart contract and SQLite.
  */
 export const syncVitals = async (req, res) => {
     try {
@@ -14,30 +19,70 @@ export const syncVitals = async (req, res) => {
             return res.status(400).json({ error: "Missing required vitals data" });
         }
 
-        // In a real app, the server would sign with the Hospital/Owner primary key.
-        // For Ganache demo, we use accounts[0].
+        if (!web3.utils.isAddress(patientAddress)) {
+            return res.status(400).json({ error: "Invalid patient address" });
+        }
+
         const accounts = await web3.eth.getAccounts();
         const hospitalAdmin = accounts[0];
 
         console.log(`[SANJEEVNI] Syncing vitals for ${patientAddress} via ${hospitalAdmin}`);
 
-        const tx = await patientDetailsContract.methods.setVitalsForPatient(
+        const contractMethod = patientDetailsContract.methods.setVitalsForPatient(
             patientAddress,
             sbp,
             heartRate,
             temperature || "98.6 F"
-        ).send({ from: hospitalAdmin, gas: 300000 });
+        );
+        
+        const gasLimit = await estimateGas(contractMethod, hospitalAdmin);
+        const tx = await contractMethod.send({ from: hospitalAdmin, gas: gasLimit });
+
+        // Also store in SQLite for fast queries
+        try {
+            const user = await userService.findByWallet(patientAddress);
+            if (user?.patientData) {
+                const [systolic, diastolic] = sbp.split('/').map(Number);
+                await vitalService.create(user.patientData.id, {
+                    systolicBP: systolic,
+                    diastolicBP: diastolic,
+                    heartRate: parseInt(heartRate),
+                    temperature: parseFloat(temperature?.replace(' F', '') || '98.6'),
+                    source: 'premkatha',
+                    transactionHash: tx.transactionHash,
+                });
+            }
+        } catch (dbError) {
+            console.warn("[DB] Failed to store vitals locally:", dbError.message);
+        }
+
+        // Audit log
+        try {
+            await auditService.log({
+                userId: user?.id,
+                action: "vitals_synced",
+                entityType: "patient",
+                entityId: patientAddress,
+                details: { sbp, heartRate, temperature },
+            });
+        } catch (e) { /* ignore audit errors */ }
+
+        // Invalidate patient cache
+        try {
+            await invalidateCache(`patient:${patientAddress}`);
+        } catch (e) { /* ignore cache errors */ }
 
         res.json({
             status: "SUCCESS",
             transactionHash: tx.transactionHash,
+            gasUsed: tx.gasUsed,
             patient: patientAddress,
             vitals: { sbp, heartRate, temperature }
         });
 
     } catch (error) {
-        console.error("Vitals Sync Error:", error);
-        res.status(500).json({ error: error.message });
+        const handled = handleContractError(error, "Vitals Sync");
+        res.status(500).json(handled);
     }
 };
 
@@ -98,22 +143,6 @@ export const getAlerts = async (req, res) => {
 };
 
 /**
- * Simple helper to fetch a patient's on-chain wallet from their ID/Username
- * (For the PremKatha -> Sanjeevni mapping)
- */
-export const resolvePatientAddress = async (req, res) => {
-    const { id } = req.params;
-    // Map SK-999 to the first patient address in our local Ganache
-    const accounts = await web3.eth.getAccounts();
-    const map = {
-        "1": accounts[1],
-        "SK-999": accounts[1],
-        "SK-123": accounts[2]
-    };
-    res.json({ address: map[id] || accounts[1] });
-};
-
-/**
  * Aggregates all clinical history (Handoffs + Records) for a patient.
  * Enables AI Engines (PremKatha) to provide long-term patient trajectory analysis.
  */
@@ -121,25 +150,28 @@ export const getPatientHistory = async (req, res) => {
     try {
         const { id } = req.params;
         
-        // 1. Resolve patient ID to wallet address
-        const accounts = await web3.eth.getAccounts();
-        const map = { "1": accounts[1], "SK-999": accounts[1], "SK-123": accounts[2] };
-        const address = map[id] || accounts[1];
+        // 1. Resolve patient ID to wallet address using improved resolver
+        const patient = await getPatientByIdentifier(id);
+        if (!patient) {
+            return res.status(404).json({ error: "Patient not found" });
+        }
+        
+        const address = patient.walletAddress;
+        const patientId = patient.id;
 
         // 2. Fetch all Handoff Sessions from HandoffManager
         const handoffs = await handoffManagerContract.methods.getPatientHandoffHistory(address).call();
         
-        // 3. Fetch all Medical Records from Patient contract (if ID is numeric)
+        // 3. Fetch all Medical Records
         let records = [];
         try {
-             // For the demo SK-999 is ID 1
-             const pId = (id === "SK-999") ? 1 : parseInt(id);
-             records = await patientContract.methods.getMedicalRecords(pId).call();
+            records = await patientContract.methods.getMedicalRecords(patientId).call();
         } catch(e) { /* skip records if invalid ID */ }
 
         res.json({
             patientId: id,
             address: address,
+            patientName: patient.name,
             handoffTimeline: (handoffs || []).map(h => ({
                 id: h.id.toString(),
                 startTime: h.startTime.toString(),
@@ -156,6 +188,92 @@ export const getPatientHistory = async (req, res) => {
 
     } catch (error) {
         console.error("Clinical History Aggregation Failed:", error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+/**
+ * Resolves a patient's on-chain wallet from their ID/Username
+ */
+export const resolvePatientAddressFromId = async (req, res) => {
+    const { id } = req.params;
+    
+    const patient = await getPatientByIdentifier(id);
+    if (!patient) {
+        return res.status(404).json({ error: "Patient not found" });
+    }
+    
+    res.json({ address: patient.walletAddress });
+};
+/**
+ * Claim Wellness Rewards using a ZK-Proof of healthy vitals
+ */
+export const claimWellnessRewards = async (req, res) => {
+    try {
+        const { patientAddress } = req.body;
+        
+        // 1. Fetch current vitals
+        const vitals = await patientDetailsContract.methods.getVitals(patientAddress).call();
+        
+        // 2. Generate Proof locally (Prover service)
+        const zkp = await generateWellnessProof({
+            sbp: vitals.bloodPressure,
+            heartRate: vitals.heartRate,
+            temperature: vitals.temperature
+        });
+
+        if (!zkp.isHealthy) {
+            return res.status(400).json({ error: "Vitals do not meet healthy criteria for rebate" });
+        }
+
+        // 3. Submit to Blockchain via Relayer (Admin account)
+        const accounts = await web3.eth.getAccounts();
+        const relayer = accounts[0];
+        
+        console.log(`[WELLNESS] Relaying proof for ${patientAddress} via ${relayer}`);
+
+        const tx = await wellnessRewardsContract.methods.submitWellnessProofFor(
+            patientAddress,
+            web3.utils.utf8ToHex(zkp.proof)
+        ).send({ from: relayer, gas: 500000 });
+
+        res.json({
+            status: "SUCCESS",
+            message: "Wellness rebate claimed successfully!",
+            transactionHash: tx.transactionHash,
+            reward: "50 SANJ"
+        });
+
+    } catch (error) {
+        console.error("Rebate Claim Failed:", error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+/**
+ * Gasless Consent Granting (EIP-712 Relayer)
+ */
+export const grantConsentGasless = async (req, res) => {
+    try {
+        const { doctorAddress, patientAddress, signature, metadataURI } = req.body;
+
+        const accounts = await web3.eth.getAccounts();
+        const relayer = accounts[0];
+
+        const tx = await patientContract.methods.grantConsentWithSignature(
+            doctorAddress,
+            metadataURI || "",
+            patientAddress,
+            signature
+        ).send({ from: relayer, gas: 400000 });
+
+        res.json({
+            status: "SUCCESS",
+            message: "Consent granted gaslessly!",
+            transactionHash: tx.transactionHash
+        });
+    } catch (error) {
+        console.error("Gasless Consent Failed:", error);
         res.status(500).json({ error: error.message });
     }
 };

@@ -2,6 +2,8 @@ import { CONFIG } from "../config/constants.js";
 import { doctorContract } from "../config/contracts.js";
 import web3 from "../config/web3.js";
 import { getFileStream, uploadToIPFS } from "../services/ipfsService.js";
+import { applyWatermark, isWatermarkableImage } from "../services/watermarkService.js";
+import { v4 as uuidv4 } from "uuid";
 
 export const uploadFile = async (req, res) => {
     try {
@@ -21,6 +23,87 @@ export const uploadFile = async (req, res) => {
     }
 };
 
+export const uploadFilesBatch = async (req, res) => {
+    try {
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ error: "No files provided" });
+        }
+
+        const { patientId, type, userAddress } = req.body;
+        
+        const maxFiles = 20;
+        if (req.files.length > maxFiles) {
+            return res.status(400).json({ 
+                error: `Maximum ${maxFiles} files allowed per batch` 
+            });
+        }
+
+        const maxFileSize = 50 * 1024 * 1024;
+        for (const file of req.files) {
+            if (file.size > maxFileSize) {
+                return res.status(400).json({
+                    error: `File ${file.originalname} exceeds 50MB limit`
+                });
+            }
+        }
+
+        const allowedMimeTypes = [
+            "application/pdf",
+            "image/jpeg",
+            "image/png",
+            "image/gif",
+            "application/dicom",
+            "text/plain",
+            "application/json"
+        ];
+
+        const results = [];
+        let totalSize = 0;
+        const batchId = uuidv4();
+
+        for (const file of req.files) {
+            try {
+                const ipfsHash = await uploadToIPFS(file.buffer, file.originalname, userAddress);
+                
+                results.push({
+                    cid: ipfsHash,
+                    filename: file.originalname,
+                    mimetype: file.mimetype,
+                    size: file.size,
+                    patientId,
+                    type: type || "other",
+                    batchId
+                });
+                
+                totalSize += file.size;
+            } catch (uploadErr) {
+                console.error(`Failed to upload ${file.originalname}:`, uploadErr.message);
+                results.push({
+                    filename: file.originalname,
+                    error: uploadErr.message,
+                    success: false
+                });
+            }
+        }
+
+        const successCount = results.filter(r => !r.error).length;
+        
+        res.json({
+            batchId,
+            success: successCount > 0,
+            files: results,
+            totalSize,
+            count: req.files.length,
+            successCount,
+            failedCount: req.files.length - successCount
+        });
+
+    } catch (error) {
+        console.error("Batch Upload Error:", error.message);
+        res.status(500).json({ error: error.message || "Failed to upload files" });
+    }
+};
+
 export const getFile = async (req, res) => {
     try {
         const { hash } = req.params;
@@ -33,8 +116,7 @@ export const getFile = async (req, res) => {
         if (authHeader && authHeader.startsWith("Bearer ")) {
             const token = authHeader.split(" ")[1];
             try {
-                const JWT_SECRET = process.env.JWT_SECRET || "emergency_magic_secret_123";
-                const decoded = (await import("jsonwebtoken")).default.verify(token, JWT_SECRET);
+                const decoded = (await import("jsonwebtoken")).default.verify(token, CONFIG.JWT_SECRET);
                 
                 if (decoded.type === "emergency_access") {
                     // Logic: Emergency access grants access to ALL records of that patient
@@ -74,7 +156,34 @@ export const getFile = async (req, res) => {
         console.log(`[fileController] Fetching hash: ${hash}`);
         try {
             const response = await getFileStream(hash);
-            res.setHeader("Content-Type", response.headers["content-type"]);
+            const contentType = response.headers["content-type"] || "application/octet-stream";
+
+            // ── Server-side forensic watermark ─────────────────────────────────
+            // For raster images, buffer the full response and burn the viewer's
+            // wallet address + timestamp into the pixel data before delivery.
+            // This is NOT removable by Canva / AI erasers because the watermark
+            // pixels ARE the image — there is no separate layer to strip.
+            if (isWatermarkableImage(contentType)) {
+                const chunks = [];
+                for await (const chunk of response.data) chunks.push(chunk);
+                const imageBuffer = Buffer.concat(chunks);
+
+                // The viewer address comes from the verified signature — it is
+                // cryptographically bound to whoever made this request.
+                const viewerAddr = userAddress || "unknown";
+                const watermarked = await applyWatermark(imageBuffer, contentType, viewerAddr);
+
+                res.setHeader("Content-Type", "image/png");
+                res.setHeader("Content-Length", watermarked.length);
+                // Prevent browser / CDN caching of decrypted content
+                res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+                res.setHeader("Pragma", "no-cache");
+                return res.end(watermarked);
+            }
+
+            // Non-image files (PDF, DOCX, text) streamed as-is
+            res.setHeader("Content-Type", contentType);
+            res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
             response.data.pipe(res);
         } catch (fetchErr) {
             console.error("[fileController] Fetch Error Details:", fetchErr.message, fetchErr.code, fetchErr.status);

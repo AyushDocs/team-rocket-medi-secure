@@ -1,25 +1,23 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-import { getFirestore } from "firebase/firestore";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBpGkvcigYVevAIyum69YlF2jR2ySjUlaM",
-  authDomain: "rocket-health-share.firebaseapp.com",
-  projectId: "rocket-health-share",
-  storageBucket: "rocket-health-share.firebasestorage.app",
-  messagingSenderId: "694977381179",
-  appId: "1:694977381179:web:0f82b780743a27bbf4ed1e"
+  apiKey: "AIzaSyCZMAe6A86R4RT1-WNrvcCe88-_X2O15a4",
+  authDomain: "sanjeevni-1a311.firebaseapp.com",
+  projectId: "sanjeevni-1a311",
+  storageBucket: "sanjeevni-1a311.firebasestorage.app",
+  messagingSenderId: "40193147629",
+  appId: "1:40193147629:web:2c6ab2b7f29634625282e4"
 };
 
-// Initialize Firebase
+import { initializeFirestore } from "firebase/firestore";
+
 const app = initializeApp(firebaseConfig);
+const db = initializeFirestore(app, {
+  experimentalForceLongPolling: true,
+});
+const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
 
-// Initialize Firestore
-const db = getFirestore(app);
-
-// Export Firestore instance
-export { db };
-export default app
+export { db, auth, googleProvider };
+export default app;

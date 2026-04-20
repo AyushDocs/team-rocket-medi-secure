@@ -1,0 +1,200 @@
+'solc --version' running
+'solc @openzeppelin/contracts=node_modules/@openzeppelin/contracts contracts/Patient.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/ayush/Desktop/code/Sanjeevni/contracts/contracts' running
+Compilation warnings/errors on contracts/Patient.sol:
+Warning: Contract code size is 35129 bytes and exceeds 24576 bytes (a limit introduced in Spurious Dragon). This contract may not be deployable on Mainnet. Consider enabling the optimizer (with a low "runs" value!), turning off revert strings, or using libraries.
+  --> contracts/Patient.sol:14:1:
+   |
+14 | contract Patient is ERC721URIStorage, ReentrancyGuard, Pausable, AccessControl {
+   | ^ (Relevant source part starts here and spans across multiple lines).
+
+
+INFO:Detectors:
+Detector: incorrect-exp
+Math.mulDiv(uint256,uint256,uint256) (node_modules/@openzeppelin/contracts/utils/math/Math.sol#123-202) has bitwise-xor operator ^ instead of the exponentiation operator **: 
+	 - inverse = (3 * denominator) ^ 2 (node_modules/@openzeppelin/contracts/utils/math/Math.sol#184)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-exponentiation
+INFO:Detectors:
+Detector: divide-before-multiply
+Math.mulDiv(uint256,uint256,uint256) (node_modules/@openzeppelin/contracts/utils/math/Math.sol#123-202) performs a multiplication on the result of a division:
+	- denominator = denominator / twos (node_modules/@openzeppelin/contracts/utils/math/Math.sol#169)
+	- inverse = (3 * denominator) ^ 2 (node_modules/@openzeppelin/contracts/utils/math/Math.sol#184)
+Math.mulDiv(uint256,uint256,uint256) (node_modules/@openzeppelin/contracts/utils/math/Math.sol#123-202) performs a multiplication on the result of a division:
+	- denominator = denominator / twos (node_modules/@openzeppelin/contracts/utils/math/Math.sol#169)
+	- inverse *= 2 - denominator * inverse (node_modules/@openzeppelin/contracts/utils/math/Math.sol#188)
+Math.mulDiv(uint256,uint256,uint256) (node_modules/@openzeppelin/contracts/utils/math/Math.sol#123-202) performs a multiplication on the result of a division:
+	- denominator = denominator / twos (node_modules/@openzeppelin/contracts/utils/math/Math.sol#169)
+	- inverse *= 2 - denominator * inverse (node_modules/@openzeppelin/contracts/utils/math/Math.sol#189)
+Math.mulDiv(uint256,uint256,uint256) (node_modules/@openzeppelin/contracts/utils/math/Math.sol#123-202) performs a multiplication on the result of a division:
+	- denominator = denominator / twos (node_modules/@openzeppelin/contracts/utils/math/Math.sol#169)
+	- inverse *= 2 - denominator * inverse (node_modules/@openzeppelin/contracts/utils/math/Math.sol#190)
+Math.mulDiv(uint256,uint256,uint256) (node_modules/@openzeppelin/contracts/utils/math/Math.sol#123-202) performs a multiplication on the result of a division:
+	- denominator = denominator / twos (node_modules/@openzeppelin/contracts/utils/math/Math.sol#169)
+	- inverse *= 2 - denominator * inverse (node_modules/@openzeppelin/contracts/utils/math/Math.sol#191)
+Math.mulDiv(uint256,uint256,uint256) (node_modules/@openzeppelin/contracts/utils/math/Math.sol#123-202) performs a multiplication on the result of a division:
+	- denominator = denominator / twos (node_modules/@openzeppelin/contracts/utils/math/Math.sol#169)
+	- inverse *= 2 - denominator * inverse (node_modules/@openzeppelin/contracts/utils/math/Math.sol#192)
+Math.mulDiv(uint256,uint256,uint256) (node_modules/@openzeppelin/contracts/utils/math/Math.sol#123-202) performs a multiplication on the result of a division:
+	- denominator = denominator / twos (node_modules/@openzeppelin/contracts/utils/math/Math.sol#169)
+	- inverse *= 2 - denominator * inverse (node_modules/@openzeppelin/contracts/utils/math/Math.sol#193)
+Math.mulDiv(uint256,uint256,uint256) (node_modules/@openzeppelin/contracts/utils/math/Math.sol#123-202) performs a multiplication on the result of a division:
+	- prod0 = prod0 / twos (node_modules/@openzeppelin/contracts/utils/math/Math.sol#172)
+	- result = prod0 * inverse (node_modules/@openzeppelin/contracts/utils/math/Math.sol#199)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#divide-before-multiply
+INFO:Detectors:
+Detector: shadowing-local
+Patient.registerPatient(string,string,string,uint8,string)._name (contracts/Patient.sol#212) shadows:
+	- ERC721._name (node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol#23) (state variable)
+Patient.updatePatientDetails(string,string,uint8,string)._name (contracts/Patient.sol#251) shadows:
+	- ERC721._name (node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol#23) (state variable)
+Patient.addNominee(string,address,string,string)._name (contracts/Patient.sol#279) shadows:
+	- ERC721._name (node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol#23) (state variable)
+Patient.getPatientDashboard(address).name (contracts/Patient.sol#427) shadows:
+	- ERC721.name() (node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol#74-76) (function)
+	- IERC721Metadata.name() (node_modules/@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol#16) (function)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#local-variable-shadowing
+INFO:Detectors:
+Detector: assembly
+ERC721._checkOnERC721Received(address,address,uint256,bytes) (node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol#465-482) uses assembly
+	- INLINE ASM (node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol#476-478)
+Strings.toString(uint256) (node_modules/@openzeppelin/contracts/utils/Strings.sol#24-44) uses assembly
+	- INLINE ASM (node_modules/@openzeppelin/contracts/utils/Strings.sol#30-32)
+	- INLINE ASM (node_modules/@openzeppelin/contracts/utils/Strings.sol#36-38)
+Math.mulDiv(uint256,uint256,uint256) (node_modules/@openzeppelin/contracts/utils/math/Math.sol#123-202) uses assembly
+	- INLINE ASM (node_modules/@openzeppelin/contracts/utils/math/Math.sol#130-133)
+	- INLINE ASM (node_modules/@openzeppelin/contracts/utils/math/Math.sol#154-161)
+	- INLINE ASM (node_modules/@openzeppelin/contracts/utils/math/Math.sol#167-176)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#assembly-usage
+INFO:Detectors:
+Detector: pragma
+2 different versions of Solidity are used:
+	- Version constraint 0.8.20 is used by:
+		-0.8.20 (contracts/Patient.sol#2)
+	- Version constraint ^0.8.20 is used by:
+		-^0.8.20 (node_modules/@openzeppelin/contracts/access/AccessControl.sol#4)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/access/IAccessControl.sol#4)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/interfaces/IERC165.sol#4)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/interfaces/IERC4906.sol#4)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/interfaces/IERC721.sol#4)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/interfaces/draft-IERC6093.sol#3)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol#4)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/token/ERC721/IERC721.sol#4)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol#4)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol#4)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol#4)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/utils/Context.sol#4)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/utils/Pausable.sol#4)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/utils/ReentrancyGuard.sol#4)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/utils/Strings.sol#4)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/utils/introspection/ERC165.sol#4)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol#4)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/utils/math/Math.sol#4)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/utils/math/SignedMath.sol#4)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#different-pragma-directives-are-used
+INFO:Detectors:
+Detector: costly-loop
+Patient.addMedicalRecordsBatch(string[],string[],string[],string[],bool[]) (contracts/Patient.sol#502-533) has costly operations inside a loop:
+	- tokenId = _nextTokenId ++ (contracts/Patient.sol#518)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#costly-operations-inside-a-loop
+INFO:Detectors:
+Detector: dead-code
+AccessControl._setRoleAdmin(bytes32,bytes32) (node_modules/@openzeppelin/contracts/access/AccessControl.sol#170-174) is never used and should be removed
+Context._contextSuffixLength() (node_modules/@openzeppelin/contracts/utils/Context.sol#25-27) is never used and should be removed
+Context._msgData() (node_modules/@openzeppelin/contracts/utils/Context.sol#21-23) is never used and should be removed
+ERC721._burn(uint256) (node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol#328-333) is never used and should be removed
+ERC721._increaseBalance(address,uint128) (node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol#224-228) is never used and should be removed
+ERC721._safeMint(address,uint256) (node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol#304-306) is never used and should be removed
+ERC721._safeMint(address,uint256,bytes) (node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol#312-315) is never used and should be removed
+ERC721._safeTransfer(address,address,uint256) (node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol#377-379) is never used and should be removed
+ERC721._safeTransfer(address,address,uint256,bytes) (node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol#385-388) is never used and should be removed
+ERC721._transfer(address,address,uint256) (node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol#346-356) is never used and should be removed
+ReentrancyGuard._reentrancyGuardEntered() (node_modules/@openzeppelin/contracts/utils/ReentrancyGuard.sol#81-83) is never used and should be removed
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#dead-code
+INFO:Detectors:
+Detector: solc-version
+Version constraint 0.8.20 contains known severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)
+	- VerbatimInvalidDeduplication
+	- FullInlinerNonExpressionSplitArgumentEvaluationOrder
+	- MissingSideEffectsOnSelectorAccess.
+It is used by:
+	- 0.8.20 (contracts/Patient.sol#2)
+Version constraint ^0.8.20 contains known severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)
+	- VerbatimInvalidDeduplication
+	- FullInlinerNonExpressionSplitArgumentEvaluationOrder
+	- MissingSideEffectsOnSelectorAccess.
+It is used by:
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/access/AccessControl.sol#4)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/access/IAccessControl.sol#4)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/interfaces/IERC165.sol#4)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/interfaces/IERC4906.sol#4)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/interfaces/IERC721.sol#4)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/interfaces/draft-IERC6093.sol#3)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol#4)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/token/ERC721/IERC721.sol#4)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol#4)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol#4)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol#4)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/utils/Context.sol#4)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/utils/Pausable.sol#4)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/utils/ReentrancyGuard.sol#4)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/utils/Strings.sol#4)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/utils/introspection/ERC165.sol#4)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol#4)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/utils/math/Math.sol#4)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/utils/math/SignedMath.sol#4)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-versions-of-solidity
+INFO:Detectors:
+Detector: naming-convention
+Parameter Patient.setEmergencyAccessHash(bytes32)._hash (contracts/Patient.sol#131) is not in mixedCase
+Parameter Patient.verifyEmergencyHash(uint256,bytes32)._patientId (contracts/Patient.sol#143) is not in mixedCase
+Parameter Patient.verifyEmergencyHash(uint256,bytes32)._hash (contracts/Patient.sol#143) is not in mixedCase
+Parameter Patient.logEmergencyAccess(uint256,string)._patientId (contracts/Patient.sol#153) is not in mixedCase
+Parameter Patient.logEmergencyAccess(uint256,string)._reason (contracts/Patient.sol#153) is not in mixedCase
+Parameter Patient.getAccessLogs(uint256)._patientId (contracts/Patient.sol#168) is not in mixedCase
+Parameter Patient.grantInsuranceRole(address)._insurance (contracts/Patient.sol#193) is not in mixedCase
+Parameter Patient.revokeInsuranceRole(address)._insurance (contracts/Patient.sol#197) is not in mixedCase
+Parameter Patient.registerPatient(string,string,string,uint8,string)._username (contracts/Patient.sol#211) is not in mixedCase
+Parameter Patient.registerPatient(string,string,string,uint8,string)._name (contracts/Patient.sol#212) is not in mixedCase
+Parameter Patient.registerPatient(string,string,string,uint8,string)._email (contracts/Patient.sol#213) is not in mixedCase
+Parameter Patient.registerPatient(string,string,string,uint8,string)._age (contracts/Patient.sol#214) is not in mixedCase
+Parameter Patient.registerPatient(string,string,string,uint8,string)._bloodGroup (contracts/Patient.sol#215) is not in mixedCase
+Parameter Patient.updatePatientDetails(string,string,uint8,string)._name (contracts/Patient.sol#251) is not in mixedCase
+Parameter Patient.updatePatientDetails(string,string,uint8,string)._email (contracts/Patient.sol#252) is not in mixedCase
+Parameter Patient.updatePatientDetails(string,string,uint8,string)._age (contracts/Patient.sol#253) is not in mixedCase
+Parameter Patient.updatePatientDetails(string,string,uint8,string)._bloodGroup (contracts/Patient.sol#254) is not in mixedCase
+Parameter Patient.addNominee(string,address,string,string)._name (contracts/Patient.sol#279) is not in mixedCase
+Parameter Patient.addNominee(string,address,string,string)._walletAddress (contracts/Patient.sol#280) is not in mixedCase
+Parameter Patient.addNominee(string,address,string,string)._relationship (contracts/Patient.sol#281) is not in mixedCase
+Parameter Patient.addNominee(string,address,string,string)._contactNumber (contracts/Patient.sol#282) is not in mixedCase
+Parameter Patient.getNominees(uint256)._patientId (contracts/Patient.sol#306) is not in mixedCase
+Parameter Patient.addMedicalRecord(string,string,string,string,bool)._ipfsHash (contracts/Patient.sol#321) is not in mixedCase
+Parameter Patient.addMedicalRecord(string,string,string,string,bool)._fileName (contracts/Patient.sol#322) is not in mixedCase
+Parameter Patient.addMedicalRecord(string,string,string,string,bool)._recordDate (contracts/Patient.sol#323) is not in mixedCase
+Parameter Patient.addMedicalRecord(string,string,string,string,bool)._hospital (contracts/Patient.sol#324) is not in mixedCase
+Parameter Patient.addMedicalRecord(string,string,string,string,bool)._isEmergencyViewable (contracts/Patient.sol#325) is not in mixedCase
+Parameter Patient.toggleEmergencyVisibility(uint256)._recordIndex (contracts/Patient.sol#357) is not in mixedCase
+Parameter Patient.getPatientDetails(uint256)._patientId (contracts/Patient.sol#372) is not in mixedCase
+Parameter Patient.getPatientIdByUsername(string)._username (contracts/Patient.sol#388) is not in mixedCase
+Parameter Patient.getMedicalRecords(uint256)._patientId (contracts/Patient.sol#400) is not in mixedCase
+Parameter Patient.getPatientSummary(uint256)._patientId (contracts/Patient.sol#409) is not in mixedCase
+Parameter Patient.getPatientDashboard(address)._wallet (contracts/Patient.sol#425) is not in mixedCase
+Parameter Patient.getMedicalRecordsPaginated(uint256,uint256,uint256)._patientId (contracts/Patient.sol#449) is not in mixedCase
+Parameter Patient.getMedicalRecordsPaginated(uint256,uint256,uint256)._offset (contracts/Patient.sol#450) is not in mixedCase
+Parameter Patient.getMedicalRecordsPaginated(uint256,uint256,uint256)._limit (contracts/Patient.sol#451) is not in mixedCase
+Parameter Patient.getEmergencyLogs(uint256)._patientId (contracts/Patient.sol#466) is not in mixedCase
+Parameter Patient.getEmergencyAccessDetails(uint256)._patientId (contracts/Patient.sol#471) is not in mixedCase
+Parameter Patient.getRecentRecords(uint256,uint256)._patientId (contracts/Patient.sol#492) is not in mixedCase
+Parameter Patient.getRecentRecords(uint256,uint256)._count (contracts/Patient.sol#492) is not in mixedCase
+Parameter Patient.getRecordByIndex(uint256,uint256)._patientId (contracts/Patient.sol#496) is not in mixedCase
+Parameter Patient.getRecordByIndex(uint256,uint256)._index (contracts/Patient.sol#496) is not in mixedCase
+Parameter Patient.addMedicalRecordsBatch(string[],string[],string[],string[],bool[])._ipfsHashes (contracts/Patient.sol#503) is not in mixedCase
+Parameter Patient.addMedicalRecordsBatch(string[],string[],string[],string[],bool[])._fileNames (contracts/Patient.sol#504) is not in mixedCase
+Parameter Patient.addMedicalRecordsBatch(string[],string[],string[],string[],bool[])._recordDates (contracts/Patient.sol#505) is not in mixedCase
+Parameter Patient.addMedicalRecordsBatch(string[],string[],string[],string[],bool[])._hospitals (contracts/Patient.sol#506) is not in mixedCase
+Parameter Patient.addMedicalRecordsBatch(string[],string[],string[],string[],bool[])._emergencyViewable (contracts/Patient.sol#507) is not in mixedCase
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#conformance-to-solidity-naming-conventions
+INFO:Detectors:
+Detector: unindexed-event-address
+Event Pausable.Paused(address) (node_modules/@openzeppelin/contracts/utils/Pausable.sol#23) has address parameters but no indexed parameters
+Event Pausable.Unpaused(address) (node_modules/@openzeppelin/contracts/utils/Pausable.sol#28) has address parameters but no indexed parameters
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#unindexed-event-address-parameters
+INFO:Slither:contracts/Patient.sol analyzed (20 contracts with 101 detectors), 80 result(s) found

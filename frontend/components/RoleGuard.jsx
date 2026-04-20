@@ -40,21 +40,28 @@ export default function RoleGuard({ children, role }) {
                 
                 // 2. Role-Specific Contract Check
                 if (role === "patient") {
-                    if (!patientContract) return;
+                    if (!patientContract) {
+                        // Keep checking=true, but wait for re-run
+                        return;
+                    }
                     exists = await patientContract.userExists(account);
                 } else if (role === "doctor") {
-                    if (!doctorContract) return;
+                    if (!doctorContract) {
+                        return;
+                    }
                     exists = await doctorContract.doctorExists(account);
                 } else if (role === "company") {
                     if (!marketplaceContract) return;
-                    exists = await marketplaceContract.isCompany(account);
+                    const company = await marketplaceContract.companies(account);
+                    exists = company.isRegistered;
                 } else if (role === "hospital") {
                     if (!hospitalContract) return;
                     const id = await hospitalContract.walletToHospitalId(account);
                     exists = id.toString() !== "0";
                 } else if (role === "insurance") {
                     if (!insuranceContract) return;
-                    exists = await insuranceContract.isInsuranceProvider(account);
+                    const provider = await insuranceContract.insuranceProviders(account);
+                    exists = provider.status === 1; // ACTIVE = 1
                 }
 
                 if (!exists) {
@@ -80,9 +87,25 @@ export default function RoleGuard({ children, role }) {
     // Loading State
     if (web3Loading || checking) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50/50 backdrop-blur-sm">
+            <div className="h-full min-h-[400px] flex flex-col items-center justify-center bg-white/50 backdrop-blur-sm p-8 rounded-3xl border border-dashed border-slate-200">
                 <Loader2 className="h-12 w-12 text-[#703FA1] animate-spin mb-4" />
-                <p className="text-gray-600 font-medium animate-pulse">Verifying Secure Access...</p>
+                <p className="text-gray-600 font-bold animate-pulse tracking-tight text-center">Verifying MediSecure Access...</p>
+            </div>
+        );
+    }
+
+    // Error State
+    if (error) {
+        return (
+            <div className="h-full min-h-[400px] flex flex-col items-center justify-center bg-red-50/30 p-8 rounded-3xl border border-red-100">
+                <div className="bg-red-50 p-4 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
+                    <ShieldAlert className="h-10 w-10 text-red-600" />
+                </div>
+                <h1 className="text-2xl font-black text-gray-900 mb-2">Security Check Failed</h1>
+                <p className="text-red-700 font-medium text-center mb-6">{error}</p>
+                <Button onClick={() => window.location.reload()} className="bg-red-600 hover:bg-red-700 w-full rounded-2xl h-12 font-black shadow-lg shadow-red-200">
+                    Retry Verification
+                </Button>
             </div>
         );
     }
@@ -90,22 +113,20 @@ export default function RoleGuard({ children, role }) {
     // Unconnected State
     if (!isConnected) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-white p-4">
-                <div className="max-w-md w-full text-center space-y-6">
-                    <div className="bg-red-50 p-4 rounded-full w-20 h-20 flex items-center justify-center mx-auto">
-                        <ShieldAlert className="h-10 w-10 text-red-600" />
-                    </div>
-                    <h1 className="text-2xl font-bold text-gray-900">Authentication Required</h1>
-                    <p className="text-gray-600">
-                        This dashboard is protected by blockchain security. Please connect your wallet to proceed.
-                    </p>
-                    <Button 
-                        onClick={() => router.push("/")}
-                        className="bg-[#703FA1] hover:bg-[#5a2f81] w-full py-6 text-lg"
-                    >
-                        Go to Login Page
-                    </Button>
+            <div className="h-full min-h-[400px] flex flex-col items-center justify-center bg-white border border-slate-100 rounded-3xl p-8">
+                <div className="bg-red-50 p-4 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
+                    <ShieldAlert className="h-10 w-10 text-red-600" />
                 </div>
+                <h1 className="text-2xl font-black text-gray-900 mb-2">Authentication Required</h1>
+                <p className="text-gray-500 font-medium text-center mb-6 max-w-sm">
+                    This dashboard is protected by MediSecure. Please connect your wallet to proceed.
+                </p>
+                <Button 
+                    onClick={() => router.push("/")}
+                    className="bg-[#703FA1] hover:bg-[#5a2f81] w-full rounded-2xl h-14 text-lg font-black shadow-xl shadow-purple-200"
+                >
+                    Return to Login
+                </Button>
             </div>
         );
     }
@@ -113,17 +134,17 @@ export default function RoleGuard({ children, role }) {
     // Unauthorized Role State
     if (!isAuthorized) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-white p-4">
-                <div className="max-w-md w-full text-center space-y-6">
-                    <div className="bg-amber-50 p-4 rounded-full w-20 h-20 flex items-center justify-center mx-auto">
-                        <ShieldAlert className="h-10 w-10 text-amber-600" />
-                    </div>
-                    <h1 className="text-2xl font-bold text-gray-900">Access Restricted</h1>
-                    <p className="text-gray-600">
-                        Your wallet is connected, but you are not registered as a <span className="font-bold capitalize">{role}</span>.
-                        Redirecting you to the signup page...
-                    </p>
-                    <Loader2 className="h-6 w-6 text-amber-600 animate-spin mx-auto" />
+            <div className="h-full min-h-[400px] flex flex-col items-center justify-center bg-white border border-slate-100 rounded-3xl p-8">
+                <div className="bg-amber-50 p-4 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
+                    <ShieldAlert className="h-10 w-10 text-amber-600" />
+                </div>
+                <h1 className="text-2xl font-black text-gray-900 mb-2">Access Restricted</h1>
+                <p className="text-gray-500 font-medium text-center mb-6 max-w-sm">
+                    Your wallet is connected, but you are not registered as a <span className="text-blue-600 font-black capitalize underline decoration-blue-200 underline-offset-4">{role}</span>.
+                </p>
+                <div className="flex flex-col items-center gap-4">
+                    <p className="text-xs text-slate-400 font-bold animate-pulse italic">Auto-redirecting to signup...</p>
+                    <Loader2 className="h-6 w-6 text-amber-600 animate-spin" />
                 </div>
             </div>
         );

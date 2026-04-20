@@ -1,0 +1,157 @@
+version: '3.8'
+
+services:
+  ganache:
+    image: trufflesuite/ganache:latest
+    container_name: sanjeevni-ganache
+    ports:
+      - "8545:8545"
+    command: >
+      ganache --host 0.0.0.0 
+              --port 8545 
+              --chain.chainId 1337 
+              --chain.networkId 1337 
+              --deterministic 
+              --seed "spirit supply whale amount reduce_item space sparse frequent monkey lawn win"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8545"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - sanjeevni-net
+    restart: unless-stopped
+
+  ipfs:
+    image: ipfs/kubo:latest
+    container_name: sanjeevni-ipfs
+    ports:
+      - "5001:5001"
+      - "8080:8080"
+    volumes:
+      - ipfs-data:/data/ipfs
+    environment:
+      - IPFS_LOGGING=info
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:5001/api/v0/id"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - sanjeevni-net
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: sanjeevni-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - sanjeevni-net
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15
+    container_name: sanjeevni-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=medisecure
+      - POSTGRES_PASSWORD=medisecure
+      - POSTGRES_DB=medisecure
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U medisecure -d medisecure"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - sanjeevni-net
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: sanjeevni-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+      - RPC_URL=http://ganache:8545
+      - DATABASE_URL=postgresql://medisecure:medisecure@postgres:5432/medisecure
+      - REDIS_URL=redis://redis:6379
+      - CORS_ORIGINS=http://frontend:3000
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+      - ./server/logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ganache:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    networks:
+      - sanjeevni-net
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: sanjeevni-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://backend:5000
+      - NEXT_PUBLIC_RPC_URL=http://ganache:8545
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - sanjeevni-net
+    restart: unless-stopped
+
+networks:
+  sanjeevni-net:
+    driver: bridge
+
+volumes:
+  ganache-data:
+  contracts-artifacts:
+  ipfs-data:
+  postgres-data:
+  redis-data:

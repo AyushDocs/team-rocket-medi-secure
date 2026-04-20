@@ -1,0 +1,137 @@
+'solc --version' running
+'solc @openzeppelin/contracts=node_modules/@openzeppelin/contracts contracts/Doctor.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes --allow-paths .,/home/ayush/Desktop/code/Sanjeevni/contracts/contracts' running
+Compilation warnings/errors on contracts/Doctor.sol:
+Warning: Unused local variable.
+   --> contracts/Doctor.sol:435:9:
+    |
+435 |         bytes32 mask = bytes32((1 << (8 * _search.length)) - 1);
+    |         ^^^^^^^^^^^^
+
+Warning: Unused local variable.
+   --> contracts/Doctor.sol:444:9:
+    |
+444 |         uint256 count = 0;
+    |         ^^^^^^^^^^^^^
+
+Warning: Contract code size is 26485 bytes and exceeds 24576 bytes (a limit introduced in Spurious Dragon). This contract may not be deployable on Mainnet. Consider enabling the optimizer (with a low "runs" value!), turning off revert strings, or using libraries.
+  --> contracts/Doctor.sol:13:1:
+   |
+13 | contract Doctor is ReentrancyGuard, Pausable, AccessControl {
+   | ^ (Relevant source part starts here and spans across multiple lines).
+
+
+INFO:Detectors:
+Detector: timestamp
+Doctor.hasAccessToDocument(address,string) (contracts/Doctor.sol#147-173) uses timestamp for comparisons
+	Dangerous comparisons:
+	- block.timestamp > accessList[i].grantTime + accessList[i].duration (contracts/Doctor.sol#164-165)
+Doctor.requestAccess(address,string,string,uint256,string) (contracts/Doctor.sol#175-219) uses timestamp for comparisons
+	Dangerous comparisons:
+	- block.timestamp < _lastAccessTime[msg.sender] + RATE_LIMIT_WINDOW (contracts/Doctor.sol#189)
+Doctor.cleanupExpiredAccess(uint256) (contracts/Doctor.sol#442-456) uses timestamp for comparisons
+	Dangerous comparisons:
+	- doc.hasAccess && ! doc.isResolved && doc.grantTime + doc.duration <= block.timestamp (contracts/Doctor.sol#449)
+Doctor.cleanupExpiredAccessForAll() (contracts/Doctor.sol#458-473) uses timestamp for comparisons
+	Dangerous comparisons:
+	- doc.hasAccess && ! doc.isResolved && doc.grantTime + doc.duration <= block.timestamp (contracts/Doctor.sol#465)
+Doctor.getExpiredAccessCount(uint256) (contracts/Doctor.sol#475-486) uses timestamp for comparisons
+	Dangerous comparisons:
+	- doc.hasAccess && ! doc.isResolved && doc.grantTime + doc.duration <= block.timestamp (contracts/Doctor.sol#480)
+Doctor.isAccessExpired(uint256,address) (contracts/Doctor.sol#488-499) uses timestamp for comparisons
+	Dangerous comparisons:
+	- doc.grantTime + doc.duration <= block.timestamp (contracts/Doctor.sol#494)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#block-timestamp
+INFO:Detectors:
+Detector: pragma
+2 different versions of Solidity are used:
+	- Version constraint 0.8.20 is used by:
+		-0.8.20 (contracts/Doctor.sol#2)
+	- Version constraint ^0.8.20 is used by:
+		-^0.8.20 (contracts/libraries/StringUtils.sol#2)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/access/AccessControl.sol#4)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/access/IAccessControl.sol#4)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/utils/Context.sol#4)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/utils/Pausable.sol#4)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/utils/ReentrancyGuard.sol#4)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/utils/introspection/ERC165.sol#4)
+		-^0.8.20 (node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol#4)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#different-pragma-directives-are-used
+INFO:Detectors:
+Detector: dead-code
+AccessControl._setRoleAdmin(bytes32,bytes32) (node_modules/@openzeppelin/contracts/access/AccessControl.sol#170-174) is never used and should be removed
+Context._contextSuffixLength() (node_modules/@openzeppelin/contracts/utils/Context.sol#25-27) is never used and should be removed
+Context._msgData() (node_modules/@openzeppelin/contracts/utils/Context.sol#21-23) is never used and should be removed
+ReentrancyGuard._reentrancyGuardEntered() (node_modules/@openzeppelin/contracts/utils/ReentrancyGuard.sol#81-83) is never used and should be removed
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#dead-code
+INFO:Detectors:
+Detector: solc-version
+Version constraint 0.8.20 contains known severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)
+	- VerbatimInvalidDeduplication
+	- FullInlinerNonExpressionSplitArgumentEvaluationOrder
+	- MissingSideEffectsOnSelectorAccess.
+It is used by:
+	- 0.8.20 (contracts/Doctor.sol#2)
+Version constraint ^0.8.20 contains known severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)
+	- VerbatimInvalidDeduplication
+	- FullInlinerNonExpressionSplitArgumentEvaluationOrder
+	- MissingSideEffectsOnSelectorAccess.
+It is used by:
+	- ^0.8.20 (contracts/libraries/StringUtils.sol#2)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/access/AccessControl.sol#4)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/access/IAccessControl.sol#4)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/utils/Context.sol#4)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/utils/Pausable.sol#4)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/utils/ReentrancyGuard.sol#4)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/utils/introspection/ERC165.sol#4)
+	- ^0.8.20 (node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol#4)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-versions-of-solidity
+INFO:Detectors:
+Detector: naming-convention
+Parameter Doctor.setHospitalContract(address)._addr (contracts/Doctor.sol#103) is not in mixedCase
+Parameter Doctor.registerDoctor(string,string,string)._name (contracts/Doctor.sol#109) is not in mixedCase
+Parameter Doctor.registerDoctor(string,string,string)._specialization (contracts/Doctor.sol#110) is not in mixedCase
+Parameter Doctor.registerDoctor(string,string,string)._hospital (contracts/Doctor.sol#111) is not in mixedCase
+Parameter Doctor.addPatient(uint256)._patientId (contracts/Doctor.sol#124) is not in mixedCase
+Parameter Doctor.hasAccessToDocument(address,string)._patient (contracts/Doctor.sol#148) is not in mixedCase
+Parameter Doctor.hasAccessToDocument(address,string)._ipfsHash (contracts/Doctor.sol#149) is not in mixedCase
+Parameter Doctor.requestAccess(address,string,string,uint256,string)._patient (contracts/Doctor.sol#176) is not in mixedCase
+Parameter Doctor.requestAccess(address,string,string,uint256,string)._ipfsHash (contracts/Doctor.sol#177) is not in mixedCase
+Parameter Doctor.requestAccess(address,string,string,uint256,string)._fileName (contracts/Doctor.sol#178) is not in mixedCase
+Parameter Doctor.requestAccess(address,string,string,uint256,string)._duration (contracts/Doctor.sol#179) is not in mixedCase
+Parameter Doctor.requestAccess(address,string,string,uint256,string)._reason (contracts/Doctor.sol#180) is not in mixedCase
+Parameter Doctor.emergencyBreakGlass(address,string,string,string,address)._patient (contracts/Doctor.sol#222) is not in mixedCase
+Parameter Doctor.emergencyBreakGlass(address,string,string,string,address)._ipfsHash (contracts/Doctor.sol#223) is not in mixedCase
+Parameter Doctor.emergencyBreakGlass(address,string,string,string,address)._fileName (contracts/Doctor.sol#224) is not in mixedCase
+Parameter Doctor.emergencyBreakGlass(address,string,string,string,address)._reason (contracts/Doctor.sol#225) is not in mixedCase
+Parameter Doctor.emergencyBreakGlass(address,string,string,string,address)._hospitalAddress (contracts/Doctor.sol#226) is not in mixedCase
+Parameter Doctor.grantAccess(address,string,uint256)._doctor (contracts/Doctor.sol#261) is not in mixedCase
+Parameter Doctor.grantAccess(address,string,uint256)._ipfsHash (contracts/Doctor.sol#262) is not in mixedCase
+Parameter Doctor.grantAccess(address,string,uint256)._duration (contracts/Doctor.sol#263) is not in mixedCase
+Parameter Doctor.resolveEmergency(address,string)._doctor (contracts/Doctor.sol#292) is not in mixedCase
+Parameter Doctor.resolveEmergency(address,string)._ipfsHash (contracts/Doctor.sol#292) is not in mixedCase
+Parameter Doctor.revokeAccess(address,string)._doctor (contracts/Doctor.sol#317) is not in mixedCase
+Parameter Doctor.revokeAccess(address,string)._ipfsHash (contracts/Doctor.sol#317) is not in mixedCase
+Parameter Doctor.getDoctorsBySpecialization(string)._specialization (contracts/Doctor.sol#386) is not in mixedCase
+Parameter Doctor.searchDoctors(string)._query (contracts/Doctor.sol#406) is not in mixedCase
+Parameter Doctor.containsSubstring(bytes32,bytes32)._source (contracts/Doctor.sol#433) is not in mixedCase
+Parameter Doctor.containsSubstring(bytes32,bytes32)._search (contracts/Doctor.sol#433) is not in mixedCase
+Parameter Doctor.cleanupExpiredAccess(uint256)._doctorId (contracts/Doctor.sol#442) is not in mixedCase
+Parameter Doctor.getExpiredAccessCount(uint256)._doctorId (contracts/Doctor.sol#475) is not in mixedCase
+Parameter Doctor.isAccessExpired(uint256,address)._doctorId (contracts/Doctor.sol#488) is not in mixedCase
+Parameter Doctor.isAccessExpired(uint256,address)._patient (contracts/Doctor.sol#488) is not in mixedCase
+Parameter Doctor.grantDoctorRole(address)._doctor (contracts/Doctor.sol#511) is not in mixedCase
+Parameter Doctor.revokeDoctorRole(address)._doctor (contracts/Doctor.sol#515) is not in mixedCase
+Parameter Doctor.isDoctorRole(address)._account (contracts/Doctor.sol#519) is not in mixedCase
+Parameter StringUtils.equals(string,string)._a (contracts/libraries/StringUtils.sol#5) is not in mixedCase
+Parameter StringUtils.equals(string,string)._b (contracts/libraries/StringUtils.sol#5) is not in mixedCase
+Parameter StringUtils.contains(string,string)._source (contracts/libraries/StringUtils.sol#9) is not in mixedCase
+Parameter StringUtils.contains(string,string)._search (contracts/libraries/StringUtils.sol#9) is not in mixedCase
+Parameter StringUtils.isEmpty(string)._s (contracts/libraries/StringUtils.sol#27) is not in mixedCase
+Parameter StringUtils.toBytes32(string)._s (contracts/libraries/StringUtils.sol#31) is not in mixedCase
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#conformance-to-solidity-naming-conventions
+INFO:Detectors:
+Detector: unindexed-event-address
+Event Pausable.Paused(address) (node_modules/@openzeppelin/contracts/utils/Pausable.sol#23) has address parameters but no indexed parameters
+Event Pausable.Unpaused(address) (node_modules/@openzeppelin/contracts/utils/Pausable.sol#28) has address parameters but no indexed parameters
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#unindexed-event-address-parameters
+INFO:Slither:contracts/Doctor.sol analyzed (10 contracts with 101 detectors), 56 result(s) found

@@ -1,0 +1,128 @@
+specVersion: 0.0.5
+description: Sanjeevni Decentralized Healthcare Platform
+repository: https://github.com/ayushdubey/sanjeevni
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Patient
+    network: mainnet
+    source:
+      address: "0xD44d92D878Bb19649bE73702E514560743B3CF86"
+      abi: Patient
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Patient
+        - MedicalRecord
+        - EmergencyAccessLog
+        - AccessGrant
+      abis:
+        - name: Patient
+          file: ./abis/Patient.json
+      eventHandlers:
+        - event: PatientRegistered(indexed uint256,indexed address,string)
+          handler: handlePatientRegistered
+        - event: RecordAdded(indexed uint256,indexed uint256,string)
+          handler: handleRecordAdded
+        - event: EmergencyAccessLogged(indexed uint256,indexed address,string,uint256)
+          handler: handleEmergencyAccessLogged
+      file: ./src/patient.ts
+
+  - kind: ethereum/contract
+    name: Doctor
+    network: mainnet
+    source:
+      address: "0xe00b745b5e71337507d43a8584320c4192CA7994"
+      abi: Doctor
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Doctor
+        - AccessGrant
+      abis:
+        - name: Doctor
+          file: ./abis/Doctor.json
+      eventHandlers:
+        - event: AccessRequested(indexed address,indexed address,string,string,uint256,string)
+          handler: handleAccessRequested
+        - event: AccessGranted(indexed address,indexed address,string,uint256,uint256)
+          handler: handleAccessGranted
+        - event: AccessRevoked(indexed address,indexed address,string,uint256)
+          handler: handleAccessRevoked
+        - event: PatientAdded(indexed uint256,indexed uint256,indexed address)
+          handler: handlePatientAdded
+        - event: EmergencyAccessGranted(indexed address,indexed address,string,string,uint256)
+          handler: handleEmergencyAccessGranted
+        - event: EmergencyResolved(indexed address,indexed address,string,uint256)
+          handler: handleEmergencyResolved
+      file: ./src/doctor.ts
+
+  - kind: ethereum/contract
+    name: Insurance
+    network: mainnet
+    source:
+      address: "0x466cbd8c8EB83Cd86ec2eE624E76D928507FcA68"
+      abi: Insurance
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - InsuranceProvider
+        - Policy
+        - InsuranceRequest
+        - Claim
+      abis:
+        - name: Insurance
+          file: ./abis/Insurance.json
+      eventHandlers:
+        - event: InsuranceProviderRegistered(indexed address,string)
+          handler: handleProviderRegistered
+        - event: PolicyCreated(indexed uint256,indexed address,string)
+          handler: handlePolicyCreated
+        - event: PolicyUpdated(indexed uint256,string,uint256)
+          handler: handlePolicyUpdated
+        - event: InsuranceQuoteRequested(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleQuoteRequested
+        - event: InsuranceProofVerified(indexed uint256,indexed address,uint256)
+          handler: handleProofVerified
+        - event: PolicyFinalized(indexed uint256,indexed address)
+          handler: handlePolicyFinalized
+        - event: ClaimSubmitted(indexed uint256,indexed address,string)
+          handler: handleClaimSubmitted
+        - event: ClaimProcessed(indexed uint256,string)
+          handler: handleClaimProcessed
+      file: ./src/insurance.ts
+
+  - kind: ethereum/contract
+    name: Hospital
+    network: mainnet
+    source:
+      address: "0x0d31fD995E1540CE90Fd98462Cf3284b1693Ad8C"
+      abi: Hospital
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Hospital
+      abis:
+        - name: Hospital
+          file: ./abis/Hospital.json
+      eventHandlers:
+        - event: HospitalRegistered(indexed uint256,indexed address,string)
+          handler: handleHospitalRegistered
+        - event: DoctorAdded(indexed uint256,indexed address)
+          handler: handleDoctorAdded
+        - event: DoctorRemoved(indexed uint256,indexed address)
+          handler: handleDoctorRemoved
+        - event: LogPunchIn(indexed address,indexed address,uint256)
+          handler: handleDoctorPunchedIn
+        - event: LogPunchOut(indexed address,indexed address,uint256,uint256)
+          handler: handleDoctorPunchedOut
+      file: ./src/hospital.ts

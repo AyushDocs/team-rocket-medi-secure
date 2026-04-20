@@ -1,15 +1,26 @@
 const Hospital = artifacts.require("Hospital");
 const Doctor = artifacts.require("Doctor");
+const MediSecureAccessControl = artifacts.require("MediSecureAccessControl");
+const SanjeevniMockForwarder = artifacts.require("SanjeevniMockForwarder");
 const path = require('path');
 const fs = require('fs');
 
 module.exports = async function (deployer) {
+  const ac = await MediSecureAccessControl.deployed();
+  const forwarder = await SanjeevniMockForwarder.deployed();
   // Deploy Hospital
-  await deployer.deploy(Hospital);
+  await deployer.deploy(Hospital, ac.address, forwarder.address);
   const hospitalInstance = await Hospital.deployed();
 
-  // Update Doctor contract with Hospital address
+  // Authorize managers in Access Control
+  await ac.setAuthorizedManager(hospitalInstance.address, true);
+  console.log(`Hospital at ${hospitalInstance.address} authorized as manager in AC.`);
+  
   const doctorInstance = await Doctor.deployed();
+  await ac.setAuthorizedManager(doctorInstance.address, true);
+  console.log(`Doctor at ${doctorInstance.address} authorized as manager in AC.`);
+
+  // Update Doctor contract with Hospital address
   // We assume the deployer is the owner of Doctor.
   // Check if we can call setHospitalContract
   try {
@@ -19,25 +30,22 @@ module.exports = async function (deployer) {
       console.error("Failed to link Hospital to Doctor (Check ownership):", err.message);
   }
 
-  // Save Artifact to Frontend
-  const contractArtifact = Hospital.toJSON();
+  // Save Artifact to Frontend and Server
   const networkId = await web3.eth.net.getId();
+  const frontendPath = path.join(__dirname, "../../frontend/contracts");
+  const serverPath = path.join(__dirname, "../../server/contracts");
   
-  if (!contractArtifact.networks) contractArtifact.networks = {};
-  contractArtifact.networks[networkId] = {
-      events: {},
-      links: {},
+  [frontendPath, serverPath].forEach(dir => {
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  });
+
+  const contractData = Hospital.toJSON();
+  if (!contractData.networks) contractData.networks = {};
+  contractData.networks[networkId] = {
       address: hospitalInstance.address,
       transactionHash: hospitalInstance.transactionHash
   };
-
-  const frontendPath = path.join(__dirname, "../../frontend/contracts/Hospital.json");
-  // Ensure directory exists
-  const dir = path.dirname(frontendPath);
-  if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-  }
-
-  fs.writeFileSync(frontendPath, JSON.stringify(contractArtifact, null, 2));
-  console.log(`Hospital ABI + Address written to ${frontendPath}`);
+  fs.writeFileSync(path.join(frontendPath, 'Hospital.json'), JSON.stringify(contractData, null, 2));
+  fs.writeFileSync(path.join(serverPath, 'Hospital.json'), JSON.stringify(contractData, null, 2));
+  console.log(`Hospital synced to frontend and server.`);
 };

@@ -63,7 +63,8 @@ export default function SafeDocumentViewer({ ipfsHash, patientAddress, onClose, 
       setLoading(true)
       setError("")
 
-      let fetchUrl = `http://localhost:5000/files/${ipfsHash}?patientAddress=${patientAddress}`;
+      const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000";
+      let fetchUrl = `${baseUrl}/api/v1/files/${ipfsHash}?patientAddress=${patientAddress}`;
       let headers = {};
 
       if (emergencyToken) {

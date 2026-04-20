@@ -1,25 +1,25 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "./common/MediSecureAuth.sol";
+import {Roles} from "./MediSecureAccessControl.sol";
 
 /**
  * @title HandoffManager
  * @dev Manages the legal transfer of clinical responsibility between healthcare providers (Nurses/Doctors).
- * Securely logs shift-end handoffs on-chain to provide an immutable clinical audit trail.
  */
-contract HandoffManager is Ownable {
+contract HandoffManager is MediSecureAuth {
     
     struct HandoffSession {
         uint256 id;
         address patient;
         address offGoingNurse;
         address onComingNurse;
-        string reportIpfsHash; // The clinical report on IPFS
+        string reportIpfsHash; 
         uint256 startTime;
         uint256 endTime;
         bool isComplete;
-        string status; // PENDING, COMPLETED, DISPUTED
+        string status; 
     }
 
     mapping(uint256 => HandoffSession) public handoffs;
@@ -29,59 +29,47 @@ contract HandoffManager is Ownable {
     event HandoffInitiated(uint256 indexed id, address indexed patient, address indexed offGoingNurse, string reportIpfsHash);
     event HandoffFinalized(uint256 indexed id, address indexed reliefNurse, uint256 timestamp);
 
-    constructor(address initialOwner) Ownable(initialOwner) {}
+    constructor(address _accessControl, address _forwarder) MediSecureAuth(_accessControl, _forwarder) {}
 
-    /**
-     * @dev Step 1: Off-going nurse initiates the clinical transfer
-     */
-    function initiateHandoff(address _patient, string memory _reportIpfsHash) public returns (uint256) {
+    function initiateHandoff(address patient, string memory reportIpfsHash) public returns (uint256) {
         handoffCount++;
         handoffs[handoffCount] = HandoffSession({
             id: handoffCount,
-            patient: _patient,
-            offGoingNurse: msg.sender,
+            patient: patient,
+            offGoingNurse: _msgSender(),
             onComingNurse: address(0),
-            reportIpfsHash: _reportIpfsHash,
+            reportIpfsHash: reportIpfsHash,
             startTime: block.timestamp,
             endTime: 0,
             isComplete: false,
             status: "PENDING"
         });
 
-        emit HandoffInitiated(handoffCount, _patient, msg.sender, _reportIpfsHash);
+        emit HandoffInitiated(handoffCount, patient, _msgSender(), reportIpfsHash);
         return handoffCount;
     }
 
-    /**
-     * @dev Step 2: Relief nurse verifies the handoff and takes responsibility
-     */
-    function finalizeHandoff(uint256 _handoffId) public {
-        HandoffSession storage session = handoffs[_handoffId];
+    function finalizeHandoff(uint256 handoffId) public {
+        HandoffSession storage session = handoffs[handoffId];
         require(!session.isComplete, "Handoff already finalized");
-        require(session.offGoingNurse != msg.sender, "Relief nurse cannot be the same as off-going nurse");
+        require(session.offGoingNurse != _msgSender(), "Relief nurse cannot be the same as off-going nurse");
 
-        session.onComingNurse = msg.sender;
+        session.onComingNurse = _msgSender();
         session.endTime = block.timestamp;
         session.isComplete = true;
         session.status = "COMPLETED";
 
-        emit HandoffFinalized(_handoffId, msg.sender, block.timestamp);
+        emit HandoffFinalized(handoffId, _msgSender(), block.timestamp);
     }
 
-    /**
-     * @dev Get details of a handoff session
-     */
-    function getHandoff(uint256 _id) public view returns (HandoffSession memory) {
-        return handoffs[_id];
+    function getHandoff(uint256 id) public view returns (HandoffSession memory) {
+        return handoffs[id];
     }
 
-    /**
-     * @dev Get all handoffs for a specific patient
-     */
-    function getPatientHandoffHistory(address _patient) public view returns (HandoffSession[] memory) {
+    function getPatientHandoffHistory(address patient) public view returns (HandoffSession[] memory) {
         uint256 count = 0;
         for (uint256 i = 1; i <= handoffCount; i++) {
-            if (handoffs[i].patient == _patient) {
+            if (handoffs[i].patient == patient) {
                 count++;
             }
         }
@@ -89,7 +77,7 @@ contract HandoffManager is Ownable {
         HandoffSession[] memory history = new HandoffSession[](count);
         uint256 cursor = 0;
         for (uint256 i = 1; i <= handoffCount; i++) {
-            if (handoffs[i].patient == _patient) {
+            if (handoffs[i].patient == patient) {
                 history[cursor] = handoffs[i];
                 cursor++;
             }

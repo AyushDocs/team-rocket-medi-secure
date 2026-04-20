@@ -19,7 +19,7 @@ function EmergencyViewContent() {
   const [selectedDoc, setSelectedDoc] = useState(null)
   const [timeLeft, setTimeLeft] = useState(3600) // 1 hour in seconds
 
-  const API_URL = "http://localhost:5000/emergency"
+  const API_URL = `${process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000"}/api/v1/emergency`
 
   useEffect(() => {
     // We don't want to immediately show an error if params are null on very first mount
@@ -42,33 +42,54 @@ function EmergencyViewContent() {
     const fetchAccess = async () => {
       try {
         setLoading(true)
-        // 1. Trigger access to get 1-hour token
+        console.log("[EMERGENCY] Starting handshake for patient:", patientId);
+
+        // 1. Trigger access
         const authRes = await fetch(`${API_URL}/access`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ patientId, secret })
-        })
+        });
 
-        const authData = await authRes.json()
-        if (!authRes.ok) throw new Error(authData.error || "Failed to trigger emergency access")
+        const authText = await authRes.text();
+        const responseJson = JSON.parse(authText);
+        
+        if (!authRes.ok) throw new Error(responseJson.error || "Access Denied");
 
-        const tokenVal = authData.token
-        setToken(tokenVal)
+        // Server uses a responseWrapper, so data is in .data
+        const authData = responseJson.data || responseJson;
+        const tokenVal = authData.token;
 
-        // 2. Fetch medical data using the token
+        if (!tokenVal) {
+            console.error("[EMERGENCY] Full Response Object:", responseJson);
+            throw new Error("Server handshake succeeded but no token was provided in the response envelope.");
+        }
+
+        console.log("[EMERGENCY] Secure token acquired.");
+        setToken(tokenVal);
+
+        // 2. Fetch medical data
         const dataRes = await fetch(`${API_URL}/data`, {
-          headers: { "Authorization": `Bearer ${tokenVal}` }
-        })
+          headers: { 
+            "Authorization": `Bearer ${tokenVal}`,
+            "Accept": "application/json"
+          }
+        });
 
-        const medicalData = await dataRes.json()
-        if (!dataRes.ok) throw new Error(medicalData.error || "Failed to fetch medical data")
+        const dataText = await dataRes.text();
+        const medicalResponse = JSON.parse(dataText);
+        
+        if (!dataRes.ok) throw new Error(medicalResponse.error || "Data retrieval failed");
 
-        setData(medicalData)
+        // Handle wrapped data
+        const medicalData = medicalResponse.data || medicalResponse;
+        console.log("[EMERGENCY] Medical data decrypted and unwrapped.");
+        setData(medicalData);
       } catch (err) {
-        console.error("Emergency Access Error:", err)
-        setError(err.message)
+        console.error("Critical Emergency Error:", err);
+        setError(err.message);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
