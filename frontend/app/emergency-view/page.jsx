@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Activity, AlertCircle, Clock, FileText, Heart, Loader2, Phone, ShieldAlert, User } from "lucide-react"
 import { useSearchParams } from "next/navigation"
 import { Suspense, useEffect, useState } from "react"
+import { useWeb3 } from "@/context/Web3Context"
 
 function EmergencyViewContent() {
   const searchParams = useSearchParams()
@@ -18,6 +19,7 @@ function EmergencyViewContent() {
   const [token, setToken] = useState(null)
   const [selectedDoc, setSelectedDoc] = useState(null)
   const [timeLeft, setTimeLeft] = useState(3600) // 1 hour in seconds
+  const { refreshKey, triggerRefresh } = useWeb3()
 
   const API_URL = `${process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000"}/api/v1/emergency`
 
@@ -94,7 +96,7 @@ function EmergencyViewContent() {
     }
 
     fetchAccess()
-  }, [patientId, secret])
+  }, [patientId, secret, refreshKey])
 
   // Countdown timer
   useEffect(() => {
@@ -135,7 +137,16 @@ function EmergencyViewContent() {
             <AlertCircle className="w-16 h-16 text-red-600 mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-slate-900 mb-2">Access Error</h1>
             <p className="text-slate-600 mb-6">{error}</p>
-            <Button variant="outline" className="w-full" onClick={() => window.location.reload()}>Retry</Button>
+            <Button 
+              variant="outline" 
+              className="w-full" 
+              onClick={() => {
+                setError(null);
+                triggerRefresh();
+              }}
+            >
+              Retry
+            </Button>
         </div>
       </div>
     )

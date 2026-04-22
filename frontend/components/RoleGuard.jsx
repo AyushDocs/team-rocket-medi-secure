@@ -15,7 +15,9 @@ export default function RoleGuard({ children, role }) {
         marketplaceContract, 
         hospitalContract, 
         insuranceContract, 
-        loading: web3Loading 
+        loading: web3Loading,
+        refreshKey,
+        triggerRefresh
     } = useWeb3();
     const router = useRouter();
     const [isAuthorized, setIsAuthorized] = useState(false);
@@ -82,7 +84,7 @@ export default function RoleGuard({ children, role }) {
         };
 
         checkRole();
-    }, [isConnected, account, web3Loading, role, router, patientContract, doctorContract, marketplaceContract, hospitalContract, insuranceContract]);
+    }, [isConnected, account, web3Loading, role, router, patientContract, doctorContract, marketplaceContract, hospitalContract, insuranceContract, refreshKey]);
 
     // Loading State
     if (web3Loading || checking) {
@@ -103,7 +105,13 @@ export default function RoleGuard({ children, role }) {
                 </div>
                 <h1 className="text-2xl font-black text-gray-900 mb-2">Security Check Failed</h1>
                 <p className="text-red-700 font-medium text-center mb-6">{error}</p>
-                <Button onClick={() => window.location.reload()} className="bg-red-600 hover:bg-red-700 w-full rounded-2xl h-12 font-black shadow-lg shadow-red-200">
+                <Button 
+                    onClick={() => {
+                        setError(null);
+                        triggerRefresh();
+                    }} 
+                    className="bg-red-600 hover:bg-red-700 w-full rounded-2xl h-12 font-black shadow-lg shadow-red-200"
+                >
                     Retry Verification
                 </Button>
             </div>

@@ -1,12 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Heart, Stethoscope, Briefcase, Building2, Shield } from "lucide-react";
+import { useWeb3 } from "@/context/Web3Context";
 
 export default function Auth() {
     const [walletAddress, setWalletAddress] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [patientIds, setPatientIds] = useState<[] | null>(null);
+    const { userType, setUserType } = useWeb3();
+    const router = useRouter();
 
     const handleLogin = async () => {
         setIsLoading(true);
@@ -26,11 +32,11 @@ export default function Auth() {
             console.log("Patient IDs:", ids);
 
             if (!ids) {
-                alert("No patient account found. Please create a new account.");
+                alert("No account found for this role. Redirecting to signup.");
+                router.push(`/${userType}/signup`);
             } else {
-                // Patient exists, you can redirect to dashboard
-                // For demo, we just reload
-                window.location.reload();
+                // User exists, redirect to dashboard
+                router.push(`/${userType}/dashboard`);
             }
         } catch (err) {
             setError(err.message);
@@ -50,6 +56,31 @@ export default function Auth() {
                 {error && (
                     <p className="text-red-500 text-center mb-4">{error}</p>
                 )}
+
+                <Tabs value={userType} onValueChange={setUserType} className="mb-6">
+                    <TabsList className="grid w-full grid-cols-5 h-auto p-1 bg-gray-100 rounded-lg gap-1">
+                        <TabsTrigger value="patient" className="py-2 flex flex-col items-center gap-1 data-[state=active]:bg-white">
+                            <Heart className={`h-4 w-4 ${userType==='patient'?'text-red-500':'text-gray-500'}`} />
+                            <span className="text-[10px]">Patient</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="doctor" className="py-2 flex flex-col items-center gap-1 data-[state=active]:bg-white">
+                            <Stethoscope className={`h-4 w-4 ${userType==='doctor'?'text-blue-500':'text-gray-500'}`} />
+                            <span className="text-[10px]">Doctor</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="company" className="py-2 flex flex-col items-center gap-1 data-[state=active]:bg-white">
+                            <Briefcase className={`h-4 w-4 ${userType==='company'?'text-amber-600':'text-gray-500'}`} />
+                            <span className="text-[10px]">Company</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="hospital" className="py-2 flex flex-col items-center gap-1 data-[state=active]:bg-white">
+                            <Building2 className={`h-4 w-4 ${userType==='hospital'?'text-emerald-600':'text-gray-500'}`} />
+                            <span className="text-[10px]">Hospital</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="insurance" className="py-2 flex flex-col items-center gap-1 data-[state=active]:bg-white">
+                            <Shield className={`h-4 w-4 ${userType==='insurance'?'text-blue-600':'text-gray-500'}`} />
+                            <span className="text-[10px]">Insurance</span>
+                        </TabsTrigger>
+                    </TabsList>
+                </Tabs>
 
                 <input
                     type="text"

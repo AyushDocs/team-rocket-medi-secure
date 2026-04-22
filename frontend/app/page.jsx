@@ -17,9 +17,8 @@ import { Logo } from "@/components/Logo";
 
 
 export default function HomePage() {
-    const { connect, connectWithGoogle, disconnect, isConnected, account, patientContract, doctorContract, marketplaceContract, hospitalContract, insuranceContract, loading: web3Loading, error: web3Error, custodianUser, authMode } = useWeb3();
+    const { connect, connectWithGoogle, disconnect, isConnected, account, patientContract, doctorContract, marketplaceContract, hospitalContract, insuranceContract, loading: web3Loading, error: web3Error, custodianUser, authMode, userType, setUserType } = useWeb3();
     const router = useRouter();
-    const [userType, setUserType] = useState("patient");
     const [isRouting, setIsRouting] = useState(false);
     const [localError, setLocalError] = useState("");
     const [loginMethod, setLoginMethod] = useState("wallet"); // 'wallet' or 'google'
@@ -76,7 +75,6 @@ export default function HomePage() {
 
     const handleDisconnect = () => {
         disconnect();
-        window.location.reload();
     };
 
     return (

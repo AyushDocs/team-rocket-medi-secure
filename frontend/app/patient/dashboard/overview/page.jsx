@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button"
 import HeartRateMonitor from "@/components/HeartRateMonitor"
 
 export default function OverviewPatient() {
-  const { patientContract, doctorContract, medianizerContract, account } = useWeb3()
+  const { patientContract, doctorContract, medianizerContract, account, refreshKey, triggerRefresh } = useWeb3()
   
   const [patientInfo, setPatientInfo] = useState(null)
   const [ethPrice, setEthPrice] = useState(null)
@@ -33,12 +33,9 @@ export default function OverviewPatient() {
 
   useEffect(() => {
     const fetchData = async () => {
-      // If we don't have core dependencies, we can't fetch. 
-      // We keep loading=true so the user sees the splash screen while Web3 initializes.
-      if (!patientContract || !doctorContract || !account) return;
-      // Don't fetch until we have the core requirements
       if (!patientContract || !doctorContract || !account) {
-          console.log("OverviewPatient: Waiting for contracts/account...", { patientContract: !!patientContract, doctorContract: !!doctorContract, account });
+          // If we are still waiting for Web3, we stay in the initial loading=true state.
+          // RoleGuard usually handles this, but we have this as a double safety.
           return;
       }
 
@@ -120,26 +117,12 @@ export default function OverviewPatient() {
     }
 
     fetchData()
-  }, [patientContract, doctorContract, account, medianizerContract])
+  }, [patientContract, doctorContract, account, medianizerContract, refreshKey])
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
-  if (error) {
-    return (
-      <div className="min-h-[400px] flex items-center justify-center">
-        <div className="bg-red-50 border border-red-100 p-8 rounded-[2rem] text-center max-w-lg">
-          <ShieldAlert className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-black text-slate-800 mb-2">Data Retrieval Failed</h2>
-          <p className="text-red-600 font-medium text-sm mb-6">{error}</p>
-          <Button onClick={() => window.location.reload()} className="bg-red-600 hover:bg-red-700">
-            Retry Connection
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  if(loading && !patientInfo) return <div className="p-8 text-center text-gray-500">Loading Dashboard...</div>
+  // Initial state should ideally show the Navbar from the layout, 
+  // so we always render the motion.div and handle loading/error internally.
 
 
   return (
@@ -148,7 +131,30 @@ export default function OverviewPatient() {
       animate={{ opacity: 1 }} 
       className="space-y-8 pb-12"
     >
-      {/* Top Banner / Profile */}
+      {error ? (
+        <div className="min-h-[400px] flex items-center justify-center">
+          <div className="bg-red-50 border border-red-100 p-8 rounded-[2rem] text-center max-w-lg shadow-xl shadow-red-50">
+            <ShieldAlert className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <h2 className="text-xl font-black text-slate-800 mb-2">Security Handshake Failed</h2>
+            <p className="text-red-600 font-medium text-sm mb-6">{error}</p>
+            <Button 
+                onClick={() => {
+                  setError(null);
+                  triggerRefresh();
+                }} 
+                className="bg-red-600 hover:bg-red-700 rounded-2xl px-8 py-6 font-black"
+            >
+              Retry Protocol Connection
+            </Button>
+          </div>
+        </div>
+      ) : (loading && !patientInfo) ? (
+        <div className="min-h-[400px] flex flex-col items-center justify-center space-y-4">
+             <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+             <p className="text-slate-400 font-black uppercase tracking-widest text-xs animate-pulse">Syncing Medical Vault...</p>
+        </div>
+      ) : (
+        <>
       <motion.div 
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -341,6 +347,8 @@ export default function OverviewPatient() {
               </ResponsiveContainer>
           </CardContent>
       </Card>
+        </>
+      )}
     </motion.div>
   )
 }

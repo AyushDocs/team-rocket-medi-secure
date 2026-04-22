@@ -191,16 +191,16 @@ export default function PatientDashboardLayout({ children }) {
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
         
-        <motion.div
-           key={pathname}
-           initial={{ opacity: 0, x: 10 }}
-           animate={{ opacity: 1, x: 0 }}
-           transition={{ duration: 0.4, ease: "easeOut" }}
-        >
-          <RoleGuard role="patient">
-            {children}
-          </RoleGuard>
-        </motion.div>
+        <RoleGuard role="patient">
+          <motion.div
+             key={pathname}
+             initial={{ opacity: 0, x: 10 }}
+             animate={{ opacity: 1, x: 0 }}
+             transition={{ duration: 0.4, ease: "easeOut" }}
+          >
+              {children}
+          </motion.div>
+        </RoleGuard>
       </main>
 
       {/* Security Health Indicator */}

@@ -139,6 +139,11 @@ export const Web3Provider = ({ children }) => {
         { name: "City General (NYC)", address: "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1" },
         { name: "Community Health (LA)", address: "0xACa94ef8bD5ffEE41947b4585a84BdA5a3d3DA6E" }
     ]);
+    const [userType, setUserType] = useState("patient");
+    const [refreshKey, setRefreshKey] = useState(0);
+
+    const triggerRefresh = () => setRefreshKey(prev => prev + 1);
+
     const [isConnected, setIsConnected] = useState(false);
     const [account, setAccount] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -419,8 +424,9 @@ export const Web3Provider = ({ children }) => {
                     disconnect();
                 }
             });
-            window.ethereum.on('chainChanged', () => {
-                window.location.reload();
+            window.ethereum.on('chainChanged', (chainId) => {
+                console.log("Web3Context: Chain changed to", chainId, "- Re-connecting...");
+                connectWithWallet();
             });
         }
         
@@ -572,7 +578,11 @@ export const Web3Provider = ({ children }) => {
         // Custodian auth
         custodianUser,
         authMode,
-        isCustodian: authMode === 'custodian'
+        isCustodian: authMode === 'custodian',
+        userType,
+        setUserType,
+        refreshKey,
+        triggerRefresh
       }}
     >
       {children}
