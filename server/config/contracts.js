@@ -163,70 +163,80 @@ export const getContractStatus = () => loader.getStatus();
 export const doctorContract = new Proxy({}, {
     get: function(target, prop) {
         const contract = loader.getContract('Doctor');
-        return contract ? contract[prop] : null;
+        if (!contract) throw new Error("Doctor contract not loaded. Please ensure contracts are deployed.");
+        return contract[prop];
     }
 });
 
 export const marketplaceContract = new Proxy({}, {
     get: function(target, prop) {
         const contract = loader.getContract('Marketplace');
-        return contract ? contract[prop] : null;
+        if (!contract) throw new Error("Marketplace contract not loaded.");
+        return contract[prop];
     }
 });
 
 export const patientContract = new Proxy({}, {
     get: function(target, prop) {
         const contract = loader.getContract('Patient');
-        return contract ? contract[prop] : null;
+        if (!contract) throw new Error("Patient contract not loaded. Please ensure contracts are deployed.");
+        return contract[prop];
     }
 });
 
 export const patientDetailsContract = new Proxy({}, {
     get: function(target, prop) {
         const contract = loader.getContract('PatientDetails');
-        return contract ? contract[prop] : null;
+        if (!contract) throw new Error("PatientDetails contract not loaded. Please ensure contracts are deployed.");
+        return contract[prop];
     }
 });
 
 export const handoffManagerContract = new Proxy({}, {
     get: function(target, prop) {
         const contract = loader.getContract('HandoffManager');
-        return contract ? contract[prop] : null;
+        if (!contract) throw new Error("HandoffManager contract not loaded. Please ensure contracts are deployed.");
+        return contract[prop];
     }
 });
 
 export const insuranceContract = new Proxy({}, {
     get: function(target, prop) {
         const contract = loader.getContract('Insurance');
-        return contract ? contract[prop] : null;
+        if (!contract) throw new Error("Insurance contract not loaded. Please ensure contracts are deployed.");
+        return contract[prop];
     }
 });
 
 export const hospitalContract = new Proxy({}, {
     get: function(target, prop) {
         const contract = loader.getContract('Hospital');
-        return contract ? contract[prop] : null;
+        if (!contract) throw new Error("Hospital contract not loaded.");
+        return contract[prop];
     }
 });
 
 export const wellnessRewardsContract = new Proxy({}, {
     get: function(target, prop) {
         const contract = loader.getContract('WellnessRewards');
-        return contract ? contract[prop] : null;
+        if (!contract) throw new Error("WellnessRewards contract not loaded.");
+        return contract[prop];
     }
 });
 
 export const priceMedianizerContract = new Proxy({}, {
     get: function(target, prop) {
         const contract = loader.getContract('PriceMedianizer');
-        return contract ? contract[prop] : null;
+        if (!contract) throw new Error("PriceMedianizer contract not loaded.");
+        return contract[prop];
     }
 });
 
 export const consentSBTContract = new Proxy({}, {
     get: function(target, prop) {
         const contract = loader.getContract('ConsentSBT');
-        return contract ? contract[prop] : null;
+        if (!contract) throw new Error("ConsentSBT contract not loaded.");
+        return contract[prop];
     }
 });
 

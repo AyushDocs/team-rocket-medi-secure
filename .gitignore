@@ -11,4 +11,6 @@ venv
 .venv
 .planning
 elasticsearch-8.15.0
-cache
+cachelogs/
+**/logs/**
+**/cache/**

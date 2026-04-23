@@ -41,5 +41,13 @@ export const CONFIG = {
         TABLE_NAME: "_migrations",
         LOCK_TABLE: "_migrations_lock"
     },
-    JWT_SECRET: process.env.JWT_SECRET || "emergency_magic_secret_123"
+    JWT_SECRET: process.env.JWT_SECRET || "emergency_magic_secret_123",
+    AWS_IOT: {
+        ENDPOINT: process.env.AWS_IOT_ENDPOINT,
+        CLIENT_ID_PREFIX: process.env.AWS_IOT_CLIENT_ID_PREFIX || "SanjeevniBackend",
+        TOPIC: process.env.AWS_IOT_TOPIC || "health/+/data",
+        CERT_PATH: process.env.AWS_IOT_CERT_PATH,
+        KEY_PATH: process.env.AWS_IOT_KEY_PATH,
+        CA_PATH: process.env.AWS_IOT_CA_PATH
+    }
 };
