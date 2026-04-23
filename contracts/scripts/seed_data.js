@@ -40,16 +40,18 @@ module.exports = async function(callback) {
     console.log("\n=== SEEDING CONTRACTS ===\n");
 
     try {
-        // console.log("Step 1: Upload images to IPFS...");
-        // const images = ["apollo.jpg", "ultrasound.jpg", "x-ray.jpg"];
-        // for (const img of images) {
-        //     const hash = await uploadFileToPinata(img, { name: img });
-        //     if (hash) {
-        //         console.log(`  > ${img} -> ${hash.slice(0,30)}...`);
-        //     } else {
-        //         console.log(`  > ${img} (placeholder - no IPFS)`);
-        //     }
-        // }
+        const uploadedHashes = [];
+        console.log("Step 1: Upload images to IPFS...");
+        const images = ["apollo.jpg", "ultrasound.jpg", "x-ray.jpg"];
+        for (const img of images) {
+            const hash = await uploadFileToPinata(img, { name: img });
+            if (hash) {
+                console.log(`  > ${img} -> ${hash.slice(0,30)}...`);
+                uploadedHashes.push({ hash, name: img });
+            } else {
+                console.log(`  > ${img} (placeholder - no IPFS)`);
+            }
+        }
 
         const Patient = artifacts.require("Patient");
         const Doctor = artifacts.require("Doctor");
@@ -101,7 +103,23 @@ module.exports = async function(callback) {
         try {
             // Use account[1] as the patient wallet, but call from deployer
             await patientContract.registerPatient("patient1", "Patient One", "patient1@test.com", 30, "O+", { from: accounts[1], gas: 500000 });
-            console.log("  > Patient 1 registered from accounts[1]");
+            console.log("  > Patient 1 registered from accounts[1] (0xFFcf...)");
+
+            // Assign uploaded images to this patient
+            if (uploadedHashes.length > 0) {
+                console.log("  > Assigning uploaded images to Patient 1...");
+                for (const item of uploadedHashes) {
+                    await patientContract.addMedicalRecord(
+                        item.hash, 
+                        item.name, 
+                        "2026-04-23", 
+                        "MediSecure Lab", 
+                        true, 
+                        { from: accounts[1], gas: 500000 }
+                    );
+                    console.log(`    - Assigned ${item.name} to Patient 1`);
+                }
+            }
         } catch(e) { 
             console.log("  ! Patient 1:", e.message.slice(0,80)); 
         }
