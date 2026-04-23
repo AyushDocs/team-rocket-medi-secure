@@ -6,39 +6,233 @@ import web3 from "./web3.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const loadContract = (contractName, customPath = null) => {
-  try {
-    const artifactPath = customPath || path.resolve(__dirname, `../../contracts/build/contracts/${contractName}.json`);
-    if (!fs.existsSync(artifactPath)) {
-      console.warn(`Artifact not found at ${artifactPath}, trying frontend path...`);
-      const frontendPath = path.resolve(__dirname, `../../frontend/contracts/${contractName}.json`);
-      if (!fs.existsSync(frontendPath)) throw new Error(`Artifact ${contractName} not found`);
-    }
-    
-    const artifact = JSON.parse(fs.readFileSync(artifactPath, "utf8"));
-    
-    // Attempt to find any network ID that has an address
-    let address;
-    const networks = artifact.networks || {};
-    // Priority: 1337, then 5777, then anything else
-    const preferredNetworkIds = ["1337", "5777", ...Object.keys(networks)];
-    for (const id of preferredNetworkIds) {
-      if (networks[id]) {
-        address = networks[id].address;
-        break;
-      }
+const CONTRACTS_BUILD_DIR = path.resolve(__dirname, "../../contracts/build/contracts");
+const FRONTEND_CONTRACTS_DIR = path.resolve(__dirname, "../../frontend/contracts");
+
+const REQUIRED_CONTRACTS = [
+    'Patient',
+    'Doctor',
+    'Hospital',
+    'Insurance',
+    'Marketplace',
+    'PatientDetails',
+    'HandoffManager',
+    'WellnessRewards',
+    'PriceMedianizer',
+    'ConsentSBT'
+];
+
+class ContractLoader {
+    constructor() {
+        this.contracts = {};
+        this.errors = [];
+        this.initialized = false;
     }
 
-    if (!address) throw new Error(`${contractName} not deployed to any known network`);
-    console.log(`Loaded ${contractName} at ${address}`);
-    return new web3.eth.Contract(artifact.abi, address);
-  } catch (error) {
-    console.error(`Failed to load ${contractName} contract:`, error.message);
-    return null;
-  }
+    log(level, message) {
+        const prefixes = { info: '[INFO]', warn: '[WARN]', error: '[ERROR]', success: '[OK]' };
+        console.log(`${prefixes[level] || '[INFO]'} ContractLoader: ${message}`);
+    }
+
+    findArtifact(contractName) {
+        const possiblePaths = [
+            path.join(CONTRACTS_BUILD_DIR, `${contractName}.json`),
+            path.join(FRONTEND_CONTRACTS_DIR, `${contractName}.json`)
+        ];
+
+        for (const p of possiblePaths) {
+            if (fs.existsSync(p)) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    getNetworkAddress(artifact) {
+        const networks = artifact.networks || {};
+        const preferredNetworks = ["1337", "5777", "1", "5", "11155111"];
+        
+        for (const networkId of preferredNetworks) {
+            if (networks[networkId]?.address) {
+                return networks[networkId].address;
+            }
+        }
+        
+        const keys = Object.keys(networks);
+        if (keys.length > 0) {
+            return networks[keys[0]].address;
+        }
+        
+        return null;
+    }
+
+    loadContract(contractName) {
+        const artifactPath = this.findArtifact(contractName);
+        
+        if (!artifactPath) {
+            this.errors.push(`${contractName}: Artifact not found`);
+            return null;
+        }
+
+        try {
+            const artifact = JSON.parse(fs.readFileSync(artifactPath, "utf8"));
+            const address = this.getNetworkAddress(artifact);
+
+            if (!address) {
+                this.errors.push(`${contractName}: Not deployed to any network`);
+                return null;
+            }
+
+            const contract = new web3.eth.Contract(artifact.abi, address);
+            this.contracts[contractName] = contract;
+            this.log('success', `Loaded ${contractName} at ${address}`);
+            return contract;
+
+        } catch (error) {
+            this.errors.push(`${contractName}: ${error.message}`);
+            return null;
+        }
+    }
+
+    initialize() {
+        if (this.initialized) return;
+
+        this.log('info', 'Initializing contract loader...');
+        
+        const buildDir = CONTRACTS_BUILD_DIR;
+        if (!fs.existsSync(buildDir)) {
+            this.log('warn', `Build directory not found: ${buildDir}`);
+            this.log('info', 'Please run: cd contracts && npm run deploy');
+        }
+
+        let loaded = 0;
+        for (const name of REQUIRED_CONTRACTS) {
+            if (this.loadContract(name)) {
+                loaded++;
+            }
+        }
+
+        this.initialized = true;
+
+        if (loaded === REQUIRED_CONTRACTS.length) {
+            this.log('success', `All ${loaded} contracts loaded successfully`);
+        } else {
+            this.log('warn', `Loaded ${loaded}/${REQUIRED_CONTRACTS.length} contracts`);
+            if (this.errors.length > 0) {
+                this.log('warn', 'Errors:');
+                this.errors.forEach(e => this.log('error', e));
+            }
+        }
+    }
+
+    getContract(name) {
+        if (!this.initialized) {
+            this.initialize();
+        }
+        return this.contracts[name] || null;
+    }
+
+    isReady() {
+        if (!this.initialized) this.initialize();
+        return Object.keys(this.contracts).length === REQUIRED_CONTRACTS.length;
+    }
+
+    getStatus() {
+        const status = {};
+        for (const name of REQUIRED_CONTRACTS) {
+            const contract = this.contracts[name];
+            status[name] = contract ? {
+                loaded: true,
+                address: contract.options.address
+            } : {
+                loaded: false,
+                error: this.errors.find(e => e.startsWith(name))
+            };
+        }
+        return status;
+    }
+}
+
+const loader = new ContractLoader();
+
+export const initializeContracts = () => loader.initialize();
+export const getContract = (name) => loader.getContract(name);
+export const areContractsReady = () => loader.isReady();
+export const getContractStatus = () => loader.getStatus();
+
+export const doctorContract = new Proxy({}, {
+    get: function(target, prop) {
+        const contract = loader.getContract('Doctor');
+        return contract ? contract[prop] : null;
+    }
+});
+
+export const marketplaceContract = new Proxy({}, {
+    get: function(target, prop) {
+        const contract = loader.getContract('Marketplace');
+        return contract ? contract[prop] : null;
+    }
+});
+
+export const patientContract = new Proxy({}, {
+    get: function(target, prop) {
+        const contract = loader.getContract('Patient');
+        return contract ? contract[prop] : null;
+    }
+});
+
+export const patientDetailsContract = new Proxy({}, {
+    get: function(target, prop) {
+        const contract = loader.getContract('PatientDetails');
+        return contract ? contract[prop] : null;
+    }
+});
+
+export const handoffManagerContract = new Proxy({}, {
+    get: function(target, prop) {
+        const contract = loader.getContract('HandoffManager');
+        return contract ? contract[prop] : null;
+    }
+});
+
+export const insuranceContract = new Proxy({}, {
+    get: function(target, prop) {
+        const contract = loader.getContract('Insurance');
+        return contract ? contract[prop] : null;
+    }
+});
+
+export const hospitalContract = new Proxy({}, {
+    get: function(target, prop) {
+        const contract = loader.getContract('Hospital');
+        return contract ? contract[prop] : null;
+    }
+});
+
+export const wellnessRewardsContract = new Proxy({}, {
+    get: function(target, prop) {
+        const contract = loader.getContract('WellnessRewards');
+        return contract ? contract[prop] : null;
+    }
+});
+
+export const priceMedianizerContract = new Proxy({}, {
+    get: function(target, prop) {
+        const contract = loader.getContract('PriceMedianizer');
+        return contract ? contract[prop] : null;
+    }
+});
+
+export const consentSBTContract = new Proxy({}, {
+    get: function(target, prop) {
+        const contract = loader.getContract('ConsentSBT');
+        return contract ? contract[prop] : null;
+    }
+});
+
+export default {
+    initializeContracts,
+    getContract,
+    areContractsReady,
+    getContractStatus
 };
-
-export const doctorContract = loadContract("Doctor");
-export const marketplaceContract = loadContract("Marketplace");
-export const patientContract = loadContract("Patient");
-export const patientDetailsContract = loadContract("PatientDetails", path.resolve(__dirname, "../../frontend/contracts/PatientDetailsProxy.json"));

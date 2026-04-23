@@ -1,16 +1,24 @@
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Activity, Calendar, FileText, Stethoscope, User, Users } from "lucide-react"
+import { Activity, Calendar, FileText, Stethoscope, User, Users, Lock, Shield, ShieldCheck, ArrowRight } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { useWeb3 } from "../../../../context/Web3Context"
 import EmergencyMagicLink from "@/components/EmergencyMagicLink"
 import RoleGuard from "@/components/RoleGuard"
+import WellnessRewardsCard from "@/components/WellnessRewardsCard"
+import { motion } from "framer-motion"
+import { Badge } from "@/components/ui/badge"
+import { ethers } from "ethers"
+import { Button } from "@/components/ui/button"
+import HeartRateMonitor from "@/components/HeartRateMonitor"
+
 export default function OverviewPatient() {
-  const { patientContract, doctorContract, account } = useWeb3()
+  const { patientContract, doctorContract, medianizerContract, account, refreshKey, triggerRefresh } = useWeb3()
   
   const [patientInfo, setPatientInfo] = useState(null)
+  const [ethPrice, setEthPrice] = useState(null)
   const [stats, setStats] = useState({
       totalRecords: 0,
       connectedDoctors: 0,
@@ -19,21 +27,44 @@ export default function OverviewPatient() {
   const [doctorsList, setDoctorsList] = useState([])
   const [recordsList, setRecordsList] = useState([])
   const [graphData, setGraphData] = useState([])
-  
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!patientContract || !doctorContract || !account) return;
-      
-      try {
-        setLoading(true)
-        
-        // 1. Get Patient ID & Details
-        const patientId = await patientContract.walletToPatientId(account)
-        if (patientId.toString() === "0") return;
+      if (!patientContract || !doctorContract || !account) {
+          // If we are still waiting for Web3, we stay in the initial loading=true state.
+          // RoleGuard usually handles this, but we have this as a double safety.
+          return;
+      }
 
-        const details = await patientContract.getPatientDetails(patientId)
+      setLoading(true)
+      try {
+        console.log("OverviewPatient: Fetching data for", account);
+        
+        // Fetch Live Price from Medianizer (Optional, don't block)
+        if (medianizerContract) {
+            try {
+                const price = await medianizerContract.getMedianPrice()
+                setEthPrice(ethers.formatUnits(price, 8))
+            } catch (e) { console.error("Price fetch failed", e) }
+        }
+
+        // 1. Patient ID
+        const patientId = await patientContract.walletToPatientId(account)
+        if (patientId.toString() === "0") {
+          console.warn("OverviewPatient: Patient not registered on-chain");
+          setLoading(false)
+          return
+        }
+
+        // 2. Parallel Requests for better performance
+        const [details, records] = await Promise.all([
+            patientContract.getPatientDetails(patientId),
+            patientContract.getMedicalRecords(patientId)
+        ]);
+
         setPatientInfo({
           name: details.name,
           username: details.username,
@@ -43,59 +74,29 @@ export default function OverviewPatient() {
           wallet: details.walletAddress
         })
 
-        // 2. Get Records
-        const records = await patientContract.getMedicalRecords(patientId)
         const formattedRecords = records.map((r, i) => ({
             id: i,
             fileName: r.fileName || r[1],
             ipfsHash: r.ipfsHash || r[0],
             date: r.recordDate || r[2] || "Unknown",
             hospital: r.hospital || r[3] || "Unknown"
-        })).reverse(); // Newest first
+        })).reverse();
         setRecordsList(formattedRecords);
 
-        // 3. Find Connected Doctors (via Events)
-        // Event: PatientAdded(uint256 indexed doctorId, uint256 indexed patientId, address doctorWallet)
-        // We filter by patientId
+        // Stats and Graphs logic...
+        const uniqueHospitals = new Set(formattedRecords.map(r => r.hospital)).size;
+        
+        // Fetch connected doctors via events
         const filter = doctorContract.filters.PatientAdded(null, patientId); 
         const events = await doctorContract.queryFilter(filter);
-        
-        // Extract unique doctors
-        const uniqueDocs = new Map();
-        for (const e of events) {
-            const docWallet = e.args[2];
-            if (!uniqueDocs.has(docWallet)) {
-                 // Fetch doctor details if possible? 
-                 // Doctor contract has doctors mapping but usually by ID. 
-                 // We can display wallet for now or try to get ID from wallet.
-                 // We'll just list the Wallet or generic name if we can't easily resolve name without ID.
-                 // Actually, we can get doctorId from wallet.
-                 try {
-                    const dId = await doctorContract.walletToDoctorId(docWallet);
-                    const dDetails = await doctorContract.doctors(dId);
-                    uniqueDocs.set(docWallet, {
-                        name: dDetails.name,
-                        specialization: dDetails.specialization,
-                        hospital: dDetails.email, // email field used for hospital in seed info
-                        wallet: docWallet
-                    });
-                 } catch(err) {
-                    uniqueDocs.set(docWallet, { name: "Unknown Doctor", wallet: docWallet });
-                 }
-            }
-        }
-        const docsArray = Array.from(uniqueDocs.values());
-        setDoctorsList(docsArray);
+        const uniqueDocsCount = new Set(events.map(e => e.args[2])).size;
 
-        // 4. Calculate Stats & Graph Data
-        const uniqueHospitals = new Set(formattedRecords.map(r => r.hospital)).size;
         setStats({
             totalRecords: formattedRecords.length,
-            connectedDoctors: docsArray.length,
+            connectedDoctors: uniqueDocsCount,
             hospitalsVisited: uniqueHospitals
         });
 
-        // Graph: Records per Hospital
         const hospitalCount = {};
         formattedRecords.forEach(r => {
             const h = r.hospital || "Unknown";
@@ -109,112 +110,209 @@ export default function OverviewPatient() {
 
       } catch (err) {
         console.error("Dashboard Load Error:", err)
+        setError(err.message || "An unexpected error occurred while loading your data.")
       } finally {
         setLoading(false)
       }
-      
     }
 
     fetchData()
-  }, [patientContract, doctorContract, account])
+  }, [patientContract, doctorContract, account, medianizerContract, refreshKey])
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
-  if(loading && !patientInfo) return <div className="p-8 text-center text-gray-500">Loading Dashboard...</div>
+  // Initial state should ideally show the Navbar from the layout, 
+  // so we always render the motion.div and handle loading/error internally.
+
 
   return (
-    <div className="space-y-6">
-      
-      {/* Top Banner / Profile */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="md:col-span-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-100">
-              <CardContent className="flex items-center gap-6 p-6">
-                  <div className="h-16 w-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                      {patientInfo?.name?.charAt(0) || "P"}
-                  </div>
-                  <div>
-                      <h2 className="text-2xl font-bold text-gray-800">{patientInfo?.name || "Patient"}</h2>
-                      <p className="text-gray-500 font-mono text-sm">@{patientInfo?.username}</p>
-                      <div className="flex gap-4 mt-2 text-sm text-gray-600">
-                          <span className="flex items-center gap-1"><Calendar className="w-4 h-4"/> Age: {patientInfo?.age}</span>
-                          <span className="flex items-center gap-1"><Activity className="w-4 h-4"/> Blood: {patientInfo?.bloodGroup}</span>
-                          <span className="flex items-center gap-1"><Users className="w-4 h-4"/> Family History: N/A</span>
-                      </div>
-                  </div>
-              </CardContent>
-          </Card>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-          <EmergencyMagicLink />
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-500">Total Medical Records</CardTitle></CardHeader>
-              <CardContent>
-                  <div className="text-2xl font-bold flex items-center gap-2">
-                      <FileText className="text-blue-500"/> {stats.totalRecords}
-                  </div>
-              </CardContent>
-          </Card>
-          <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-500">Connected Doctors</CardTitle></CardHeader>
-              <CardContent>
-                  <div className="text-2xl font-bold flex items-center gap-2">
-                       <Stethoscope className="text-green-500"/> {stats.connectedDoctors}
-                  </div>
-              </CardContent>
-          </Card>
-          <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-500">Hospitals Visited</CardTitle></CardHeader>
-              <CardContent>
-                  <div className="text-2xl font-bold flex items-center gap-2">
-                       <Activity className="text-purple-500"/> {stats.hospitalsVisited}
-                  </div>
-              </CardContent>
-          </Card>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      className="space-y-8 pb-12"
+    >
+      {error ? (
+        <div className="min-h-[400px] flex items-center justify-center">
+          <div className="bg-red-50 border border-red-100 p-8 rounded-[2rem] text-center max-w-lg shadow-xl shadow-red-50">
+            <ShieldAlert className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <h2 className="text-xl font-black text-slate-800 mb-2">Security Handshake Failed</h2>
+            <p className="text-red-600 font-medium text-sm mb-6">{error}</p>
+            <Button 
+                onClick={() => {
+                  setError(null);
+                  triggerRefresh();
+                }} 
+                className="bg-red-600 hover:bg-red-700 rounded-2xl px-8 py-6 font-black"
+            >
+              Retry Protocol Connection
+            </Button>
+          </div>
+        </div>
+      ) : (loading && !patientInfo) ? (
+        <div className="min-h-[400px] flex flex-col items-center justify-center space-y-4">
+             <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+             <p className="text-slate-400 font-black uppercase tracking-widest text-xs animate-pulse">Syncing Medical Vault...</p>
+        </div>
+      ) : (
+        <>
+      <motion.div 
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.1 }}
+        className="relative overflow-hidden card-premium bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-8 md:p-12"
+      >
+          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/20 rounded-full -mr-48 -mt-48 blur-3xl animate-glow"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/10 rounded-full -ml-32 -mb-32 blur-2xl"></div>
           
-          {/* Recent Records List */}
-          <Card>
-              <CardHeader><CardTitle>Recent Documents</CardTitle></CardHeader>
-              <CardContent>
-                  {recordsList.length === 0 ? <p className="text-gray-500">No records found.</p> : (
-                      <div className="space-y-3 max-h-[300px] overflow-y-auto">
-                          {recordsList.slice(0, 5).map((r, i) => (
-                              <div key={i} className="flex justify-between items-center p-3 border rounded hover:bg-gray-50">
-                                  <div>
-                                      <p className="font-semibold text-gray-800">{r.fileName}</p>
-                                      <p className="text-xs text-gray-500">{r.date} • {r.hospital}</p>
-                                  </div>
-                                  <div className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded">
-                                      Secured
-                                  </div>
+          <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
+              <motion.div 
+                whileHover={{ scale: 1.05, rotate: 5 }}
+                className="h-24 w-24 bg-gradient-to-tr from-blue-500 to-indigo-600 rounded-[2rem] flex items-center justify-center text-4xl font-black shadow-2xl ring-4 ring-white/10"
+              >
+                  {patientInfo?.name?.charAt(0) || "P"}
+              </motion.div>
+              
+              <div className="flex-1 space-y-4">
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                      <div>
+                          <h2 className="text-3xl md:text-4xl font-black tracking-tight">{patientInfo?.name || "Patient"}</h2>
+                          <p className="text-blue-300 font-mono text-sm tracking-widest uppercase opacity-70">Sanjeevni Wallet: {account?.slice(0,6)}...{account?.slice(-4)}</p>
+                      </div>
+                      <div className="flex flex-col items-end gap-3">
+                          {ethPrice && (
+                              <div className="glass px-4 py-2 rounded-2xl flex items-center gap-3 shadow-2xl border-white/10 bg-white/5">
+                                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-ping"></div>
+                                  <span className="text-xs font-black tracking-widest text-blue-100 italic">ETH / USD: ${Number(ethPrice).toLocaleString()}</span>
                               </div>
+                          )}
+                          <div className="bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] backdrop-blur-md">
+                              MediSecure Protocol Hardened
+                          </div>
+                      </div>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-4 pt-4">
+                      <div className="bg-white/10 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/10 flex items-center gap-3">
+                          <div className="p-2 bg-blue-500/20 rounded-xl"><Calendar size={18} className="text-blue-400" /></div>
+                          <div>
+                              <p className="text-[10px] uppercase font-black tracking-tighter text-blue-200 opacity-60">Patient Age</p>
+                              <p className="text-lg font-black">{patientInfo?.age} Years</p>
+                          </div>
+                      </div>
+                      <div className="bg-white/10 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/10 flex items-center gap-3">
+                          <div className="p-2 bg-red-500/20 rounded-xl"><Activity size={18} className="text-red-400" /></div>
+                          <div>
+                              <p className="text-[10px] uppercase font-black tracking-tighter text-red-200 opacity-60">Blood Type</p>
+                              <p className="text-lg font-black">{patientInfo?.bloodGroup}</p>
+                          </div>
+                      </div>
+                      <div className="bg-white/10 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/10 flex items-center gap-3">
+                        <div className="p-2 bg-emerald-500/20 rounded-xl"><Shield size={18} className="text-emerald-400" /></div>
+                        <div>
+                            <p className="text-[10px] uppercase font-black tracking-tighter text-emerald-200 opacity-60">Security Level</p>
+                            <p className="text-lg font-black tracking-tighter">MAXIMUM</p>
+                        </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </motion.div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <EmergencyMagicLink />
+          <WellnessRewardsCard />
+      </div>
+
+      {/* Stats Cards Dashboard */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <StatsCard 
+            title="Medical Records" 
+            value={stats.totalRecords} 
+            icon={<FileText className="text-blue-500"/>} 
+            subtitle="Encrypted on IPFS"
+            delay={0.2}
+          />
+          <StatsCard 
+            title="Care Circle" 
+            value={stats.connectedDoctors} 
+            icon={<Stethoscope className="text-emerald-500"/>} 
+            subtitle="Verified Professionals"
+            delay={0.3}
+          />
+          <StatsCard 
+            title="Hospital Visits" 
+            value={stats.hospitalsVisited} 
+            icon={<Activity className="text-purple-500"/>} 
+            subtitle="Cross-Network History"
+            delay={0.4}
+          />
+          {/* New Safety Protocol Widget */}
+          <HeartRateMonitor patientId="patient1" />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Recent Records List */}
+          <Card className="lg:col-span-2 card-premium p-4">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                   <CardTitle className="text-xl font-black">Clinical Timeline</CardTitle>
+                   <p className="text-xs text-slate-400 font-medium mt-1">Recent medical certifications and records</p>
+                </div>
+                <Button variant="ghost" className="text-blue-600 font-bold">View All</Button>
+              </CardHeader>
+              <CardContent>
+                  {recordsList.length === 0 ? <p className="text-gray-500 py-10 text-center italic">No records found on-chain.</p> : (
+                      <div className="space-y-4">
+                          {recordsList.slice(0, 5).map((r, i) => (
+                              <motion.div 
+                                key={i} 
+                                initial={{ x: -20, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                transition={{ delay: 0.1 * i }}
+                                className="flex justify-between items-center p-5 bg-slate-50 border border-slate-100 rounded-3xl hover:bg-white hover:border-blue-200 hover:shadow-xl hover:shadow-blue-50 transition-all group"
+                              >
+                                  <div className="flex items-center gap-4">
+                                      <div className="h-12 w-12 bg-white rounded-2xl flex items-center justify-center shadow-sm text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                          <FileText size={20} />
+                                      </div>
+                                      <div>
+                                          <p className="font-black text-slate-800 tracking-tight">{r.fileName}</p>
+                                          <p className="text-xs text-slate-400 font-bold">{r.date} • {r.hospital}</p>
+                                      </div>
+                                  </div>
+                                  <div className="flex gap-2">
+                                      <div className="bg-emerald-50 text-emerald-700 text-[10px] font-black px-3 py-1 rounded-full border border-emerald-100 flex items-center gap-1">
+                                          <ShieldCheck size={10} /> VERIFIED
+                                      </div>
+                                      <Button variant="outline" size="sm" className="rounded-full h-8 w-8 p-0 border-slate-200">
+                                         <ArrowRight size={14} className="text-slate-400" />
+                                      </Button>
+                                  </div>
+                              </motion.div>
                           ))}
                       </div>
                   )}
               </CardContent>
           </Card>
 
-           {/* Doctors List */}
-           <Card>
-              <CardHeader><CardTitle>My Doctors</CardTitle></CardHeader>
+           {/* Care Circle - Doctors */}
+           <Card className="card-premium p-4">
+              <CardHeader>
+                  <CardTitle className="text-xl font-black">Care Team</CardTitle>
+                  <p className="text-xs text-slate-400 font-bold">Professionals with active consent</p>
+              </CardHeader>
               <CardContent>
-                  {doctorsList.length === 0 ? <p className="text-gray-500">No doctors associated.</p> : (
-                      <div className="space-y-3 max-h-[300px] overflow-y-auto">
+                  {doctorsList.length === 0 ? <p className="text-gray-500 py-10 text-center italic">No care providers linked.</p> : (
+                      <div className="space-y-4">
                           {doctorsList.map((doc, i) => (
-                              <div key={i} className="flex items-center gap-3 p-3 border rounded hover:bg-gray-50">
-                                  <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center text-green-700">
-                                      <User className="h-5 w-5"/>
+                              <div key={i} className="flex items-center gap-4 p-4 rounded-3xl border border-slate-100 hover:border-emerald-200 transition-all bg-gradient-to-br from-white to-slate-50/50">
+                                  <div className="h-14 w-14 bg-emerald-100 rounded-[1.2rem] flex items-center justify-center text-emerald-700 shadow-inner">
+                                      <User className="h-7 w-7"/>
                                   </div>
-                                  <div>
-                                      <p className="font-semibold text-gray-800">{doc.name}</p>
-                                      <p className="text-xs text-gray-500">{doc.specialization} • {doc.hospital}</p>
+                                  <div className="flex-1">
+                                      <p className="font-black text-slate-800 tracking-tight leading-tight">{doc.name}</p>
+                                      <p className="text-xs text-slate-400 font-bold mt-0.5">{doc.specialization}</p>
+                                      <Badge variant="outline" className="mt-2 text-[8px] h-4 font-black border-emerald-100 text-emerald-600 uppercase bg-emerald-50">Authorized</Badge>
                                   </div>
                               </div>
                           ))}
@@ -224,26 +322,56 @@ export default function OverviewPatient() {
           </Card>
       </div>
 
-      {/* Graph Section */}
-      <Card>
-          <CardHeader><CardTitle>Record Distribution by Hospital</CardTitle></CardHeader>
-          <CardContent className="h-[300px]">
+      {/* Distribution Analytics */}
+      <Card className="card-premium p-8">
+          <CardHeader className="px-0">
+              <CardTitle className="text-2xl font-black">Health Network Distribution</CardTitle>
+              <p className="text-slate-400 font-medium">Volume of cross-hospital record syncing</p>
+          </CardHeader>
+          <CardContent className="h-[350px] px-0">
               <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={graphData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis allowDecimals={false} />
-                      <Tooltip />
-                      <Bar dataKey="count" fill="#8884d8">
+                  <BarChart data={graphData} radius={[10, 10, 0, 0]}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12, fontWeight: 700}} dy={10} />
+                      <YAxis allowDecimals={false} axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12, fontWeight: 700}} dx={-10} />
+                      <Tooltip 
+                        contentStyle={{borderRadius: '1.5rem', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '1rem'}}
+                        cursor={{fill: '#f8fafc'}}
+                      />
+                      <Bar dataKey="count" fill="#3b82f6" barSize={40}>
                         {graphData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Bar>
                   </BarChart>
               </ResponsiveContainer>
           </CardContent>
       </Card>
-      
-    </div>
+        </>
+      )}
+    </motion.div>
   )
+}
+
+function StatsCard({ title, value, icon, subtitle, delay }) {
+    return (
+        <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay }}
+            className="card-premium bg-white p-6 relative overflow-hidden flex flex-col justify-between border border-slate-100"
+        >
+            <div className="flex justify-between items-start">
+                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 group-hover:bg-blue-600 transition-colors">
+                    {icon}
+                </div>
+                <div className="h-2 w-2 bg-blue-500 rounded-full animate-pulse"></div>
+            </div>
+            <div className="mt-6">
+                <h3 className="text-4xl font-black text-slate-800 tracking-tighter">{value}</h3>
+                <p className="text-sm font-black text-slate-900 mt-1">{title}</p>
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">{subtitle}</p>
+            </div>
+        </motion.div>
+    )
 }

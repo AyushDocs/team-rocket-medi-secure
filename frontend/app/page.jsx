@@ -9,17 +9,19 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Activity, Briefcase, Building2, Heart, Shield, Stethoscope } from "lucide-react";
+import { Activity, Briefcase, Building2, Heart, Shield, Stethoscope, Clock, Mail, Wallet } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useWeb3 } from "../context/Web3Context";
+import { useWeb3 } from "@/context/Web3Context";
+import { Logo } from "@/components/Logo";
+
 
 export default function HomePage() {
-    const { connect, isConnected, account, patientContract, doctorContract, marketplaceContract, hospitalContract, insuranceContract, loading: web3Loading, error: web3Error } = useWeb3();
+    const { connect, connectWithGoogle, disconnect, isConnected, account, patientContract, doctorContract, marketplaceContract, hospitalContract, insuranceContract, loading: web3Loading, error: web3Error, custodianUser, authMode, userType, setUserType } = useWeb3();
     const router = useRouter();
-    const [userType, setUserType] = useState("patient");
     const [isRouting, setIsRouting] = useState(false);
     const [localError, setLocalError] = useState("");
+    const [loginMethod, setLoginMethod] = useState("wallet"); // 'wallet' or 'google'
 
     useEffect(() => {
         if (web3Error) {
@@ -37,7 +39,8 @@ export default function HomePage() {
                 router.push(exists ? "/doctor/dashboard" : "/doctor/signup");
             } else if (userType === "company") {
                 if (!marketplaceContract) throw new Error("Marketplace contract not loaded. Please wait.");
-                const exists = await marketplaceContract.isCompany(account);
+                const company = await marketplaceContract.companies(account);
+                const exists = company.isRegistered;
                 router.push(exists ? "/company/dashboard" : "/company/signup");
             } else if (userType === "hospital") {
                 if (!hospitalContract) throw new Error("Hospital contract not loaded. Please wait.");
@@ -46,7 +49,8 @@ export default function HomePage() {
                 router.push(exists ? "/hospital/dashboard" : "/hospital/signup");
             } else if (userType === "insurance") {
                 if (!insuranceContract) throw new Error("Insurance contract not loaded. Please wait.");
-                const exists = await insuranceContract.isInsuranceProvider(account);
+                const provider = await insuranceContract.insuranceProviders(account);
+                const exists = Number(provider.status) === 1; // ACTIVE = 1, based on Enum in contract
                 router.push(exists ? "/insurance/dashboard" : "/insurance/signup");
             } else {
                 if (!patientContract) throw new Error("Patient contract not loaded. Please wait.");
@@ -60,62 +64,26 @@ export default function HomePage() {
         }
     };
 
-    // Auto-route only if we haven't tried yet and logic seems ready
-    // Note: We might want connected users to ALWAYS manually click 'Enter' to confirm role selection? 
-    // IF we auto-route, they can't switch tabs easily if they have dual roles.
-    // Let's DISABLE auto-routing on load for better UX, requiring a click.
-    // Exception: If they just connected via the button, we want to route.
-
-    useEffect(() => {
-        // If we just connected and user clicked 'Connect', `handleConnect` will trigger routing.
-        // We can leave this empty or use it to clear errors on account switch.
-    }, [account]);
-
     const handleConnect = async () => {
         setLocalError("");
-        if (!isConnected) {
+        if (loginMethod === "wallet") {
             await connect();
-            // After this, we can't immediately route because state won't update in this closure.
-            // We need an effect or a check.
-            // Actually, `connect()` updates `isConnected` but `account` might take a tick.
-            // Let's rely on the button being clicked AGAIN or use a flag "pendingRoute"?
-            // Better: If they click "Connect", we await it. If successful, we try routing effectively?
-            // Since `connect` is async, we can try `routeUser` if we assume state updates or can access provider directly.
-            // But state-based `account` might be stale here.
-            
-            // ALTERNATIVE: Use a simple flag 'shouldRoute'
         } else {
-            // Already connected, just route
-            routeUser();
+            await connectWithGoogle();
         }
     };
 
-    // Auto-route on 'connect' completion is tricky without refs or extra state.
-    // Let's settle for:
-    // 1. If not connected -> Click Connect -> (User approves) -> 'Connected' shows on button -> User clicks 'Enter'.
-    // 2. If connected -> Click 'Enter' -> Routes.
-    // This is most stable.
-    
-    // To make it smoother (1-click), we can watch `isConnected` transition:
-    useEffect(() => {
-        if(isConnected && !isRouting && account) {
-             // We could auto-route here, but as discussed, might be annoying if wrong tab.
-             // Let's require 1 click.
-        }
-    }, [isConnected, account]);
+    const handleDisconnect = () => {
+        disconnect();
+    };
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
-            {/* Header */}
             <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center py-4">
-                        <div className="flex items-center space-x-2">
-                            <Shield className="h-8 w-8 text-[#703FA1]" />
-                            <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-blue-600">
-                                MediSecure
-                            </h1>
-                        </div>
+                        <Logo />
+
                         <div className="flex items-center space-x-4">
                             <div className="flex items-center gap-1 text-sm font-medium text-green-700 bg-green-50 px-3 py-1 rounded-full border border-green-200">
                                 <Shield className="h-4 w-4" />
@@ -126,7 +94,6 @@ export default function HomePage() {
                 </div>
             </header>
 
-            {/* Main Content */}
             <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col items-center justify-center">
                 <div className="text-center mb-6 space-y-2">
                     <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight">
@@ -137,15 +104,57 @@ export default function HomePage() {
                     </p>
                 </div>
 
-                {/* Authentication Card */}
                 <Card className="max-w-xl w-full mx-auto shadow-lg border-t-4 border-[#703FA1]">
                     <CardHeader className="text-center pb-2 pt-4">
                         <CardTitle className="text-xl">Choose Your Role</CardTitle>
                         <CardDescription className="text-xs">
-                            Connect your wallet to enter the secure portal
+                            Connect with wallet or sign in with Google
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="p-4 pt-2">
+                        <div className="flex gap-2 mb-4">
+                            <Button
+                                variant={loginMethod === "wallet" ? "default" : "outline"}
+                                onClick={() => setLoginMethod("wallet")}
+                                className={`flex-1 ${loginMethod === "wallet" ? "bg-[#703FA1]" : ""}`}
+                            >
+                                <Wallet className="h-4 w-4 mr-2" />
+                                Wallet
+                            </Button>
+                            <Button
+                                variant={loginMethod === "google" ? "default" : "outline"}
+                                onClick={() => setLoginMethod("google")}
+                                className={`flex-1 ${loginMethod === "google" ? "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 font-medium" : ""}`}
+                            >
+                                <svg className="h-4 w-4 mr-2" viewBox="0 0 24 24">
+                                    <path
+                                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                                        fill="#4285F4"
+                                    />
+                                    <path
+                                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                                        fill="#34A853"
+                                    />
+                                    <path
+                                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
+                                        fill="#FBBC05"
+                                    />
+                                    <path
+                                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                                        fill="#EA4335"
+                                    />
+                                </svg>
+                                Google
+                            </Button>
+                        </div>
+
+                        {loginMethod === "google" && (
+                            <div className="mb-4 p-3 bg-blue-50 rounded-lg text-xs text-blue-700">
+                                <p className="font-medium">Custodian Wallet Login</p>
+                                <p className="mt-1">Sign in with Google to use our managed wallet solution. Your data is secured with Firebase authentication while maintaining blockchain access.</p>
+                            </div>
+                        )}
+
                         <Tabs value={userType} onValueChange={setUserType} className="space-y-4">
                             <TabsList className="grid w-full grid-cols-5 h-auto p-1 bg-gray-100 rounded-lg gap-1">
                                 <TabsTrigger value="patient" className="py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">
@@ -195,19 +204,43 @@ export default function HomePage() {
                                     </div>
                                 )}
                                 
-                                <Button
-                                    onClick={handleConnect}
-                                    disabled={web3Loading}
-                                    size="lg"
-                                    className="w-full bg-[#703FA1] hover:bg-[#5a2f81] text-base py-4 shadow-md shadow-purple-200 transition-all hover:scale-[1.02]"
-                                >
-                                    {web3Loading ? "Connecting..." : (isConnected && account
-                                        ? `Enter as ${userType.charAt(0).toUpperCase() + userType.slice(1)}`
-                                        : "Connect Wallet")}
-                                </Button>
+                                {isConnected || custodianUser ? (
+                                    <div className="space-y-2">
+                                        <Button
+                                            onClick={routeUser}
+                                            disabled={isRouting}
+                                            size="lg"
+                                            className="w-full bg-[#703FA1] hover:bg-[#5a2f81] text-base py-4 shadow-md transition-all hover:scale-[1.02]"
+                                        >
+                                            {isRouting ? "Routing..." : "Continue to Dashboard"}
+                                        </Button>
+                                        <Button
+                                            onClick={handleDisconnect}
+                                            size="lg"
+                                            variant="outline"
+                                            className="w-full"
+                                        >
+                                            Disconnect
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <Button
+                                        onClick={handleConnect}
+                                        disabled={web3Loading}
+                                        size="lg"
+                                        className="w-full bg-[#703FA1] hover:bg-[#5a2f81] text-base py-4 shadow-md shadow-purple-200 transition-all hover:scale-[1.02]"
+                                    >
+                                        {web3Loading ? "Connecting..." : (loginMethod === "wallet" ? "Connect Wallet" : "Sign in with Google")}
+                                    </Button>
+                                )}
                                 {isConnected && (
                                     <p className="text-[10px] text-center text-gray-400 font-mono">
                                         Connected: {account}
+                                    </p>
+                                )}
+                                {custodianUser && (
+                                    <p className="text-[10px] text-center text-gray-400">
+                                        Signed in as: {custodianUser.email}
                                     </p>
                                 )}
                             </div>
@@ -215,7 +248,6 @@ export default function HomePage() {
                     </CardContent>
                 </Card>
                 
-                {/* Footer Badges */}
                 <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-center opacity-70 scale-90">
                     <div className="flex flex-col items-center gap-1">
                         <Activity className="h-5 w-5 text-blue-500" />

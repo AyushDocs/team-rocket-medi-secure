@@ -49,7 +49,7 @@ const CompanyDashboard = () => {
         try {
             const [allOffers, myPurchases] = await Promise.all([
                 marketplaceContract.getAllOffers(),
-                marketplaceContract.getCompanyPurchases()
+                marketplaceContract.getCompanyPurchases(account)
             ])
             
             setMyOffers(allOffers.filter(o => o.company.toLowerCase() === account.toLowerCase()))

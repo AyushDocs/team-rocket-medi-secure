@@ -9,7 +9,9 @@
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules NODE_ENV=test jest",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "docs:generate": "node scripts/generate-docs.js",
+    "docs:serve": "npx serve docs"
   },
   "type": "module",
   "keywords": [
@@ -21,26 +23,39 @@
   "author": "Ayush Dubey",
   "license": "ISC",
   "dependencies": {
-    "@prisma/client": "^5.8.0",
     "@pinata/sdk": "^2.1.0",
+    "@prisma/client": "^5.8.0",
+    "aws-iot-device-sdk-v2": "^1.26.0",
     "axios": "^1.13.2",
+    "compression": "^1.8.1",
     "cors": "^2.8.5",
     "dockerode": "^4.0.9",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "express-rate-limit": "^8.3.2",
     "form-data": "^4.0.5",
     "fs-extra": "^11.3.3",
+    "helmet": "^8.0.0",
+    "ioredis": "^5.4.2",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.0.2",
+    "sanitize-html": "^2.17.2",
+    "semver": "^7.7.4",
+    "sharp": "^0.34.5",
+    "snarkjs": "^0.7.6",
     "socket.io": "^4.8.3",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "uuid": "^13.0.0",
-    "web3": "^4.16.0"
+    "web3": "^4.16.0",
+    "winston": "^3.19.0",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "cross-env": "^10.1.0",
     "jest": "^30.2.0",
     "nodemon": "^3.1.11",
-    "supertest": "^7.2.2",
-    "prisma": "^5.8.0"
+    "prisma": "^5.8.0",
+    "supertest": "^7.2.2"
   }
 }

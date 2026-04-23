@@ -1,0 +1,39 @@
+services:
+  ipfs:
+    image: ipfs/kubo:latest
+    container_name: sanjeevni-ipfs
+    ports:
+      - "5001:5001"
+      - "8080:8080"
+
+  postgres:
+    image: postgres:15
+    container_name: sanjeevni-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_HOST_AUTH_METHOD=trust
+
+  graph-node:
+    image: graphprotocol/graph-node:latest
+    container_name: sanjeevni-graph-node
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+      - "8020:8020"
+    environment:
+      - GRAPH_LOG=debug
+      - postgres_host=postgres
+      - postgres_user=postgres
+      - postgres_password=postgres
+      - postgres_db=postgres
+      - ipfs=http://ipfs:5001
+      - ethereum=localhost:http://host.docker.internal:8545
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - postgres
+      - ipfs

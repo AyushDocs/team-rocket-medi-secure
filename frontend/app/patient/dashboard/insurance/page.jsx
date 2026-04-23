@@ -7,7 +7,7 @@ import { ethers } from "ethers"
 import { AlertCircle, ArrowRight, CheckCircle2, FileLock2, Gem, Shield, Sparkles } from "lucide-react"
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
-import * as snarkjs from "snarkjs"
+// import * as snarkjs from "snarkjs" // Removed for lazy loading optimization
 import { useWeb3 } from "../../../../context/Web3Context"
 
 export default function PatientInsurance() {
@@ -97,6 +97,7 @@ export default function PatientInsurance() {
                 maxDiastolicBP: maxDiastolic
             }
 
+            const snarkjs = await import("snarkjs")
             const { proof, publicSignals } = await snarkjs.groth16.fullProve(
                 input,
                 "/zk/premium_calc.wasm",

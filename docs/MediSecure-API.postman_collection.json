@@ -1,0 +1,226 @@
+{
+  "info": {
+    "name": "MediSecure API",
+    "description": "Decentralized Healthcare Platform API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health & Status",
+      "item": [
+        {
+          "name": "Root",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/"
+          }
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health"
+          }
+        },
+        {
+          "name": "API Docs",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api-docs"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Patient",
+      "item": [
+        {
+          "name": "Sync Vitals",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/patient/vitals",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": \"0x1234...\",\n  \"systolicBP\": 120,\n  \"diastolicBP\": 80,\n  \"heartRate\": 72,\n  \"temperature\": 98.6\n}"
+            }
+          }
+        },
+        {
+          "name": "Sync Alert",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/patient/alerts",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": \"0x1234...\",\n  \"alertType\": \"warning\",\n  \"message\": \"High blood pressure detected\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Alerts",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/patient/alerts/:address",
+              "variable": [
+                { "key": "address", "value": "0x1234..." }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Resolve Patient",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/patient/resolve/:id",
+              "variable": [
+                { "key": "id", "value": "patient-123" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Emergency",
+      "item": [
+        {
+          "name": "Trigger Emergency Access",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/emergency/access",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientAddress\": \"0x1234...\",\n  \"hospitalAddress\": \"0x5678...\",\n  \"reason\": \"Cardiac emergency\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Emergency Data",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/emergency/data",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Files (IPFS)",
+      "item": [
+        {
+          "name": "Upload File",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/files",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": [] }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get File",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/files/:hash",
+              "variable": [
+                { "key": "hash", "value": "Qm..." }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Doctor Verification",
+      "item": [
+        {
+          "name": "Submit Verification",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/doctor-verification/verify",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"user-123\",\n  \"licenseNumber\": \"MD-12345\",\n  \"specialty\": \"Cardiology\",\n  \"qualification\": \"MD from Harvard Medical School\",\n  \"hospital\": \"City General Hospital\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Verification Status",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/doctor-verification/status/:userId",
+              "variable": [
+                { "key": "userId", "value": "user-123" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Verifications",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/doctor-verification/all?status=pending",
+              "query": [
+                { "key": "status", "value": "pending" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Migrations",
+      "item": [
+        {
+          "name": "Migration Status",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/migrations/status"
+          }
+        },
+        {
+          "name": "Run Migrations",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/migrations/run"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -7,10 +7,222 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id            String    @id @default(uuid())
+  walletAddress String    @unique
+  role          String    @default("patient")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  profile       UserProfile?
+  patientData   PatientData?
+  doctorData    DoctorData?
+  chatMessages  ChatMessage[]
+}
+
+model UserProfile {
+  id        String  @id @default(uuid())
+  userId    String  @unique
+  name      String?
+  email     String?
+  phone     String?
+  address   String?
+  imageUrl  String?
+  
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PatientData {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  dateOfBirth     DateTime?
+  bloodGroup      String?
+  allergies       String?
+  chronicConditions String?
+  emergencyContact String?
+  
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  vitals          VitalRecord[]
+  appointments    Appointment[]
+  prescriptions  Prescription[]
+  invoices       Invoice[]
+  insuranceClaims InsuranceClaim[]
+  familyMembers   FamilyMember[]
+}
+
+model FamilyMember {
+  id              String   @id @default(uuid())
+  patientId       String
+  memberWallet    String
+  name            String
+  relationship    String
+  accessLevel     String   @default("view")
+  canViewRecords  Boolean  @default(true)
+  canAddVitals    Boolean  @default(false)
+  canBookAppointments Boolean @default(false)
+  canViewBilling  Boolean  @default(false)
+  canManage       Boolean  @default(false)
+  isEmergency     Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  patient         PatientData @relation(fields: [patientId], references: [userId], onDelete: Cascade)
+}
+
+model DoctorVerification {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  licenseNumber   String   @unique
+  specialty       String
+  qualification   String
+  hospital        String?
+  yearsExperience Int      @default(0)
+  documents       String?
+  status          String   @default("pending")
+  verifiedAt      DateTime?
+  verifiedBy      String?
+  rejectionReason String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model DoctorData {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  licenseNumber String?
+  specialty    String?
+  hospital     String?
+  experience   Int?
+  
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  appointments Appointment[]
+  prescriptions Prescription[]
+}
+
+model VitalRecord {
+  id            String   @id @default(uuid())
+  patientId     String
+  systolicBP     Int?
+  diastolicBP   Int?
+  heartRate     Int?
+  temperature   Float?
+  weight        Float?
+  height        Float?
+  oxygenSat     Int?
+  recordedAt    DateTime @default(now())
+  source        String?  // manual, premkatha, device
+  transactionHash String?
+  
+  patient       PatientData @relation(fields: [patientId], references: [userId], onDelete: Cascade)
+}
+
+model Appointment {
+  id          String   @id @default(uuid())
+  patientId   String
+  doctorId    String
+  dateTime    DateTime
+  duration    Int      @default(30) // minutes
+  status      String   @default("scheduled") // scheduled, completed, cancelled, no-show
+  type        String?  // consultation, followup, emergency
+  notes       String?
+  meetingLink String?
+  
+  patient     PatientData @relation(fields: [patientId], references: [userId], onDelete: Cascade)
+  doctor      DoctorData  @relation(fields: [doctorId], references: [userId], onDelete: Cascade)
+}
+
+model Prescription {
+  id           String   @id @default(uuid())
+  patientId    String
+  doctorId     String
+  date         DateTime @default(now())
+  medications  String   // JSON array of medications
+  diagnosis    String?
+  notes        String?
+  
+  patient      PatientData @relation(fields: [patientId], references: [userId], onDelete: Cascade)
+  doctor       DoctorData  @relation(fields: [doctorId], references: [userId], onDelete: Cascade)
+}
+
+model Invoice {
+  id          String   @id @default(uuid())
+  patientId   String
+  amount      Float
+  currency    String   @default("INR")
+  status      String   @default("pending")
+  dueDate     DateTime?
+  paidAt      DateTime?
+  description String?
+  items       String?
+  
+  patient     PatientData @relation(fields: [patientId], references: [userId], onDelete: Cascade)
+}
+
+model InsuranceClaim {
+  id              String   @id @default(uuid())
+  patientId       String
+  invoiceId       String?  
+  claimNumber     String   @unique
+  amount          Float
+  currency        String   @default("INR")
+  status          String   @default("submitted")
+  type            String
+  description     String?
+  documents       String?
+  submittedAt     DateTime @default(now())
+  reviewedAt      DateTime?
+  approvedAt      DateTime?
+  paidAt          DateTime?
+  approvedBy      String?
+  rejectionReason String?
+  paymentRef      String?
+  
+  patient         PatientData @relation(fields: [patientId], references: [userId], onDelete: Cascade)
+}
+
 model ChatMessage {
   id        Int      @id @default(autoincrement())
   room      String
-  senderId  String?
+  senderId  String
   message   String
   createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [senderId], references: [id])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  action     String
+  entityType String?
+  entityId   String?
+  details    String?  // JSON
+  ipAddress  String?
+  timestamp  DateTime @default(now())
+}
+
+model ApiKey {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  name        String
+  userId      String?
+  permissions String?
+  expiresAt   DateTime?
+  lastUsed    DateTime?
+  createdAt   DateTime @default(now())
+}
+
+model SyncQueue {
+  id          String   @id @default(uuid())
+  operation   String
+  payload     String
+  status      String   @default("pending")
+  attempts    Int      @default(0)
+  maxAttempts Int      @default(3)
+  error       String?
+  createdAt   DateTime @default(now())
+  completedAt DateTime?
+  syncedAt    DateTime?
 }

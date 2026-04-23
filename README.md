@@ -69,7 +69,7 @@ Navigate to the contracts directory and deploy the contracts to your local block
 ```bash
 cd contracts
 npm install
-# Ensure Ganache is running on port 7545 (or update truffle-config.js)
+# Ensure Ganache is running on port 8545 (or update truffle-config.js)
 truffle migrate --reset
 ```
 *Note: Copy the deployed contract addresses and ABIs to the frontend configuration.*

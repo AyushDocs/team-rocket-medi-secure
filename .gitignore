@@ -7,3 +7,8 @@ ganache-db/
 frontend/contracts
 temp
 .vscode
+venv
+.venv
+.planning
+elasticsearch-8.15.0
+cache

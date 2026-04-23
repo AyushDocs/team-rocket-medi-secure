@@ -1,7 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-contract Hospital {
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "./common/MediSecureAuth.sol";
+import {Roles} from "./MediSecureAccessControl.sol";
+
+
+
+contract Hospital is ReentrancyGuard, MediSecureAuth {
+    constructor(address _accessControl, address _trustedForwarder) 
+        MediSecureAuth(_accessControl, _trustedForwarder) 
+    {}
+
+
     struct HospitalDetails {
         uint256 id;
         address walletAddress;
@@ -10,6 +21,19 @@ contract Hospital {
         string location;
         string registrationNumber;
     }
+
+    // Custom Errors
+    error HospitalAlreadyRegistered();
+    error NotRegisteredHospital();
+    error DoctorAlreadyApproved();
+    error DoctorNotApproved();
+    error AlreadyOnDuty();
+    error NotOnDuty();
+    error NoEarningsToClaim();
+    error TransferFailed();
+    error InvalidDoctorAddress();
+    error InvalidHospitalAddress();
+    error NoValueSent();
 
     mapping(address => uint256) public walletToHospitalId;
     mapping(uint256 => HospitalDetails) public hospitals;
@@ -30,6 +54,9 @@ contract Hospital {
 
     uint256 private hospitalIdCounter;
 
+    // Hospital address -> Accrued insurance payouts
+    mapping(address => uint256) public pendingEarnings;
+
     // Events for Analytics
     event LogPunchIn(address indexed doctor, address indexed hospital, uint256 timestamp);
     event LogPunchOut(address indexed doctor, address indexed hospital, uint256 timestamp, uint256 duration);
@@ -37,113 +64,146 @@ contract Hospital {
     event HospitalRegistered(uint256 indexed id, address indexed wallet, string name);
     event DoctorAdded(uint256 indexed hospitalId, address indexed doctor);
     event DoctorRemoved(uint256 indexed hospitalId, address indexed doctor);
+    event SettlementReceived(address indexed hospital, address indexed patient, uint256 amount);
+    event EarningsClaimed(address indexed hospital, uint256 amount);
 
     function registerHospital(
-        string memory _name,
-        string memory _email,
-        string memory _location,
-        string memory _registrationNumber
+        string memory name,
+        string memory email,
+        string memory location,
+        string memory registrationNumber
     ) public {
-        require(walletToHospitalId[msg.sender] == 0, "Hospital already registered");
+        if (walletToHospitalId[_msgSender()] != 0) revert HospitalAlreadyRegistered();
 
         hospitalIdCounter++;
-        walletToHospitalId[msg.sender] = hospitalIdCounter;
+        walletToHospitalId[_msgSender()] = hospitalIdCounter;
 
         hospitals[hospitalIdCounter] = HospitalDetails({
             id: hospitalIdCounter,
-            walletAddress: msg.sender,
-            name: _name,
-            email: _email,
-            location: _location,
-            registrationNumber: _registrationNumber
+            walletAddress: _msgSender(),
+            name: name,
+            email: email,
+            location: location,
+            registrationNumber: registrationNumber
         });
 
-        emit HospitalRegistered(hospitalIdCounter, msg.sender, _name);
+        emit HospitalRegistered(hospitalIdCounter, _msgSender(), name);
+
+        // Centralize access
+        accessControl.grantRole(Roles.HOSPITAL, _msgSender());
     }
 
-    function addDoctor(address _doctor) public {
-        uint256 hospitalId = walletToHospitalId[msg.sender];
-        require(hospitalId != 0, "Not a registered hospital");
-        require(!isDoctorApproved[hospitalId][_doctor], "Doctor already added");
+    function addDoctor(address doctor) public onlyRoleName(Roles.HOSPITAL) {
+        if (doctor == address(0)) revert InvalidDoctorAddress();
+        uint256 hospitalId = walletToHospitalId[_msgSender()];
+        if (hospitalId == 0) revert NotRegisteredHospital();
+        if (isDoctorApproved[hospitalId][doctor]) revert DoctorAlreadyApproved();
 
-        hospitalDoctors[hospitalId].push(_doctor);
-        isDoctorApproved[hospitalId][_doctor] = true;
+        hospitalDoctors[hospitalId].push(doctor);
+        isDoctorApproved[hospitalId][doctor] = true;
 
-        emit DoctorAdded(hospitalId, _doctor);
+        emit DoctorAdded(hospitalId, doctor);
     }
 
-    function removeDoctor(address _doctor) public {
-        uint256 hospitalId = walletToHospitalId[msg.sender];
-        require(hospitalId != 0, "Not a registered hospital");
-        require(isDoctorApproved[hospitalId][_doctor], "Doctor not in list");
+    function removeDoctor(address doctor) public onlyRoleName(Roles.HOSPITAL) {
+        if (doctor == address(0)) revert InvalidDoctorAddress();
+        uint256 hospitalId = walletToHospitalId[_msgSender()];
+        if (hospitalId == 0) revert NotRegisteredHospital();
+        if (!isDoctorApproved[hospitalId][doctor]) revert DoctorNotApproved();
 
         // Remove from array (swap and pop)
         address[] storage docs = hospitalDoctors[hospitalId];
-        for (uint i = 0; i < docs.length; i++) {
-            if (docs[i] == _doctor) {
+        for (uint256 i = 0; i < docs.length; i++) {
+            if (docs[i] == doctor) {
                 docs[i] = docs[docs.length - 1];
                 docs.pop();
                 break;
             }
         }
         
-        isDoctorApproved[hospitalId][_doctor] = false;
+        isDoctorApproved[hospitalId][doctor] = false;
         
         // Force punch out if on duty?
-        if (doctorDutyStatus[msg.sender][_doctor]) {
-             doctorDutyStatus[msg.sender][_doctor] = false;
-             if (hospitalActiveDoctorCount[msg.sender] > 0) {
-                hospitalActiveDoctorCount[msg.sender]--;
+        if (doctorDutyStatus[_msgSender()][doctor]) {
+             doctorDutyStatus[_msgSender()][doctor] = false;
+             if (hospitalActiveDoctorCount[_msgSender()] > 0) {
+                hospitalActiveDoctorCount[_msgSender()]--;
              }
              // No log event for forced removal punchout? Or emit one with 0 duration?
              // Let's just reset status.
         }
 
-        emit DoctorRemoved(hospitalId, _doctor);
+        emit DoctorRemoved(hospitalId, doctor);
     }
 
     // Register for emergency duty at a specific hospital
-    function punchIn(address _hospitalAddress) public {
-        uint256 hospitalId = walletToHospitalId[_hospitalAddress];
-        require(hospitalId != 0, "Invalid hospital address");
-        require(isDoctorApproved[hospitalId][msg.sender], "Doctor not approved by this hospital");
-        require(!doctorDutyStatus[_hospitalAddress][msg.sender], "Already on duty");
+    function punchIn(address hospitalAddress) public onlyRoleName(Roles.DOCTOR) {
+        uint256 hospitalId = walletToHospitalId[hospitalAddress];
+        if (hospitalId == 0) revert InvalidHospitalAddress();
+        if (!isDoctorApproved[hospitalId][_msgSender()]) revert DoctorNotApproved();
+        if (doctorDutyStatus[hospitalAddress][_msgSender()]) revert AlreadyOnDuty();
 
-        doctorDutyStatus[_hospitalAddress][msg.sender] = true;
-        shiftStartTimes[_hospitalAddress][msg.sender] = block.timestamp;
-        hospitalActiveDoctorCount[_hospitalAddress]++;
+        doctorDutyStatus[hospitalAddress][_msgSender()] = true;
+        shiftStartTimes[hospitalAddress][_msgSender()] = block.timestamp;
+        hospitalActiveDoctorCount[hospitalAddress]++;
 
-        emit LogPunchIn(msg.sender, _hospitalAddress, block.timestamp);
+        emit LogPunchIn(_msgSender(), hospitalAddress, block.timestamp);
     }
 
-    function punchOut(address _hospitalAddress) public {
-        require(doctorDutyStatus[_hospitalAddress][msg.sender], "Not on duty");
+    function punchOut(address hospitalAddress) public {
+        if (!doctorDutyStatus[hospitalAddress][_msgSender()]) revert NotOnDuty();
 
-        uint256 startTime = shiftStartTimes[_hospitalAddress][msg.sender];
+        uint256 startTime = shiftStartTimes[hospitalAddress][_msgSender()];
         uint256 duration = block.timestamp - startTime;
 
-        doctorDutyStatus[_hospitalAddress][msg.sender] = false;
-        shiftStartTimes[_hospitalAddress][msg.sender] = 0;
+        doctorDutyStatus[hospitalAddress][_msgSender()] = false;
+        shiftStartTimes[hospitalAddress][_msgSender()] = 0;
         
-        if (hospitalActiveDoctorCount[_hospitalAddress] > 0) {
-            hospitalActiveDoctorCount[_hospitalAddress]--;
+        if (hospitalActiveDoctorCount[hospitalAddress] > 0) {
+            hospitalActiveDoctorCount[hospitalAddress]--;
         }
 
-        emit LogPunchOut(msg.sender, _hospitalAddress, block.timestamp, duration);
+        emit LogPunchOut(_msgSender(), hospitalAddress, block.timestamp, duration);
     }
 
-    function isDoctorOnDuty(address _doctor, address _hospitalAddress) public view returns (bool) {
-         return doctorDutyStatus[_hospitalAddress][_doctor];
+    function isDoctorOnDuty(address doctor, address hospitalAddress) public view returns (bool) {
+         return doctorDutyStatus[hospitalAddress][doctor];
+    }
+    
+    /**
+     * @dev Called by authorized Insurance contracts to settle claims directly to the hospital.
+     */
+    function receiveSettlement(address _hospital, address _patient) external payable {
+        if (msg.value == 0) revert NoValueSent();
+        if (walletToHospitalId[_hospital] == 0) revert NotRegisteredHospital();
+        
+        pendingEarnings[_hospital] += msg.value;
+        emit SettlementReceived(_hospital, _patient, msg.value);
+    }
+
+    /**
+     * @dev Allows the hospital administrator to claim accumulated insurance payouts.
+     */
+    function claimEarnings() public nonReentrant {
+        uint256 amount = pendingEarnings[_msgSender()];
+        if (amount == 0) revert NoEarningsToClaim();
+
+        pendingEarnings[_msgSender()] = 0;
+        
+        (bool sent, ) = payable(_msgSender()).call{value: amount}("");
+        if (!sent) revert TransferFailed();
+
+        emit EarningsClaimed(_msgSender(), amount);
     }
     
     // Getters
     function getHospitalDoctors() public view returns (address[] memory) {
         uint256 hospitalId = walletToHospitalId[msg.sender];
-        require(hospitalId != 0, "Not a registered hospital");
+        if (hospitalId == 0) revert NotRegisteredHospital();
         return hospitalDoctors[hospitalId];
     }
     
-    function getActiveDoctorCount(address _hospitalAddress) public view returns (uint256) {
-        return hospitalActiveDoctorCount[_hospitalAddress];
+    function getActiveDoctorCount(address hospitalAddress) public view returns (uint256) {
+        return hospitalActiveDoctorCount[hospitalAddress];
     }
 }

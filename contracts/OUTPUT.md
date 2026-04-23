@@ -51,7 +51,7 @@
 [0] Hardfork: shanghai
 [0] Id:       1337
 [0]
-[0] RPC Listening on 127.0.0.1:7545
+[0] RPC Listening on 127.0.0.1:8545
 
 
 [1] Doctor contract deployed at: 0x5b1869D9A4C187F2EAa108f3062412ecf0526b24

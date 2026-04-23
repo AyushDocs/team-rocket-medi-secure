@@ -11,8 +11,12 @@
     "compile": "truffle compile",
     "dev:deploy": "truffle migrate --network development",
     "dev:reset": "truffle migrate --network development --reset",
-    "dev:ganache": "ganache --wallet.deterministic --database.dbPath ./ganache-db --server.port 7545 --chain.networkId 1337 --chain.chainId 1337",
-    "seed": "truffle exec scripts/seed_data.js --network development"
+    "dev:ganache": "ganache --wallet.deterministic --database.dbPath ./ganache-db --server.port 8545 --chain.networkId 1337 --chain.chainId 1337 --chain.hardfork shanghai",
+    "seed": "truffle exec scripts/seed_data.js --network development",
+    "docker:build": "docker build -t sanjeevni-contracts .",
+    "docker:run": "docker run --network sanjeevni-net sanjeevni-contracts",
+    "docker:up": "docker-compose up contracts",
+    "docker:down": "docker-compose down contracts"
   },
   "keywords": [
     "ethereum",
@@ -24,18 +28,24 @@
   "author": "Ayush Dubey",
   "license": "ISC",
   "dependencies": {
-    "@openzeppelin/contracts": "^5.4.0",
-    "@openzeppelin/contracts-upgradeable": "^5.4.0",
+    "@chainlink/contracts": "^1.4.0",
+    "@openzeppelin/contracts": "5.0.2",
+    "@openzeppelin/contracts-upgradeable": "5.0.2",
     "@openzeppelin/truffle-upgrades": "^1.21.0",
-    "web3": "^1.9.0",
+    "@prisma/client": "^6.19.3",
     "axios": "^1.6.0",
+    "dotenv": "^16.3.1",
     "form-data": "^4.0.0",
     "socket.io-client": "^4.6.1",
-    "dotenv": "^16.3.1"
+    "web3": "^1.9.0"
   },
   "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^7.0.0",
+    "@openzeppelin/hardhat-upgrades": "^3.9.1",
     "concurrently": "^9.2.1",
     "ganache": "^7.9.2",
-    "truffle": "^5.11.5"
+    "hardhat": "^2.28.6",
+    "truffle": "^5.11.5",
+    "truffle-flattener": "^1.6.0"
   }
 }
