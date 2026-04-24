@@ -13474,11 +13474,11 @@
   },
   "networks": {
     "1337": {
-      "address": "0xe5608e4945998aB5E4548Bc95b421E188095DA8E"
+      "address": "0x9982bCCb508C19E61cf683307768d3F88Fda55Cc"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2026-04-13T21:23:03.275Z",
+  "updatedAt": "2026-04-13T22:12:36.782Z",
   "networkType": "ethereum",
   "devdoc": {
     "details": "UUPS Upgradeable governance manager for MediSecure protocol.",

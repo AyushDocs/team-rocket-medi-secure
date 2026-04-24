@@ -27,12 +27,28 @@ export default function SignupPatient() {
     }
   }, [custodianUser]);
 
+  useEffect(() => {
+    const checkRegistration = async () => {
+      if (patientContract && account) {
+        try {
+          const registered = await patientContract.isRegistered(account);
+          if (registered) {
+            router.push("/patient/dashboard");
+          }
+        } catch (e) {
+          console.error("Error checking registration status:", e);
+        }
+      }
+    };
+    checkRegistration();
+  }, [patientContract, account, router]);
+
   const handleSignup = async () => {
     if (!patientContract) {
       setErrorMessage("Contract not connected. Please check your network.");
       return;
     }
-    if (!username || !name || !email || !age || !bloodGroup) { // 2. Validate username
+    if (!username || !name || !email || !age || !bloodGroup) {
       setErrorMessage("All fields are required.");
       return;
     }
@@ -42,7 +58,25 @@ export default function SignupPatient() {
       setErrorMessage("");
       setSuccessMessage("");
 
-      // 3. Pass username to contract
+      // 1. Check if already registered (Pre-flight)
+      const alreadyRegistered = await patientContract.isRegistered(account);
+      if (alreadyRegistered) {
+        setErrorMessage("This wallet is already registered. Redirecting...");
+        setTimeout(() => router.push("/patient/dashboard"), 2000);
+        return;
+      }
+
+      // 2. Check if username taken (Pre-flight)
+      // Note: mapping usernameToPatientId is public, so it generates a getter
+      const existingId = await patientContract.usernameToPatientId(username);
+      if (existingId && existingId.toString() !== "0") {
+        setErrorMessage("Username is already taken. Please choose another.");
+        setLoading(false);
+        return;
+      }
+
+      // 3. Register Patient
+      console.log("Registering patient:", { username, name, email, age, bloodGroup });
       const tx = await patientContract.registerPatient(username, name, email, parseInt(age), bloodGroup);
       await tx.wait();
 
@@ -52,8 +86,17 @@ export default function SignupPatient() {
       }, 1500);
 
     } catch (error) {
-      console.error(error);
-      setErrorMessage(error.reason || error.message || "An error occurred during registration.");
+      console.error("Signup error:", error);
+      
+      // Try to extract a more useful error message
+      let msg = "An error occurred during registration.";
+      if (error.reason) msg = error.reason;
+      else if (error.message && error.message.includes("Already registered")) msg = "Wallet already registered.";
+      else if (error.message && error.message.includes("Username taken")) msg = "Username already taken.";
+      else if (error.message && error.message.includes("NotAuthorizedManager")) msg = "Contract authorization error. Please contact admin.";
+      else if (error.code === "CALL_EXCEPTION") msg = "Transaction reverted. This usually means you are already registered or the username is taken.";
+      
+      setErrorMessage(msg);
     } finally {
         setLoading(false);
     }

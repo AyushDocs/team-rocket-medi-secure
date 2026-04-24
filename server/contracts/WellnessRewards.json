@@ -10661,11 +10661,11 @@
   },
   "networks": {
     "1337": {
-      "address": "0xcCf27643fa6C4FC844a8945b7c2F8bd562153649"
+      "address": "0xfC059aBD0407c6cBF2bD76C940FDa27B51f1187d"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2026-04-13T21:23:03.673Z",
+  "updatedAt": "2026-04-13T22:12:30.803Z",
   "networkType": "ethereum",
   "devdoc": {
     "details": "Incentivizes patients to maintain healthy vitals using $SANJ rebates. Supports proof-of-wellness verified via ZK-Proofs.",

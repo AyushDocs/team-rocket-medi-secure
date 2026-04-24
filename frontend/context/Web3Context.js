@@ -152,8 +152,11 @@ export const Web3Provider = ({ children }) => {
     // Custodian wallet state
     const [custodianUser, setCustodianUser] = useState(null);
     const [authMode, setAuthMode] = useState(null); // 'wallet' | 'custodian' | null
+    const [isConnecting, setIsConnecting] = useState(false);
 
     const connectWithWallet = async () => {
+        if (isConnecting) return;
+        setIsConnecting(true);
         setLoading(true);
         setError(null);
         try {
@@ -245,10 +248,13 @@ export const Web3Provider = ({ children }) => {
             setError(error.message);
         } finally {
             setLoading(false);
+            setIsConnecting(false);
         }
     };
 
     const connectWithGoogle = async () => {
+        if (isConnecting) return;
+        setIsConnecting(true);
         setLoading(true);
         setError(null);
         try {
@@ -302,10 +308,13 @@ export const Web3Provider = ({ children }) => {
             setError(error.message);
         } finally {
             setLoading(false);
+            setIsConnecting(false);
         }
     };
 
     const setupContractsForCustodian = async (walletAddress, userId) => {
+        if (isConnecting) return;
+        setIsConnecting(true);
         try {
             const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL || 'http://localhost:8545');
             const signer = new ManagedSigner(walletAddress, provider, userId);
@@ -358,6 +367,7 @@ export const Web3Provider = ({ children }) => {
             console.error("Error setting up contracts for custodian:", error);
         } finally {
             setLoading(false);
+            setIsConnecting(false);
         }
 
     };
@@ -418,21 +428,26 @@ export const Web3Provider = ({ children }) => {
     useEffect(() => {
         if (window.ethereum) {
             window.ethereum.on('accountsChanged', (accounts) => {
-                if (accounts.length > 0) {
+                const isManualDisconnect = localStorage.getItem("mediSecure_manualDisconnect") === "true";
+                if (accounts.length > 0 && !isManualDisconnect && authMode !== 'custodian') {
+                    console.log("Web3Context: Accounts changed, re-connecting wallet...");
                     connectWithWallet();
-                } else {
+                } else if (accounts.length === 0) {
                     disconnect();
                 }
             });
             window.ethereum.on('chainChanged', (chainId) => {
-                console.log("Web3Context: Chain changed to", chainId, "- Re-connecting...");
-                connectWithWallet();
+                const isManualDisconnect = localStorage.getItem("mediSecure_manualDisconnect") === "true";
+                if (!isManualDisconnect && authMode !== 'custodian') {
+                    console.log("Web3Context: Chain changed to", chainId, "- Re-connecting wallet...");
+                    connectWithWallet();
+                }
             });
         }
         
         const checkConnection = async () => {
              const isManualDisconnect = localStorage.getItem("mediSecure_manualDisconnect") === "true";
-             if (window.ethereum && !isManualDisconnect) {
+             if (window.ethereum && !isManualDisconnect && authMode !== 'custodian') {
                   const provider = new ethers.BrowserProvider(window.ethereum);
                   const accounts = await provider.listAccounts();
                   if (accounts.length > 0) {
@@ -441,7 +456,7 @@ export const Web3Provider = ({ children }) => {
              }
         };
         checkConnection();
-    }, []);
+    }, [authMode]);
 
     useEffect(() => {
         const stored = localStorage.getItem("mediSecure_dutyHospital");

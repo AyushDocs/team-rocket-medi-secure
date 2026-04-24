@@ -1,272 +1,227 @@
-"use client";
+"use client"
 
-import { Button } from "@/components/ui/button";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Activity, Briefcase, Building2, Heart, Shield, Stethoscope, Clock, Mail, Wallet } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useWeb3 } from "@/context/Web3Context";
-import { Logo } from "@/components/Logo";
+import { Button } from "@/components/ui/button"
+import { Shield, ArrowRight, Zap, Lock, Database, Users, Activity, ChevronRight, Globe, Sparkles } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { motion } from "framer-motion"
 
+export default function LandingPage() {
+    const router = useRouter()
 
-export default function HomePage() {
-    const { connect, connectWithGoogle, disconnect, isConnected, account, patientContract, doctorContract, marketplaceContract, hospitalContract, insuranceContract, loading: web3Loading, error: web3Error, custodianUser, authMode, userType, setUserType } = useWeb3();
-    const router = useRouter();
-    const [isRouting, setIsRouting] = useState(false);
-    const [localError, setLocalError] = useState("");
-    const [loginMethod, setLoginMethod] = useState("wallet"); // 'wallet' or 'google'
-
-    useEffect(() => {
-        if (web3Error) {
-            setLocalError(web3Error);
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: { 
+            opacity: 1,
+            transition: { staggerChildren: 0.2 }
         }
-    }, [web3Error]);
+    }
 
-    const routeUser = async () => {
-        if (!account) return;
-        setIsRouting(true);
-        try {
-            if (userType === "doctor") {
-                if (!doctorContract) throw new Error("Doctor contract not loaded. Please wait.");
-                const exists = await doctorContract.doctorExists(account);
-                router.push(exists ? "/doctor/dashboard" : "/doctor/signup");
-            } else if (userType === "company") {
-                if (!marketplaceContract) throw new Error("Marketplace contract not loaded. Please wait.");
-                const company = await marketplaceContract.companies(account);
-                const exists = company.isRegistered;
-                router.push(exists ? "/company/dashboard" : "/company/signup");
-            } else if (userType === "hospital") {
-                if (!hospitalContract) throw new Error("Hospital contract not loaded. Please wait.");
-                const id = await hospitalContract.walletToHospitalId(account);
-                const exists = id.toString() !== "0";
-                router.push(exists ? "/hospital/dashboard" : "/hospital/signup");
-            } else if (userType === "insurance") {
-                if (!insuranceContract) throw new Error("Insurance contract not loaded. Please wait.");
-                const provider = await insuranceContract.insuranceProviders(account);
-                const exists = Number(provider.status) === 1; // ACTIVE = 1, based on Enum in contract
-                router.push(exists ? "/insurance/dashboard" : "/insurance/signup");
-            } else {
-                if (!patientContract) throw new Error("Patient contract not loaded. Please wait.");
-                const exists = await patientContract.userExists(account);
-                router.push(exists ? "/patient/dashboard" : "/patient/signup");
-            }
-        } catch (err) {
-            console.error("Routing error:", err);
-            setLocalError(err.message);
-            setIsRouting(false);
-        }
-    };
-
-    const handleConnect = async () => {
-        setLocalError("");
-        if (loginMethod === "wallet") {
-            await connect();
-        } else {
-            await connectWithGoogle();
-        }
-    };
-
-    const handleDisconnect = () => {
-        disconnect();
-    };
+    const itemVariants = {
+        hidden: { y: 30, opacity: 0 },
+        visible: { y: 0, opacity: 1 }
+    }
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
-            <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center py-4">
-                        <Logo />
+        <div className="min-h-screen bg-[#0a0c10] text-gray-100 font-outfit overflow-hidden">
+            {/* Ambient Background */}
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/10 rounded-full blur-[120px]"></div>
+                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-600/10 rounded-full blur-[120px]"></div>
+                <div className="absolute top-[30%] left-[20%] w-[30%] h-[30%] bg-indigo-600/5 rounded-full blur-[100px]"></div>
+            </div>
 
-                        <div className="flex items-center space-x-4">
-                            <div className="flex items-center gap-1 text-sm font-medium text-green-700 bg-green-50 px-3 py-1 rounded-full border border-green-200">
-                                <Shield className="h-4 w-4" />
-                                <span>Blockchain Secured</span>
-                            </div>
-                        </div>
-                    </div>
+            {/* Hero Section */}
+            <section className="relative pt-40 pb-20 px-6">
+                <div className="max-w-7xl mx-auto text-center space-y-8">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="inline-flex items-center gap-3 px-6 py-2 bg-white/5 border border-white/10 rounded-full backdrop-blur-xl"
+                    >
+                        <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-400">Next-Gen Decentralized Health</span>
+                    </motion.div>
+
+                    <motion.h1 
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-6xl md:text-8xl font-black tracking-tighter italic text-white leading-[0.9]"
+                    >
+                        YOUR DATA.<br />
+                        <span className="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">YOUR CONTROL.</span>
+                    </motion.h1>
+
+                    <motion.p 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="max-w-2xl mx-auto text-lg md:text-xl text-gray-500 font-medium leading-relaxed"
+                    >
+                        MediSecure is the first blockchain-native platform for secure medical records, instant doctor access, and ethical data monetization powered by Zero-Knowledge proofs.
+                    </motion.p>
+
+                    <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 }}
+                        className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-10"
+                    >
+                        <Button 
+                            onClick={() => router.push('/login')}
+                            className="bg-blue-600 hover:bg-blue-500 text-white rounded-[2rem] px-12 h-20 font-black text-xl italic shadow-2xl shadow-blue-600/30 transition-all hover:scale-105 active:scale-95 flex items-center gap-4"
+                        >
+                            GET STARTED NOW <ArrowRight className="h-6 w-6" />
+                        </Button>
+                        <Button 
+                            variant="outline"
+                            onClick={() => router.push('/about')}
+                            className="bg-transparent border-white/10 hover:bg-white/5 text-white rounded-[2rem] px-12 h-20 font-black text-xl italic transition-all"
+                        >
+                            LEARN MORE
+                        </Button>
+                    </motion.div>
                 </div>
-            </header>
+            </section>
 
-            <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col items-center justify-center">
-                <div className="text-center mb-6 space-y-2">
-                    <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight">
-                        Your Health Data. <span className="text-[#703FA1]">Your Control.</span>
-                    </h2>
-                    <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                        The first decentralized platform for secure medical records, instant doctor access, and ethical data monetization.
-                    </p>
-                </div>
-
-                <Card className="max-w-xl w-full mx-auto shadow-lg border-t-4 border-[#703FA1]">
-                    <CardHeader className="text-center pb-2 pt-4">
-                        <CardTitle className="text-xl">Choose Your Role</CardTitle>
-                        <CardDescription className="text-xs">
-                            Connect with wallet or sign in with Google
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="p-4 pt-2">
-                        <div className="flex gap-2 mb-4">
-                            <Button
-                                variant={loginMethod === "wallet" ? "default" : "outline"}
-                                onClick={() => setLoginMethod("wallet")}
-                                className={`flex-1 ${loginMethod === "wallet" ? "bg-[#703FA1]" : ""}`}
+            {/* Features Section */}
+            <section className="py-32 px-6 relative z-10">
+                <div className="max-w-7xl mx-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+                        {[
+                            { 
+                                icon: Shield, 
+                                title: "ZK-Privacy", 
+                                desc: "Verify eligibility without exposing private records using Zero-Knowledge proofs.",
+                                color: "text-blue-400",
+                                bg: "bg-blue-500/10"
+                            },
+                            { 
+                                icon: Globe, 
+                                title: "Global Access", 
+                                desc: "Access your medical history from any node, anywhere in the world, instantly.",
+                                color: "text-purple-400",
+                                bg: "bg-purple-500/10"
+                            },
+                            { 
+                                icon: Sparkles, 
+                                title: "Data Economy", 
+                                desc: "Monetize your anonymized records ethically with full consent and on-chain payouts.",
+                                color: "text-amber-400",
+                                bg: "bg-amber-500/10"
+                            }
+                        ].map((f, i) => (
+                            <motion.div 
+                                key={i}
+                                initial={{ opacity: 0, y: 40 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: i * 0.1 }}
+                                className="group p-10 bg-white/5 border border-white/5 rounded-[3rem] hover:bg-white/[0.08] hover:border-white/10 transition-all"
                             >
-                                <Wallet className="h-4 w-4 mr-2" />
-                                Wallet
-                            </Button>
-                            <Button
-                                variant={loginMethod === "google" ? "default" : "outline"}
-                                onClick={() => setLoginMethod("google")}
-                                className={`flex-1 ${loginMethod === "google" ? "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 font-medium" : ""}`}
-                            >
-                                <svg className="h-4 w-4 mr-2" viewBox="0 0 24 24">
-                                    <path
-                                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                                        fill="#4285F4"
-                                    />
-                                    <path
-                                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                                        fill="#34A853"
-                                    />
-                                    <path
-                                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
-                                        fill="#FBBC05"
-                                    />
-                                    <path
-                                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                                        fill="#EA4335"
-                                    />
-                                </svg>
-                                Google
-                            </Button>
-                        </div>
-
-                        {loginMethod === "google" && (
-                            <div className="mb-4 p-3 bg-blue-50 rounded-lg text-xs text-blue-700">
-                                <p className="font-medium">Custodian Wallet Login</p>
-                                <p className="mt-1">Sign in with Google to use our managed wallet solution. Your data is secured with Firebase authentication while maintaining blockchain access.</p>
-                            </div>
-                        )}
-
-                        <Tabs value={userType} onValueChange={setUserType} className="space-y-4">
-                            <TabsList className="grid w-full grid-cols-5 h-auto p-1 bg-gray-100 rounded-lg gap-1">
-                                <TabsTrigger value="patient" className="py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">
-                                    <div className="flex flex-col items-center gap-1">
-                                        <Heart className={`h-4 w-4 ${userType==='patient'?'text-red-500':'text-gray-500'}`} />
-                                        <span className="text-[10px] sm:text-xs">Patient</span>
-                                    </div>
-                                </TabsTrigger>
-                                <TabsTrigger value="doctor" className="py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">
-                                    <div className="flex flex-col items-center gap-1">
-                                        <Stethoscope className={`h-4 w-4 ${userType==='doctor'?'text-blue-500':'text-gray-500'}`} />
-                                        <span className="text-[10px] sm:text-xs">Doctor</span>
-                                    </div>
-                                </TabsTrigger>
-                                <TabsTrigger value="company" className="py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">
-                                    <div className="flex flex-col items-center gap-1">
-                                        <Briefcase className={`h-4 w-4 ${userType==='company'?'text-amber-600':'text-gray-500'}`} />
-                                        <span className="text-[10px] sm:text-xs">Company</span>
-                                    </div>
-                                </TabsTrigger>
-                                <TabsTrigger value="hospital" className="py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">
-                                    <div className="flex flex-col items-center gap-1">
-                                        <Building2 className={`h-4 w-4 ${userType==='hospital'?'text-emerald-600':'text-gray-500'}`} />
-                                        <span className="text-[10px] sm:text-xs">Hospital</span>
-                                    </div>
-                                </TabsTrigger>
-                                <TabsTrigger value="insurance" className="py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all">
-                                    <div className="flex flex-col items-center gap-1">
-                                        <Shield className={`h-4 w-4 ${userType==='insurance'?'text-blue-600':'text-gray-500'}`} />
-                                        <span className="text-[10px] sm:text-xs">Insurance</span>
-                                    </div>
-                                </TabsTrigger>
-                            </TabsList>
-
-                            <div className="space-y-4">
-                                <div className="p-3 bg-gray-50 rounded-lg border text-xs text-gray-600 text-center min-h-[50px] flex items-center justify-center">
-                                    {userType === 'patient' && "Manage your records, control access, and earn from your data."}
-                                    {userType === 'doctor' && "View patient history, request access, and provide better care."}
-                                    {userType === 'company' && "Purchase ethical, consented medical datasets for research."}
-                                    {userType === 'hospital' && "Manage verification, staff duty, and emergency protocols."}
-                                    {userType === 'insurance' && "Provide premiums and handle claims using ZK-Proofs."}
+                                <div className={`w-20 h-20 rounded-[1.5rem] ${f.bg} flex items-center justify-center mb-8 border border-white/5 group-hover:scale-110 transition-transform`}>
+                                    <f.icon className={`h-10 w-10 ${f.color}`} />
                                 </div>
-
-                                {localError && (
-                                    <div className="bg-red-50 text-red-600 p-2 rounded-lg text-xs text-center">
-                                        {localError}
-                                    </div>
-                                )}
-                                
-                                {isConnected || custodianUser ? (
-                                    <div className="space-y-2">
-                                        <Button
-                                            onClick={routeUser}
-                                            disabled={isRouting}
-                                            size="lg"
-                                            className="w-full bg-[#703FA1] hover:bg-[#5a2f81] text-base py-4 shadow-md transition-all hover:scale-[1.02]"
-                                        >
-                                            {isRouting ? "Routing..." : "Continue to Dashboard"}
-                                        </Button>
-                                        <Button
-                                            onClick={handleDisconnect}
-                                            size="lg"
-                                            variant="outline"
-                                            className="w-full"
-                                        >
-                                            Disconnect
-                                        </Button>
-                                    </div>
-                                ) : (
-                                    <Button
-                                        onClick={handleConnect}
-                                        disabled={web3Loading}
-                                        size="lg"
-                                        className="w-full bg-[#703FA1] hover:bg-[#5a2f81] text-base py-4 shadow-md shadow-purple-200 transition-all hover:scale-[1.02]"
-                                    >
-                                        {web3Loading ? "Connecting..." : (loginMethod === "wallet" ? "Connect Wallet" : "Sign in with Google")}
-                                    </Button>
-                                )}
-                                {isConnected && (
-                                    <p className="text-[10px] text-center text-gray-400 font-mono">
-                                        Connected: {account}
-                                    </p>
-                                )}
-                                {custodianUser && (
-                                    <p className="text-[10px] text-center text-gray-400">
-                                        Signed in as: {custodianUser.email}
-                                    </p>
-                                )}
-                            </div>
-                        </Tabs>
-                    </CardContent>
-                </Card>
-                
-                <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-center opacity-70 scale-90">
-                    <div className="flex flex-col items-center gap-1">
-                        <Activity className="h-5 w-5 text-blue-500" />
-                        <span className="font-semibold text-gray-800 text-sm">99% Uptime</span>
-                        <span className="text-[10px] text-gray-500">Decentralized IPFS Storage</span>
-                    </div>
-                    <div className="flex flex-col items-center gap-1">
-                        <Shield className="h-5 w-5 text-green-500" />
-                        <span className="font-semibold text-gray-800 text-sm">On-Chain Audit</span>
-                        <span className="text-[10px] text-gray-500">Every view is immutably logged</span>
-                    </div>
-                    <div className="flex flex-col items-center gap-1">
-                         <Building2 className="h-5 w-5 text-purple-500" />
-                        <span className="font-semibold text-gray-800 text-sm">Ethical Data</span>
-                        <span className="text-[10px] text-gray-500">Patient-owned data economy</span>
+                                <h3 className="text-3xl font-black text-white mb-4 italic">{f.title}</h3>
+                                <p className="text-gray-500 font-medium leading-relaxed">{f.desc}</p>
+                            </motion.div>
+                        ))}
                     </div>
                 </div>
-            </main>
+            </section>
 
+            {/* Ecosystem Section */}
+            <section className="py-32 px-6 bg-white/[0.01]">
+                <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-20">
+                    <div className="flex-1 space-y-10">
+                        <div className="space-y-4">
+                            <Badge className="bg-blue-600/10 text-blue-400 border-none px-4 py-1 font-black text-[10px] tracking-widest uppercase rounded-full">The Ecosystem</Badge>
+                            <h2 className="text-5xl md:text-6xl font-black italic tracking-tighter text-white">BUILT FOR EVERYONE.</h2>
+                            <p className="text-gray-500 text-lg font-medium leading-relaxed">Whether you are a patient, a healthcare provider, or a researcher, MediSecure provides a specialized portal for your needs.</p>
+                        </div>
+
+                        <div className="space-y-4">
+                            {[
+                                { title: "Patients", desc: "Own your records and earn from data." },
+                                { title: "Doctors", desc: "Access history and provide better care." },
+                                { title: "Hospitals", desc: "Manage protocols and verifications." },
+                                { title: "Insurance", desc: "Handle claims via privacy-preserving proofs." }
+                            ].map((role, i) => (
+                                <div key={i} className="flex items-center justify-between p-6 bg-white/5 border border-white/5 rounded-3xl hover:bg-white/10 transition-all cursor-pointer group">
+                                    <div>
+                                        <h4 className="text-xl font-black text-white italic">{role.title}</h4>
+                                        <p className="text-gray-500 text-sm font-medium">{role.desc}</p>
+                                    </div>
+                                    <ChevronRight className="h-6 w-6 text-gray-700 group-hover:text-blue-400 transition-colors" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="flex-1 relative">
+                        <div className="w-full aspect-square rounded-[4rem] bg-gradient-to-br from-blue-600/20 to-purple-600/20 border border-white/10 flex items-center justify-center p-12 overflow-hidden shadow-3xl shadow-blue-500/10">
+                            <div className="relative z-10 grid grid-cols-2 gap-8">
+                                <Shield className="h-32 w-32 text-blue-500/40 animate-pulse" />
+                                <Lock className="h-32 w-32 text-purple-500/40" />
+                                <Database className="h-32 w-32 text-indigo-500/40" />
+                                <Activity className="h-32 w-32 text-emerald-500/40 animate-pulse" />
+                            </div>
+                            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* CTA Section */}
+            <section className="py-40 px-6">
+                <div className="max-w-5xl mx-auto bg-gradient-to-br from-blue-600 to-indigo-800 rounded-[4rem] p-16 text-center relative overflow-hidden shadow-3xl shadow-blue-600/20">
+                    <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -mr-48 -mt-48 blur-3xl"></div>
+                    <div className="absolute bottom-0 left-0 w-96 h-96 bg-black/10 rounded-full -ml-48 -mb-48 blur-3xl"></div>
+                    
+                    <div className="relative z-10 space-y-8">
+                        <h2 className="text-5xl md:text-7xl font-black italic tracking-tighter text-white">READY TO JOIN THE REVOLUTION?</h2>
+                        <p className="text-blue-100 text-xl font-medium max-w-2xl mx-auto">Start your journey toward secure, decentralized healthcare today. Connect your identity to explore the ecosystem.</p>
+                        <Button 
+                            onClick={() => router.push('/login')}
+                            className="bg-white text-black hover:bg-gray-200 rounded-[2rem] px-16 h-20 font-black text-2xl italic transition-all shadow-2xl active:scale-95 flex items-center gap-4 mx-auto"
+                        >
+                            ENTER PORTAL <ChevronRight className="h-8 w-8" />
+                        </Button>
+                    </div>
+                </div>
+            </section>
+
+            {/* Simple Footer */}
+            <footer className="py-20 border-t border-white/5 px-6">
+                <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
+                    <div className="flex items-center space-x-3 group">
+                        <div className="bg-white/10 p-2.5 rounded-2xl border border-white/10">
+                            <Shield className="h-6 w-6 text-white" />
+                        </div>
+                        <span className="text-xl font-black tracking-tight text-white italic">MediSecure</span>
+                    </div>
+                    <div className="flex items-center space-x-12">
+                        <Link href="/about" className="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-white transition-colors">Privacy Protocol</Link>
+                        <Link href="/contact" className="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-white transition-colors">Emergency Node</Link>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-700">© 2026 MediSecure Foundation</span>
+                    </div>
+                </div>
+            </footer>
         </div>
-    );
+    )
+}
+
+function Badge({ children, className }) {
+    return (
+        <span className={`inline-flex items-center ${className}`}>
+            {children}
+        </span>
+    )
+}
+
+function Link({ children, href, className }) {
+    return (
+        <a href={href} className={className}>
+            {children}
+        </a>
+    )
 }

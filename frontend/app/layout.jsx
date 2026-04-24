@@ -4,6 +4,7 @@ import { Toaster } from "react-hot-toast"
 import { Web3Provider } from "../context/Web3Context"
 import ErrorBoundary from "@/components/ErrorBoundary"
 import { PageLoader } from "@/components/Skeleton"
+import { PublicNavbar } from "@/components/PublicNavbar"
 import "./globals.css"
 
 export const metadata = {
@@ -19,6 +20,7 @@ export default function RootLayout({ children }) {
       <body className="font-sans antialiased">
         <ErrorBoundary>
           <Web3Provider>
+            <PublicNavbar />
             <Suspense fallback={<PageLoader />}>{children}</Suspense>
           </Web3Provider>
         </ErrorBoundary>

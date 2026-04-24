@@ -40861,11 +40861,11 @@
   },
   "networks": {
     "1337": {
-      "address": "0xDf3Cf8b9978c9c5639E06da3bfF5014ab5c055d1"
+      "address": "0xFA64858C14345C0a3aD805E0da64900C4d7ec5e6"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2026-04-13T21:23:03.350Z",
+  "updatedAt": "2026-04-13T22:12:23.258Z",
   "networkType": "ethereum",
   "devdoc": {
     "details": "UUPS Upgradeable insurance protocol with ZK-Proofs and VRF audits.",

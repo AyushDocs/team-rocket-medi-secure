@@ -40,16 +40,27 @@ module.exports = async function(callback) {
     console.log("\n=== SEEDING CONTRACTS ===\n");
 
     try {
-        // console.log("Step 1: Upload images to IPFS...");
-        // const images = ["apollo.jpg", "ultrasound.jpg", "x-ray.jpg"];
-        // for (const img of images) {
-        //     const hash = await uploadFileToPinata(img, { name: img });
-        //     if (hash) {
-        //         console.log(`  > ${img} -> ${hash.slice(0,30)}...`);
-        //     } else {
-        //         console.log(`  > ${img} (placeholder - no IPFS)`);
-        //     }
-        // }
+        console.log("Step 1: Upload images to IPFS...");
+        const images = ["apollo.jpg", "ultrasound.jpg", "x-ray.jpg"];
+        const ipfsHashes = {};
+        
+        // Fallback hashes in case Pinata is not configured or fails
+        const fallbackHashes = {
+            "apollo.jpg": "QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco",
+            "ultrasound.jpg": "QmYwAP7Bv9K279L1Uj76NfS7Qd47E4Z79L1Uj76NfS7Qd4",
+            "x-ray.jpg": "QmZ4tj3p9f9N79L1Uj76NfS7Qd47E4Z79L1Uj76NfS7Qd4"
+        };
+
+        for (const img of images) {
+            const hash = await uploadFileToPinata(img, { name: img });
+            if (hash) {
+                console.log(`  > ${img} -> ${hash.slice(0,30)}...`);
+                ipfsHashes[img] = hash;
+            } else {
+                console.log(`  > ${img} (using fallback hash)`);
+                ipfsHashes[img] = fallbackHashes[img];
+            }
+        }
 
         const Patient = artifacts.require("Patient");
         const Doctor = artifacts.require("Doctor");
@@ -97,13 +108,27 @@ module.exports = async function(callback) {
         // For seed data, we'll use deployer for all registrations since they have admin role
         // This is not ideal for production but works for seed data
         
-        console.log("Registering patient from deployer (admin)...");
+        console.log("Registering patient 0xFF... (Patient One) and adding records...");
+        const patient1 = accounts[1];
         try {
-            // Use account[1] as the patient wallet, but call from deployer
-            await patientContract.registerPatient("patient1", "Patient One", "patient1@test.com", 30, "O+", { from: accounts[1], gas: 500000 });
-            console.log("  > Patient 1 registered from accounts[1]");
+            // Use account[1] as the patient wallet (Address: 0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0)
+            await patientContract.registerPatient("patient1", "Patient One", "patient1@test.com", 30, "O+", { from: patient1, gas: 500000 });
+            console.log("  > Patient 1 (0xFF...) registered");
+
+            // Assign the three images to this patient
+            for (const img of images) {
+                await patientContract.addMedicalRecord(
+                    ipfsHashes[img], 
+                    img, 
+                    "2026-04-20", 
+                    "Apollo Hospital", 
+                    true, 
+                    { from: patient1, gas: 500000 }
+                );
+                console.log(`    - Added ${img} to Patient 1`);
+            }
         } catch(e) { 
-            console.log("  ! Patient 1:", e.message.slice(0,80)); 
+            console.log("  ! Patient 1 Error:", e.message.slice(0,80)); 
         }
 
         console.log("\nRegistering doctor...");

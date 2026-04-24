@@ -9198,11 +9198,11 @@
   },
   "networks": {
     "1337": {
-      "address": "0xE8e43b5D61C43375aB7b651F1419F2a81C5E6615"
+      "address": "0x8E7a8d3CAeEbbe9A92faC4db19424218aE6791a3"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2026-04-13T21:23:03.454Z",
+  "updatedAt": "2026-04-13T22:12:39.928Z",
   "networkType": "ethereum",
   "devdoc": {
     "details": "Centralized access control contract with role-based permissions",

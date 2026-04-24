@@ -35768,11 +35768,11 @@
   },
   "networks": {
     "1337": {
-      "address": "0xDd37b2eB92F97dd09cEd1f1d20A73aA340b2311A"
+      "address": "0x959306A913D041D4f634310f6aD3789cBF0e9b18"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2026-04-13T21:23:03.520Z",
+  "updatedAt": "2026-04-13T22:12:05.089Z",
   "networkType": "ethereum",
   "devdoc": {
     "details": "Full medical record management with EIP-712 Gasless Consent (Proxy Compatible).",

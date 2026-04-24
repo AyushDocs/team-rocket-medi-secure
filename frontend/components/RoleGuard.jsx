@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useWeb3 } from "@/context/Web3Context";
 import { Loader2, ShieldAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 export default function RoleGuard({ children, role }) {
     const { 
@@ -23,6 +23,7 @@ export default function RoleGuard({ children, role }) {
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [checking, setChecking] = useState(true);
     const [error, setError] = useState(null);
+    const redirectRef = useRef(null);
 
     useEffect(() => {
         const checkRole = async () => {
@@ -43,7 +44,6 @@ export default function RoleGuard({ children, role }) {
                 // 2. Role-Specific Contract Check
                 if (role === "patient") {
                     if (!patientContract) {
-                        // Keep checking=true, but wait for re-run
                         return;
                     }
                     exists = await patientContract.userExists(account);
@@ -63,17 +63,25 @@ export default function RoleGuard({ children, role }) {
                 } else if (role === "insurance") {
                     if (!insuranceContract) return;
                     const provider = await insuranceContract.insuranceProviders(account);
-                    exists = provider.status === 1; // ACTIVE = 1
+                    exists = provider && Number(provider.status) === 1; // ACTIVE = 1
                 }
 
                 if (!exists) {
                     setIsAuthorized(false);
-                    // Redirect after a short delay so user sees they are unauthorized
-                    setTimeout(() => {
-                        router.push(`/${role}/signup`);
-                    }, 2000);
+                    // Schedule redirect if not already scheduled
+                    if (!redirectRef.current) {
+                        console.log(`RoleGuard: Not authorized as ${role}, scheduling redirect...`);
+                        redirectRef.current = setTimeout(() => {
+                            router.push(`/${role}/signup`);
+                        }, 2000);
+                    }
                 } else {
                     setIsAuthorized(true);
+                    // Clear any pending redirect if we are now authorized
+                    if (redirectRef.current) {
+                        clearTimeout(redirectRef.current);
+                        redirectRef.current = null;
+                    }
                 }
             } catch (err) {
                 console.error("Role authorization check failed:", err);

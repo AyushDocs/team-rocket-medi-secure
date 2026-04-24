@@ -14140,11 +14140,11 @@
   },
   "networks": {
     "1337": {
-      "address": "0xb111Ded3F2e4012C0B85D930Fda298693D0DA0B2"
+      "address": "0x8c634b72fF5d6A9F6a0281EEF36365E4db8bDF8d"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2026-04-13T21:23:03.169Z",
+  "updatedAt": "2026-04-13T22:12:05.158Z",
   "networkType": "ethereum",
   "devdoc": {
     "details": "Soulbound Token (SBT) representing medical consent.  Non-transferable tokens that doctors hold to prove they have patient permission.",

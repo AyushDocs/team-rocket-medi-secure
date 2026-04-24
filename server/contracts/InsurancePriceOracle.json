@@ -8951,11 +8951,11 @@
   },
   "networks": {
     "1337": {
-      "address": "0x84b085c0d4B4D6fbf6490f8246Bc5cD317d2d4cD"
+      "address": "0x439D0306A0EBD39771781AFB74c1Ae8De29E97Fa"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2026-04-13T21:23:03.383Z",
+  "updatedAt": "2026-04-13T22:12:23.325Z",
   "networkType": "ethereum",
   "devdoc": {
     "details": "Fetches real-time price feeds for insurance premium calculation. Links with PriceMedianizer for decentralized trust.",

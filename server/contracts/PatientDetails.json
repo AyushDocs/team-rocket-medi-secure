@@ -19742,11 +19742,11 @@
   },
   "networks": {
     "1337": {
-      "address": "0x9A6448b4bab66F952F2431E14562Bcfab7840cE3"
+      "address": "0xE1c08596DEb9465184820f2815182157db42757B"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2026-04-13T21:23:03.546Z",
+  "updatedAt": "2026-04-13T22:12:25.694Z",
   "networkType": "ethereum",
   "devdoc": {
     "details": "Upgradable contract for storing patient health details. Uses UUPS (Universal Upgradeable Proxy Standard) pattern.",

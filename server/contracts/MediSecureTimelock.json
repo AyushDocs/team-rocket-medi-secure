@@ -17076,11 +17076,11 @@
   },
   "networks": {
     "1337": {
-      "address": "0x49455287eBCC42a875B40724C62519D03e2EDcff"
+      "address": "0xE39caEcB7ed0E02194727aA60cF5d8A0fc6b273c"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2026-04-13T21:23:03.699Z",
+  "updatedAt": "2026-04-13T22:12:36.759Z",
   "networkType": "ethereum",
   "devdoc": {
     "details": "48-hour delay for critical protocol upgrades and administrative operations",

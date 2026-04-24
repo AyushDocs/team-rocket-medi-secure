@@ -41021,11 +41021,11 @@
   },
   "networks": {
     "1337": {
-      "address": "0x8be8DFCDC90F50562b5022DE1f8D83fe93b0b055"
+      "address": "0xD5746777FE34a3562aD3abc1501629ca0190F23B"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2026-04-13T21:23:03.194Z",
+  "updatedAt": "2026-04-13T22:12:16.971Z",
   "networkType": "ethereum",
   "devdoc": {
     "errors": {

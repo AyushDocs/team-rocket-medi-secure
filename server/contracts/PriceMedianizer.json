@@ -9335,11 +9335,11 @@
   },
   "networks": {
     "1337": {
-      "address": "0xDe2f00CCfEefAdD1Ecc87BE765cf46AC901A6AC8"
+      "address": "0x768b5Faed6DC69816f33377d214ffaf00dcDd0cf"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2026-04-13T21:23:03.575Z",
+  "updatedAt": "2026-04-13T22:12:23.392Z",
   "networkType": "ethereum",
   "devdoc": {
     "details": "Aggregates ETH/USD prices from multiple sources (Chainlink, Pyth-style, TWAP) and returns the median to prevent single-oracle manipulation.",

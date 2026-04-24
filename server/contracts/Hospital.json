@@ -19789,11 +19789,11 @@
   },
   "networks": {
     "1337": {
-      "address": "0xEdCD6442143188Deb586e182B7900dFb8707Bc27"
+      "address": "0x74E33B80BC77cdB5d49861a53913A8301CB72B4D"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2026-04-13T21:23:03.310Z",
+  "updatedAt": "2026-04-13T22:12:16.928Z",
   "networkType": "ethereum",
   "devdoc": {
     "errors": {

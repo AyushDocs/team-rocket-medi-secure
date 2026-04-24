@@ -12777,11 +12777,11 @@
   },
   "networks": {
     "1337": {
-      "address": "0xC3Ef4965B788cc4b905084d01F2eb7D4b6E93ABF"
+      "address": "0x49bC4443E05f7c05A823920CaD1c9EbaAcD7201E"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2026-04-13T21:23:03.649Z",
+  "updatedAt": "2026-04-13T22:12:30.823Z",
   "networkType": "ethereum",
   "devdoc": {
     "errors": {

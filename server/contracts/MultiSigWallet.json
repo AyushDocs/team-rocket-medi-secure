@@ -19029,11 +19029,11 @@
   },
   "networks": {
     "1337": {
-      "address": "0xaa8751Df9FC4b9424831Fb361F0C14096FC0C204"
+      "address": "0xcF7F9472FAB9372b34D96FbE1B57966B13951dbf"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2026-04-13T21:23:03.484Z",
+  "updatedAt": "2026-04-13T22:12:36.899Z",
   "networkType": "ethereum",
   "devdoc": {
     "errors": {

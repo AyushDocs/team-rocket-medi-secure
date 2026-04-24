@@ -30286,11 +30286,11 @@
   },
   "networks": {
     "1337": {
-      "address": "0xe6dA6E31540239b4a09eC574f147004D50f1b140"
+      "address": "0x70eE878D560D7E17a986872f54B7C58f564B2784"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2026-04-13T21:23:03.433Z",
+  "updatedAt": "2026-04-13T22:12:13.006Z",
   "networkType": "ethereum",
   "devdoc": {
     "details": "UUPS Upgradeable marketplace for buying and selling medical data.",

@@ -11134,11 +11134,11 @@
   },
   "networks": {
     "1337": {
-      "address": "0x04CbD650c829299FDedCE903eada37FbDbA3b50f"
+      "address": "0xBc53027c52B0Ee6ad90347b8D03A719f30d9d7aB"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2026-04-13T21:23:03.731Z",
+  "updatedAt": "2026-04-13T22:12:39.945Z",
   "networkType": "ethereum",
   "devdoc": {
     "details": "Mock trusted forwarder for development/testing gasless transactions locally.",
