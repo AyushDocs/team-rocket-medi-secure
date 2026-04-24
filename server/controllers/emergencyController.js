@@ -7,26 +7,43 @@ import { CONFIG } from "../config/constants.js";
 export const triggerAccess = async (req, res) => {
   try {
     const { patientId, secret } = req.body;
+    console.log(`[EMERGENCY-DEBUG] Incoming Access Request:`, { patientId, secretLength: secret?.length });
 
     if (!patientId || !secret) {
       return res.status(400).json({ error: "Patient ID and secret are required" });
     }
 
+    // Ensure patientId is numeric (contract expects uint256 index)
+    if (!/^\d+$/.test(patientId.toString())) {
+        return res.status(400).json({ 
+            error: "Invalid Patient ID format", 
+            details: "Patient ID must be a numeric index (e.g., '1'). Received: " + patientId
+        });
+    }
+
     // Hash the secret to check against the contract
+    // Note: web3.utils.keccak256(hexString) correctly hashes the data bytes if it starts with 0x
     const hashedSecret = web3.utils.keccak256(secret);
+    console.log(`[EMERGENCY-DEBUG] Generated Hash:`, hashedSecret);
 
     // 1. Resolve Patient ID to Wallet Address
     let patientDetails;
     try {
+        console.log(`[EMERGENCY-DEBUG] Looking up patient details for ID: ${patientId}`);
         patientDetails = await patientContract.methods.getPatientDetails(patientId).call();
+        console.log(`[EMERGENCY-DEBUG] Blockchain response:`, patientDetails);
     } catch (e) {
-        return res.status(404).json({ error: "Could not retrieve patient details from blockchain" });
+        console.error(`[EMERGENCY-DEBUG] Blockchain Lookup Error:`, e.message);
+        return res.status(502).json({ 
+            error: "Blockchain communication failure",
+            details: e.message 
+        });
     }
 
     const walletAddress = patientDetails.walletAddress || patientDetails[3];
 
     if (!walletAddress || walletAddress === "0x0000000000000000000000000000000000000000") {
-        return res.status(404).json({ error: "Patient identity not found" });
+        return res.status(404).json({ error: `Patient ID ${patientId} not found in MediSecure registry` });
     }
 
     // 2. Fetch Stored Hash from Contract Mapping
@@ -34,7 +51,8 @@ export const triggerAccess = async (req, res) => {
     try {
         storedHash = await patientContract.methods.emergencyAccessHashes(walletAddress).call();
     } catch (e) {
-        return res.status(500).json({ error: "Emergency registry lookup failed" });
+        console.error(`[EMERGENCY-DEBUG] Registry Lookup Error:`, e.message);
+        return res.status(502).json({ error: "Emergency registry lookup failed", details: e.message });
     }
 
     if (!storedHash || storedHash === "0x0000000000000000000000000000000000000000000000000000000000000000") {

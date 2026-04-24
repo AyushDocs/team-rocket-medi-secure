@@ -1,5 +1,6 @@
 import { mqtt, iot } from "aws-iot-device-sdk-v2";
 import { getSocketHelpers } from "./socketService.js";
+import { CONFIG } from "../config/constants.js";
 import logger from "./logger.js";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -7,15 +8,9 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// AWS IoT Configuration
-const ENDPOINT = "a3un6cca4k67lb-ats.iot.us-east-1.amazonaws.com";
-const CLIENT_ID = "SanjeevniBackend_" + Math.random().toString(16).substring(2, 10);
-const TOPIC = "health/+/data";
-
-// Paths to certificates provided by user
-const CERT_PATH = "/home/ayush/Desktop/code/Sanjeevni/server/config/ad50dd2d41b68e713f740df29133a3bd5445a55cc6bebeb419b569a230701835-certificate.pem.crt";
-const KEY_PATH = "/home/ayush/Desktop/code/Sanjeevni/server/config/ad50dd2d41b68e713f740df29133a3bd5445a55cc6bebeb419b569a230701835-private.pem.key";
-const CA_PATH = "/home/ayush/Desktop/code/Sanjeevni/server/config/AmazonRootCA1 (1).pem";
+// AWS IoT Configuration from Environment
+const { ENDPOINT, CLIENT_ID_PREFIX, TOPIC, CERT_PATH, KEY_PATH, CA_PATH } = CONFIG.AWS_IOT;
+const CLIENT_ID = `${CLIENT_ID_PREFIX}_${Math.random().toString(16).substring(2, 10)}`;
 
 let connection = null;
 
