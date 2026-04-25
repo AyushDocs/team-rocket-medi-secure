@@ -35768,19 +35768,11 @@
   },
   "networks": {
     "1337": {
-<<<<<<< HEAD
-      "address": "0x959306A913D041D4f634310f6aD3789cBF0e9b18"
-    }
-  },
-  "schemaVersion": "3.4.16",
-  "updatedAt": "2026-04-13T22:12:05.089Z",
-=======
       "address": "0x1b88Bdb8269A1aB1372459F5a4eC3663D6f5cCc4"
     }
   },
   "schemaVersion": "3.4.16",
   "updatedAt": "2026-04-24T10:38:31.135Z",
->>>>>>> origin/feature/health-vitals-tracking
   "networkType": "ethereum",
   "devdoc": {
     "details": "Full medical record management with EIP-712 Gasless Consent (Proxy Compatible).",

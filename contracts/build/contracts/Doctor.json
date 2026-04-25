@@ -15,8 +15,7 @@
         }
       ],
       "stateMutability": "nonpayable",
-      "type": "constructor",
-      "signature": "constructor"
+      "type": "constructor"
     },
     {
       "inputs": [],
@@ -133,8 +132,7 @@
         }
       ],
       "name": "AccessGranted",
-      "type": "event",
-      "signature": "0xc298d419e944a3f1e7da1b2245c9f34649b9a6ea67875bcd37e975ef5d7209a3"
+      "type": "event"
     },
     {
       "anonymous": false,
@@ -177,8 +175,7 @@
         }
       ],
       "name": "AccessRequested",
-      "type": "event",
-      "signature": "0xc4de088654327f2907ad8f0c288704b90c01af218c310b25c1682df9b7c8c7cd"
+      "type": "event"
     },
     {
       "anonymous": false,
@@ -209,8 +206,7 @@
         }
       ],
       "name": "AccessRevoked",
-      "type": "event",
-      "signature": "0x1852eeec29c8b9e06624d3e3008123c26ddd6173947b6bea9054402ea8ca57ad"
+      "type": "event"
     },
     {
       "anonymous": false,
@@ -247,8 +243,7 @@
         }
       ],
       "name": "EmergencyAccessGranted",
-      "type": "event",
-      "signature": "0xc18b0a731326cfd073d9219b559d4a74aaed4d08716d26c4ace853127d096edb"
+      "type": "event"
     },
     {
       "anonymous": false,
@@ -279,8 +274,7 @@
         }
       ],
       "name": "EmergencyResolved",
-      "type": "event",
-      "signature": "0xbe73bae5f08d7fe7ebd150bf32bcb303131391314609cc522ae754b46286ecc0"
+      "type": "event"
     },
     {
       "anonymous": false,
@@ -305,8 +299,7 @@
         }
       ],
       "name": "PatientAdded",
-      "type": "event",
-      "signature": "0x62e4da5e5c3a89b6dca6a385b8712c06f51bf0855ae5b6abd14937474a4ce01e"
+      "type": "event"
     },
     {
       "anonymous": false,
@@ -319,8 +312,7 @@
         }
       ],
       "name": "Paused",
-      "type": "event",
-      "signature": "0x62e78cea01bee320cd4e420270b5ea74000d11b0c9f74754ebdbfc544b05a258"
+      "type": "event"
     },
     {
       "anonymous": false,
@@ -333,8 +325,7 @@
         }
       ],
       "name": "Unpaused",
-      "type": "event",
-      "signature": "0x5db9ee0a495bf2e6ff9c91a7834c1ba4fdd244a5e8aa4e537bd38aeae4b073aa"
+      "type": "event"
     },
     {
       "inputs": [],
@@ -348,8 +339,7 @@
       ],
       "stateMutability": "view",
       "type": "function",
-      "constant": true,
-      "signature": "0x565d45e1"
+      "constant": true
     },
     {
       "inputs": [],
@@ -363,8 +353,7 @@
       ],
       "stateMutability": "view",
       "type": "function",
-      "constant": true,
-      "signature": "0x7130dfc9"
+      "constant": true
     },
     {
       "inputs": [],
@@ -378,8 +367,7 @@
       ],
       "stateMutability": "view",
       "type": "function",
-      "constant": true,
-      "signature": "0x13007d55"
+      "constant": true
     },
     {
       "inputs": [
@@ -444,8 +432,7 @@
       ],
       "stateMutability": "view",
       "type": "function",
-      "constant": true,
-      "signature": "0x33948de2"
+      "constant": true
     },
     {
       "inputs": [
@@ -480,8 +467,7 @@
       ],
       "stateMutability": "view",
       "type": "function",
-      "constant": true,
-      "signature": "0x6efb1b84"
+      "constant": true
     },
     {
       "inputs": [
@@ -506,8 +492,7 @@
       ],
       "stateMutability": "view",
       "type": "function",
-      "constant": true,
-      "signature": "0x91d14854"
+      "constant": true
     },
     {
       "inputs": [
@@ -532,8 +517,7 @@
       ],
       "stateMutability": "view",
       "type": "function",
-      "constant": true,
-      "signature": "0x9e97b8f6"
+      "constant": true
     },
     {
       "inputs": [],
@@ -547,8 +531,7 @@
       ],
       "stateMutability": "view",
       "type": "function",
-      "constant": true,
-      "signature": "0x47dbb71a"
+      "constant": true
     },
     {
       "inputs": [
@@ -568,8 +551,7 @@
       ],
       "stateMutability": "view",
       "type": "function",
-      "constant": true,
-      "signature": "0x24d7806c"
+      "constant": true
     },
     {
       "inputs": [
@@ -589,8 +571,7 @@
       ],
       "stateMutability": "view",
       "type": "function",
-      "constant": true,
-      "signature": "0x572b6c05"
+      "constant": true
     },
     {
       "inputs": [],
@@ -604,8 +585,7 @@
       ],
       "stateMutability": "view",
       "type": "function",
-      "constant": true,
-      "signature": "0x5c975abb"
+      "constant": true
     },
     {
       "inputs": [],
@@ -619,8 +599,7 @@
       ],
       "stateMutability": "view",
       "type": "function",
-      "constant": true,
-      "signature": "0x7da0a877"
+      "constant": true
     },
     {
       "inputs": [
@@ -640,8 +619,7 @@
       ],
       "stateMutability": "view",
       "type": "function",
-      "constant": true,
-      "signature": "0x98cf72b3"
+      "constant": true
     },
     {
       "inputs": [
@@ -654,8 +632,7 @@
       "name": "setHospitalContract",
       "outputs": [],
       "stateMutability": "nonpayable",
-      "type": "function",
-      "signature": "0x15759754"
+      "type": "function"
     },
     {
       "inputs": [
@@ -678,8 +655,7 @@
       "name": "registerDoctor",
       "outputs": [],
       "stateMutability": "nonpayable",
-      "type": "function",
-      "signature": "0x50c7a912"
+      "type": "function"
     },
     {
       "inputs": [
@@ -692,8 +668,7 @@
       "name": "addPatient",
       "outputs": [],
       "stateMutability": "nonpayable",
-      "type": "function",
-      "signature": "0x506e08d2"
+      "type": "function"
     },
     {
       "inputs": [],
@@ -707,8 +682,7 @@
       ],
       "stateMutability": "view",
       "type": "function",
-      "constant": true,
-      "signature": "0x8b145ec8"
+      "constant": true
     },
     {
       "inputs": [
@@ -733,8 +707,7 @@
       ],
       "stateMutability": "view",
       "type": "function",
-      "constant": true,
-      "signature": "0xf6827cd1"
+      "constant": true
     },
     {
       "inputs": [
@@ -767,8 +740,7 @@
       "name": "requestAccess",
       "outputs": [],
       "stateMutability": "nonpayable",
-      "type": "function",
-      "signature": "0x02b66aaf"
+      "type": "function"
     },
     {
       "inputs": [
@@ -801,8 +773,7 @@
       "name": "emergencyBreakGlass",
       "outputs": [],
       "stateMutability": "nonpayable",
-      "type": "function",
-      "signature": "0xb69c6157"
+      "type": "function"
     },
     {
       "inputs": [
@@ -825,8 +796,7 @@
       "name": "grantAccess",
       "outputs": [],
       "stateMutability": "nonpayable",
-      "type": "function",
-      "signature": "0x7f93a961"
+      "type": "function"
     },
     {
       "inputs": [
@@ -844,8 +814,7 @@
       "name": "resolveEmergency",
       "outputs": [],
       "stateMutability": "nonpayable",
-      "type": "function",
-      "signature": "0xaf2e1665"
+      "type": "function"
     },
     {
       "inputs": [
@@ -863,8 +832,7 @@
       "name": "revokeAccess",
       "outputs": [],
       "stateMutability": "nonpayable",
-      "type": "function",
-      "signature": "0x6a44cac9"
+      "type": "function"
     },
     {
       "inputs": [],
@@ -925,8 +893,7 @@
       ],
       "stateMutability": "view",
       "type": "function",
-      "constant": true,
-      "signature": "0x8d5ddbb3"
+      "constant": true
     },
     {
       "inputs": [],
@@ -967,8 +934,7 @@
       ],
       "stateMutability": "view",
       "type": "function",
-      "constant": true,
-      "signature": "0x12ad1c37"
+      "constant": true
     },
     {
       "inputs": [
@@ -988,8 +954,7 @@
       ],
       "stateMutability": "view",
       "type": "function",
-      "constant": true,
-      "signature": "0x2ad230a9"
+      "constant": true
     },
     {
       "inputs": [],
@@ -1030,8 +995,7 @@
       ],
       "stateMutability": "view",
       "type": "function",
-      "constant": true,
-      "signature": "0xf0d95090"
+      "constant": true
     },
     {
       "inputs": [
@@ -1078,8 +1042,7 @@
       ],
       "stateMutability": "view",
       "type": "function",
-      "constant": true,
-      "signature": "0xc241cdd7"
+      "constant": true
     },
     {
       "inputs": [
@@ -1126,8 +1089,7 @@
       ],
       "stateMutability": "view",
       "type": "function",
-      "constant": true,
-      "signature": "0xa37633ef"
+      "constant": true
     },
     {
       "inputs": [
@@ -1146,8 +1108,7 @@
         }
       ],
       "stateMutability": "nonpayable",
-      "type": "function",
-      "signature": "0xe455afee"
+      "type": "function"
     },
     {
       "inputs": [],
@@ -1160,8 +1121,7 @@
         }
       ],
       "stateMutability": "nonpayable",
-      "type": "function",
-      "signature": "0x3551df5d"
+      "type": "function"
     },
     {
       "inputs": [
@@ -1181,8 +1141,7 @@
       ],
       "stateMutability": "view",
       "type": "function",
-      "constant": true,
-      "signature": "0xf551d54c"
+      "constant": true
     },
     {
       "inputs": [
@@ -1207,24 +1166,21 @@
       ],
       "stateMutability": "view",
       "type": "function",
-      "constant": true,
-      "signature": "0xf32a7591"
+      "constant": true
     },
     {
       "inputs": [],
       "name": "pauseContract",
       "outputs": [],
       "stateMutability": "nonpayable",
-      "type": "function",
-      "signature": "0x439766ce"
+      "type": "function"
     },
     {
       "inputs": [],
       "name": "unpauseContract",
       "outputs": [],
       "stateMutability": "nonpayable",
-      "type": "function",
-      "signature": "0xb33712c5"
+      "type": "function"
     },
     {
       "inputs": [
@@ -1237,8 +1193,7 @@
       "name": "grantDoctorRole",
       "outputs": [],
       "stateMutability": "nonpayable",
-      "type": "function",
-      "signature": "0x2f5635cc"
+      "type": "function"
     },
     {
       "inputs": [
@@ -1251,8 +1206,7 @@
       "name": "revokeDoctorRole",
       "outputs": [],
       "stateMutability": "nonpayable",
-      "type": "function",
-      "signature": "0x6bd6f34b"
+      "type": "function"
     },
     {
       "inputs": [
@@ -1272,8 +1226,7 @@
       ],
       "stateMutability": "view",
       "type": "function",
-      "constant": true,
-      "signature": "0x0439b481"
+      "constant": true
     }
   ],
   "metadata": "{\"compiler\":{\"version\":\"0.8.20+commit.a1b79de6\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_accessControl\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_trustedForwarder\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"AccessRecordNotFound\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"AccessRequestNotFound\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"DoctorAlreadyRegistered\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"DoctorNotRegistered\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"EmergencyRecordNotFound\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"EnforcedPause\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ExpectedPause\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"HospitalSystemNotSet\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidAddress\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidDuration\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidIpfsHash\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidSpecialization\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotOnDuty\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PatientAlreadyAdded\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"RateLimitExceeded\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ReentrancyGuardReentrantCall\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"patient\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"doctor\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"ipfsHash\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"grantTime\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"duration\",\"type\":\"uint256\"}],\"name\":\"AccessGranted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"patient\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"doctor\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"ipfsHash\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"fileName\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"duration\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"reason\",\"type\":\"string\"}],\"name\":\"AccessRequested\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"patient\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"doctor\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"ipfsHash\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"revokeTime\",\"type\":\"uint256\"}],\"name\":\"AccessRevoked\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"doctor\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"patient\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"ipfsHash\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"reason\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"EmergencyAccessGranted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"patient\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"resolver\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"ipfsHash\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"EmergencyResolved\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"doctorId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"patientId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"doctor\",\"type\":\"address\"}],\"name\":\"PatientAdded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Paused\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Unpaused\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"MAX_ACCESS_REQUESTS\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"RATE_LIMIT_WINDOW\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"accessControl\",\"outputs\":[{\"internalType\":\"contract MediSecureAccessControl\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"patientId\",\"type\":\"uint256\"}],\"name\":\"addPatient\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"doctorId\",\"type\":\"uint256\"}],\"name\":\"cleanupExpiredAccess\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"cleanedCount\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"cleanupExpiredAccessForAll\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"totalCleaned\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"doctorAccessList\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"patient\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"ipfsHash\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"fileName\",\"type\":\"string\"},{\"internalType\":\"bool\",\"name\":\"hasAccess\",\"type\":\"bool\"},{\"internalType\":\"uint256\",\"name\":\"grantTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"duration\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"reason\",\"type\":\"string\"},{\"internalType\":\"bool\",\"name\":\"isEmergency\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"isResolved\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"walletAddress\",\"type\":\"address\"}],\"name\":\"doctorExists\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"doctors\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"doctorId\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"specialization\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"email\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"patient\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"ipfsHash\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"fileName\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"reason\",\"type\":\"string\"},{\"internalType\":\"address\",\"name\":\"hospitalAddress\",\"type\":\"address\"}],\"name\":\"emergencyBreakGlass\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getAccessList\",\"outputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"patient\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"ipfsHash\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"fileName\",\"type\":\"string\"},{\"internalType\":\"bool\",\"name\":\"hasAccess\",\"type\":\"bool\"},{\"internalType\":\"uint256\",\"name\":\"grantTime\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"duration\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"reason\",\"type\":\"string\"},{\"internalType\":\"bool\",\"name\":\"isEmergency\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"isResolved\",\"type\":\"bool\"}],\"internalType\":\"struct Doctor.DocumentAccess[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getAllDoctors\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"doctorId\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"specialization\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"email\",\"type\":\"string\"},{\"internalType\":\"uint256[]\",\"name\":\"patientIds\",\"type\":\"uint256[]\"}],\"internalType\":\"struct Doctor.DoctorDetails[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getDoctorPatients\",\"outputs\":[{\"internalType\":\"uint256[]\",\"name\":\"\",\"type\":\"uint256[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"specialization\",\"type\":\"string\"}],\"name\":\"getDoctorsBySpecialization\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"doctorId\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"specialization\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"email\",\"type\":\"string\"},{\"internalType\":\"uint256[]\",\"name\":\"patientIds\",\"type\":\"uint256[]\"}],\"internalType\":\"struct Doctor.DoctorDetails[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"doctorId\",\"type\":\"uint256\"}],\"name\":\"getExpiredAccessCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"count\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getPatients\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"doctorId\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"specialization\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"email\",\"type\":\"string\"},{\"internalType\":\"uint256[]\",\"name\":\"patientIds\",\"type\":\"uint256[]\"}],\"internalType\":\"struct Doctor.DoctorDetails[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"doctor\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"ipfsHash\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"duration\",\"type\":\"uint256\"}],\"name\":\"grantAccess\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"doctor\",\"type\":\"address\"}],\"name\":\"grantDoctorRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"patient\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"ipfsHash\",\"type\":\"string\"}],\"name\":\"hasAccessToDocument\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"hasRole\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enum Roles\",\"name\":\"role\",\"type\":\"uint8\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"hasRole\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"hospitalContract\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"doctorId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"patient\",\"type\":\"address\"}],\"name\":\"isAccessExpired\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"isAdmin\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"isDoctorRole\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"forwarder\",\"type\":\"address\"}],\"name\":\"isTrustedForwarder\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"pauseContract\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"paused\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"specialization\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"hospital\",\"type\":\"string\"}],\"name\":\"registerDoctor\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"patient\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"ipfsHash\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"fileName\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"duration\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"reason\",\"type\":\"string\"}],\"name\":\"requestAccess\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"doctor\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"ipfsHash\",\"type\":\"string\"}],\"name\":\"resolveEmergency\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"doctor\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"ipfsHash\",\"type\":\"string\"}],\"name\":\"revokeAccess\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"doctor\",\"type\":\"address\"}],\"name\":\"revokeDoctorRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"query\",\"type\":\"string\"}],\"name\":\"searchDoctors\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"doctorId\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"specialization\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"email\",\"type\":\"string\"},{\"internalType\":\"uint256[]\",\"name\":\"patientIds\",\"type\":\"uint256[]\"}],\"internalType\":\"struct Doctor.DoctorDetails[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"setHospitalContract\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"trustedForwarder\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"unpauseContract\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"walletToDoctorId\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"errors\":{\"EnforcedPause()\":[{\"details\":\"The operation failed because the contract is paused.\"}],\"ExpectedPause()\":[{\"details\":\"The operation failed because the contract is not paused.\"}],\"ReentrancyGuardReentrantCall()\":[{\"details\":\"Unauthorized reentrant call.\"}]},\"events\":{\"Paused(address)\":{\"details\":\"Emitted when the pause is triggered by `account`.\"},\"Unpaused(address)\":{\"details\":\"Emitted when the pause is lifted by `account`.\"}},\"kind\":\"dev\",\"methods\":{\"isTrustedForwarder(address)\":{\"details\":\"Indicates whether any particular address is the trusted forwarder.\"},\"paused()\":{\"details\":\"Returns true if the contract is paused, and false otherwise.\"},\"trustedForwarder()\":{\"details\":\"Returns the address of the trusted forwarder.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/Doctor.sol\":\"Doctor\"},\"evmVersion\":\"shanghai\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol\":{\"keccak256\":\"0x631188737069917d2f909d29ce62c4d48611d326686ba6683e26b72a23bfac0b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://7a61054ae84cd6c4d04c0c4450ba1d6de41e27e0a2c4f1bcdf58f796b401c609\",\"dweb:/ipfs/QmUvtdp7X1mRVyC3CsHrtPbgoqWaXHp3S1ZR24tpAQYJWM\"]},\"@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol\":{\"keccak256\":\"0xdbef5f0c787055227243a7318ef74c8a5a1108ca3a07f2b3a00ef67769e1e397\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://08e39f23d5b4692f9a40803e53a8156b72b4c1f9902a88cd65ba964db103dab9\",\"dweb:/ipfs/QmPKn6EYDgpga7KtpkA8wV2yJCYGMtc9K4LkJfhKX2RVSV\"]},\"@openzeppelin/contracts/access/AccessControl.sol\":{\"keccak256\":\"0xa0e92d42942f4f57c5be50568dac11e9d00c93efcb458026e18d2d9b9b2e7308\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://46326c0bb1e296b67185e81c918e0b40501b8b6386165855df0a3f3c634b6a80\",\"dweb:/ipfs/QmTwyrDYtsxsk6pymJTK94PnEpzsmkpUxFuzEiakDopy4Z\"]},\"@openzeppelin/contracts/access/IAccessControl.sol\":{\"keccak256\":\"0xb6b36edd6a2999fd243ff226d6cbf84bd71af2432bbd0dfe19392996a1d9cb41\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://1fd2f35495652e57e3f99bc6c510bc5f7dd398a176ea2e72d8ed730aebc6ca26\",\"dweb:/ipfs/QmTQV6X4gkikTib49cho5iDX3JvSQbdsoEChoDwrk3CbbH\"]},\"@openzeppelin/contracts/metatx/ERC2771Context.sol\":{\"keccak256\":\"0x98256cf37b71a69b2f5a8a6fe975ea03590dff703102bd141a830f94e8adebf6\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6251fe1f6a1e45e6d619d150c123afc88b8646b38ee26a136efa9a6988a31d3f\",\"dweb:/ipfs/QmeXDT85wSZdP31wkz3ah3KhponCiksJLP5o2LR5e1JxcK\"]},\"@openzeppelin/contracts/utils/Context.sol\":{\"keccak256\":\"0x493033a8d1b176a037b2cc6a04dad01a5c157722049bbecf632ca876224dd4b2\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6a708e8a5bdb1011c2c381c9a5cfd8a9a956d7d0a9dc1bd8bcdaf52f76ef2f12\",\"dweb:/ipfs/Qmax9WHBnVsZP46ZxEMNRQpLQnrdE4dK8LehML1Py8FowF\"]},\"@openzeppelin/contracts/utils/Pausable.sol\":{\"keccak256\":\"0xb2e5f50762c27fb4b123e3619c3c02bdcba5e515309382e5bfb6f7d6486510bd\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://1a4b83328c98d518a2699c2cbe9e9b055e78aa57fa8639f1b88deb8b3750b5dc\",\"dweb:/ipfs/QmXdcYj5v7zQxXFPULShHkR5p4Wa2zYuupbHnFdV3cHYtc\"]},\"@openzeppelin/contracts/utils/ReentrancyGuard.sol\":{\"keccak256\":\"0xf980daa263b661ab8ddee7d4fd833c7da7e7995e2c359ff1f17e67e4112f2236\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://7448ab095d6940130bcf76ba47a2eab14148c83119523b93dd89f6d84edd6c02\",\"dweb:/ipfs/QmawrZ4voKQjH3oomXT3Kuheb3Mnmo2VvVpxg8Ne5UJUrd\"]},\"@openzeppelin/contracts/utils/introspection/ERC165.sol\":{\"keccak256\":\"0x9e8778b14317ba9e256c30a76fd6c32b960af621987f56069e1e819c77c6a133\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://1777404f1dcd0fac188e55a288724ec3c67b45288e49cc64723e95e702b49ab8\",\"dweb:/ipfs/QmZFdC626GButBApwDUvvTnUzdinevC3B24d7yyh57XkiA\"]},\"@openzeppelin/contracts/utils/introspection/IERC165.sol\":{\"keccak256\":\"0x4296879f55019b23e135000eb36896057e7101fb7fb859c5ef690cf14643757b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://87b3541437c8c443ccd36795e56a338ed12855eec17f8da624511b8d1a7e14df\",\"dweb:/ipfs/QmeJQCtZrQjtJLr6u7ZHWeH3pBnjtLWzvRrKViAi7UZqxL\"]},\"project:/contracts/Doctor.sol\":{\"keccak256\":\"0x27d11184b0d838b5adbfbd881bfdfab7ff530fbf8ceeec178b8e2eb0932fc98b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://4861cd33c5d5210bcdfcebc5e1a400ce5026e39e0e2b8385d51af97dd3089c04\",\"dweb:/ipfs/QmdhtiX84EV3Aov1KKt6tEahWqfpdohquTedMT6LnRbBfx\"]},\"project:/contracts/MediSecureAccessControl.sol\":{\"keccak256\":\"0x6b9dd0236577e0f68b90d0163eb709ea557bd28f2e6b6e9d6436533356a5ee64\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://a59d2e7a381bbc1fa78e1a9a0cd0628a44e20a42b3f31a946edab009eb0822b9\",\"dweb:/ipfs/QmPefB8LtDJ5e7HEJtbzDDC7FpZuzqFgJXfUSDufceDE84\"]},\"project:/contracts/common/MediSecureAuth.sol\":{\"keccak256\":\"0x2f0f5af6ad892c98c718facd7cb65425346acb3cea3e9c7f2789e6b837de6f8b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://42c5d5bec0e7b631ffcb9073f107958788249538eab53c5976b21ba4f98556a8\",\"dweb:/ipfs/QmR2VuDEGzPX1Ct1fUPhpJsY7wSJyfmFNfvfEFbjKPxywe\"]},\"project:/contracts/interfaces/IHospital.sol\":{\"keccak256\":\"0x1db2c43afbd5e87bd4316114a3df5def3979cd1fea431cf8ece9d334a815a792\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://42b6911c7529796d21d540b46d9722274c0b73d8adbb8413201da42d22e9442d\",\"dweb:/ipfs/Qmd4DMCw4fW59T2Xh4krJXiQPyLBhiYqNqyUhRYkS9E5Sn\"]},\"project:/contracts/libraries/StringUtils.sol\":{\"keccak256\":\"0x59fe8802970e5e8a74e7783d5c3631380edf5290d1900107cb3103bafe0ca5f8\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://9f14e78f34f6cd53e36bcb056ba52bc61f7d666480e57e46bc07f55e80ec77d6\",\"dweb:/ipfs/QmRWG8NoP9M3ydCD46d5bGkFFMGkTkvjhe8Jf6cEP48Stv\"]}},\"version\":1}",
@@ -41021,11 +40974,13 @@
   },
   "networks": {
     "1337": {
+      "events": {},
+      "links": {},
       "address": "0x4bf3A7dFB3b76b5B3E169ACE65f888A4b4FCa5Ee"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2026-04-24T10:38:30.998Z",
+  "updatedAt": "2026-04-24T10:38:39.752Z",
   "networkType": "ethereum",
   "devdoc": {
     "errors": {
@@ -41071,6 +41026,5 @@
     "kind": "user",
     "methods": {},
     "version": 1
-  },
-  "timeoutBlocks": 500
+  }
 }

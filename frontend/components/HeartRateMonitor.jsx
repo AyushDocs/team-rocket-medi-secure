@@ -30,8 +30,9 @@ export default function HeartRateMonitor({ patientId = "patient1" }) {
 
         socket.on("vitals_update", (data) => {
             console.log("New vitals received:", data)
+            const hr = data.heartRate || data.hr || data.bpm || 72;
             setVitals({
-                heartRate: data.heartRate || data.hr || 72,
+                heartRate: hr,
                 spO2: data.spO2 || data.spo2 || 98,
                 temperature: data.temperature || data.temp || 36.6,
                 status: "Live"
@@ -40,7 +41,7 @@ export default function HeartRateMonitor({ patientId = "patient1" }) {
             setTimeout(() => setIsPulsing(false), 500)
 
             setHistory(prev => {
-                const newHistory = [...prev.slice(1), { value: data.heartRate || data.hr || 72 }]
+                const newHistory = [...prev.slice(1), { value: hr }]
                 return newHistory
             })
         })
@@ -51,6 +52,8 @@ export default function HeartRateMonitor({ patientId = "patient1" }) {
 
         return () => socket.disconnect()
     }, [patientId])
+
+
 
     return (
         <Card className="overflow-hidden card-premium bg-gradient-to-br from-slate-900 to-slate-800 border-none text-white lg:col-span-1 shadow-2xl relative">
