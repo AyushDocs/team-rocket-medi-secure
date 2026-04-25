@@ -1,5 +1,7 @@
 import express from "express";
 import { generateHealthInsights, getVitalsForecast } from "../services/healthInsights.js";
+import { getVitalsHistory } from "../services/dynamoService.js";
+
 
 const router = express.Router();
 
@@ -31,6 +33,18 @@ router.get("/patient/:patientId/forecast", async (req, res) => {
         }
 
         res.json(forecast);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.get("/patient/:patientId/history", async (req, res) => {
+    try {
+        const { patientId } = req.params;
+        const { limit } = req.query;
+        
+        const history = await getVitalsHistory(patientId, parseInt(limit) || 20);
+        res.json(history);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

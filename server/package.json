@@ -23,6 +23,8 @@
   "author": "Ayush Dubey",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.1036.0",
+    "@aws-sdk/lib-dynamodb": "^3.1036.0",
     "@pinata/sdk": "^2.1.0",
     "@prisma/client": "^5.8.0",
     "aws-iot-device-sdk-v2": "^1.26.0",

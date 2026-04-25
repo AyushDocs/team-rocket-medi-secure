@@ -1,6 +1,7 @@
 import { mqtt, iot } from "aws-iot-device-sdk-v2";
 import { getSocketHelpers } from "./socketService.js";
 import { CONFIG } from "../config/constants.js";
+import { saveVitals } from "./dynamoService.js";
 import logger from "./logger.js";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -73,8 +74,18 @@ const handleIoTMessage = (topic, message) => {
 
         const helpers = getSocketHelpers();
         if (helpers) {
-            helpers.emitVitalsUpdate(patientId, data);
-            logger.info(`Broadcasted vitals for ${patientId} via Socket.io`);
+            // Include humidity if present
+            const vitalsData = {
+                ...data,
+                humidity: data.humidity || data.hum || 0
+            };
+            helpers.emitVitalsUpdate(patientId, vitalsData);
+            logger.info(`Broadcasted vitals for ${patientId} via Socket.io`, vitalsData);
+
+            // Persist to DynamoDB for historical tracking
+            saveVitals(patientId, vitalsData).catch(err => 
+                logger.error(`Async DynamoDB save failed: ${err.message}`)
+            );
         } else {
             logger.warn("Socket helpers not available yet");
         }

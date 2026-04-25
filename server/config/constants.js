@@ -49,5 +49,9 @@ export const CONFIG = {
         CERT_PATH: process.env.AWS_IOT_CERT_PATH,
         KEY_PATH: process.env.AWS_IOT_KEY_PATH,
         CA_PATH: process.env.AWS_IOT_CA_PATH
+    },
+    DYNAMODB: {
+        TABLE: process.env.AWS_DYNAMODB_TABLE || "PatientVitals",
+        REGION: process.env.AWS_IOT_REGION || "us-east-1"
     }
 };

@@ -11,7 +11,11 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import io from "socket.io-client"
 import { useWeb3 } from "../context/Web3Context"
+import VitalsHistoryChart from "./VitalsHistoryChart"
+import HeartRateMonitor from "./HeartRateMonitor"
+
 export default function PatientDashboard() {
+
   const { patientContract, doctorContract, account, disconnect } = useWeb3()
   const router = useRouter()
   
@@ -341,18 +345,43 @@ export default function PatientDashboard() {
           </TabsList>
 
           <TabsContent value="overview">
-            <Card>
-              <CardHeader>
-                <CardTitle>Patient Information</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p>Name: {patientInfo?.name}</p>
-                <p>Age: {patientInfo?.age}</p>
-                <p>Blood Type: {patientInfo?.bloodType}</p>
-                <p>Email: {patientInfo?.email}</p>
-              </CardContent>
-            </Card>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <Card className="col-span-1 lg:col-span-3">
+                <CardHeader>
+                  <CardTitle>Patient Information</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-slate-500">Name</p>
+                      <p className="font-semibold">{patientInfo?.name}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-slate-500">Age</p>
+                      <p className="font-semibold">{patientInfo?.age}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-slate-500">Blood Type</p>
+                      <p className="font-semibold">{patientInfo?.bloodType}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-slate-500">Email</p>
+                      <p className="font-semibold">{patientInfo?.email}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Vitals Section */}
+              {myPatientId && (
+                <>
+                  <HeartRateMonitor patientId={myPatientId} />
+                  <VitalsHistoryChart patientId={myPatientId} />
+                </>
+              )}
+            </div>
           </TabsContent>
+
 
           <TabsContent value="records">
             <Card>
