@@ -53,29 +53,28 @@ export const uploadToIPFS = async (fileBuffer, fileName, userAddress) => {
  * Fetches a file stream from Pinata Gateway with retries and timeout.
  */
 export const getFileStream = async (hash) => {
-    const maxRetries = 2;
-    let lastError;
-
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        try {
-            const gateway = CONFIG.PINATA.GATEWAYS[0];
-            const gatewayUrl = `${gateway}${hash}`;
-            console.log(`[ipfsService] Attempt ${attempt}: Fetching ${gatewayUrl}`);
-            
-            const response = await axios.get(gatewayUrl, { 
-                responseType: 'stream',
-                timeout: 30000
-            });
-            console.log(`[ipfsService] Success fetching hash: ${hash}`);
-            return response;
-        } catch (err) {
-            lastError = err;
-            console.error(`[ipfsService] Attempt ${attempt} failed:`, err.message, err.code);
-            if (attempt < maxRetries) {
-                await new Promise(r => setTimeout(r, 1000));
-            }
-        }
+    const gateway = CONFIG.PINATA.GATEWAYS[0];
+    const token = CONFIG.PINATA.GATEWAY_TOKEN;
+    
+    // Construct URL with optional gateway token for private/dedicated gateways
+    let gatewayUrl = `${gateway}${hash}`;
+    if (token) {
+        gatewayUrl += `?pinataGatewayToken=${token}`;
     }
 
-    throw new Error(`Failed to fetch from IPFS after ${maxRetries} attempts: ${lastError.message}`);
+    try {
+        console.log(`[ipfsService] Fetching from Pinata Gateway: ${gateway}`);
+        
+        const response = await axios.get(gatewayUrl, { 
+            responseType: 'stream',
+            timeout: 30000,
+            headers: {
+                'User-Agent': 'Sanjeevni-Health-Platform/2.0'
+            }
+        });
+        return response;
+    } catch (err) {
+        console.error(`[ipfsService] Pinata Gateway failed:`, err.message);
+        throw new Error(`Failed to fetch from IPFS via Pinata: ${err.message}`);
+    }
 };

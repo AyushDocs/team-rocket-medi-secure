@@ -1,5 +1,9 @@
 "use client"
-import ComputeSandbox from "@/components/ComputeSandbox"
+import dynamic from "next/dynamic"
+const ComputeSandbox = dynamic(() => import("@/components/ComputeSandbox"), {
+    loading: () => <div className="h-96 bg-slate-50 animate-pulse rounded-[2rem]" />,
+    ssr: false
+})
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -7,9 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
-import { ethers } from "ethers"
 import { Cpu, Download, Eye, LogOut, PlayCircle, Shield } from "lucide-react"
-import mammoth from "mammoth"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -68,6 +70,7 @@ const CompanyDashboard = () => {
         }
         setLoading(true)
         try {
+            const { ethers } = await import("ethers");
             const priceWei = ethers.parseEther(price)
             const budgetWei = ethers.parseEther(budget)
             const tx = await marketplaceContract.createOffer(offerTitle, offerDesc, priceWei, { value: budgetWei })
@@ -85,6 +88,7 @@ const CompanyDashboard = () => {
 
     const handleView = async (ipfsHash, patientAddr) => {
         try {
+            const { ethers } = await import("ethers");
             if (!window.ethereum) throw new Error("No crypto wallet found");
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
@@ -107,6 +111,7 @@ const CompanyDashboard = () => {
 
             if(type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
                 const arrayBuffer = await blob.arrayBuffer();
+                const mammoth = (await import("mammoth")).default;
                 const result = await mammoth.convertToHtml({ arrayBuffer: arrayBuffer });
                 setDocHtml(result.value);
             } else if (type === "text/plain") {
@@ -224,12 +229,18 @@ const CompanyDashboard = () => {
                                 <CardContent>
                                     {loadingData ? <div className="space-y-2"><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /></div> : myOffers.length === 0 ? <p>No active campaigns.</p> : (
                                         <ul className="space-y-2">
-                                            {myOffers.map((o, i) => (
-                                                <li key={i} className="p-3 border rounded bg-white flex justify-between">
-                                                    <span className="font-medium">{o.title}</span>
-                                                    <span className="font-mono text-green-600">{ethers.formatEther(o.budget)} ETH remaining</span>
-                                                </li>
-                                            ))}
+                                            {myOffers.map((o, i) => {
+                                                const formatEth = (val) => {
+                                                    // Simple format if ethers not loaded yet, or load it
+                                                    return Number(val) / 1e18; 
+                                                }
+                                                return (
+                                                    <li key={i} className="p-3 border rounded bg-white flex justify-between">
+                                                        <span className="font-medium">{o.title}</span>
+                                                        <span className="font-mono text-green-600">{formatEth(o.budget)} ETH remaining</span>
+                                                    </li>
+                                                )
+                                            })}
                                         </ul>
                                     )}
                                 </CardContent>

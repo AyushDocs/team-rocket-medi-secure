@@ -19,6 +19,7 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useWeb3 } from "../../../context/Web3Context"
 import { Logo } from "@/components/Logo"
+import SanjBalance from "@/components/SanjBalance"
 
 
 export default function DoctorDashboardLayout({ children }) {
@@ -58,6 +59,7 @@ export default function DoctorDashboardLayout({ children }) {
             </div>
 
             <div className="flex items-center gap-6">
+              <SanjBalance />
               <div className="hidden md:flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-xl border border-slate-100">
                 <ShieldCheck className="h-4 w-4 text-emerald-500" />
                 <span className="text-xs font-black text-slate-700 uppercase tracking-widest">Secure Session</span>

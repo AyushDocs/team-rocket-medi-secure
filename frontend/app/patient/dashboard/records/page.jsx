@@ -254,10 +254,12 @@ export default function RecordsPatient() {
           if (!window.ethereum) throw new Error("Wallet not found");
           const provider = new ethers.BrowserProvider(window.ethereum);
           const signer = await provider.getSigner();
-          const signature = await signer.signMessage(record.ipfsHash);
+          // Sign the tokenId instead of ipfsHash to maintain consistency with the new obfuscated API
+          const signature = await signer.signMessage(record.tokenId.toString());
 
           const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:5000";
-          const response = await fetch(`${baseUrl}/api/v1/files/${record.ipfsHash}?userAddress=${account}&signature=${signature}&patientAddress=${account}`);
+          // Use tokenId instead of ipfsHash to hide the raw hash from the user/network tab
+          const response = await fetch(`${baseUrl}/api/v1/files/${record.tokenId}?userAddress=${account}&signature=${signature}&patientAddress=${account}`);
           
           if (!response.ok) throw new Error("Decryption failed");
 

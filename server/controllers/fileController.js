@@ -152,10 +152,27 @@ export const getFile = async (req, res) => {
             }
         }
 
+        let finalHash = hash;
+
+        // If the identifier is a TokenID (numeric), resolve it to a hash via the blockchain
+        if (/^\d+$/.test(hash)) {
+            try {
+                const patientContract = (await import("../config/contracts.js")).patientContract;
+                const pId = await patientContract.methods.walletToPatientId(patientAddress || userAddress).call();
+                const records = await patientContract.methods.getMedicalRecords(pId).call();
+                // Find record by tokenId
+                const record = records.find(r => r.tokenId.toString() === hash);
+                if (!record) return res.status(404).json({ error: "Record not found" });
+                finalHash = record.ipfsHash;
+            } catch (err) {
+                return res.status(500).json({ error: "Failed to resolve TokenID: " + err.message });
+            }
+        }
+
         if (!hasAccess) return res.status(403).json({ error: CONFIG.MESSAGES.ACCESS_DENIED });
-        console.log(`[fileController] Fetching hash: ${hash}`);
+        console.log(`[fileController] Fetching Internal Asset: ${finalHash.slice(0, 10)}...`);
         try {
-            const response = await getFileStream(hash);
+            const response = await getFileStream(finalHash);
             const contentType = response.headers["content-type"] || "application/octet-stream";
 
             // ── Server-side forensic watermark ─────────────────────────────────

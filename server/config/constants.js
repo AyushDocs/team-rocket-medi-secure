@@ -17,11 +17,9 @@ export const CONFIG = {
         API_KEY: process.env.PINATA_API_KEY,
         SECRET_KEY: process.env.PINATA_SECRET_API_KEY,
         GATEWAYS: [
-            "https://gateway.pinata.cloud/ipfs/",
-            "https://cloudflare-ipfs.com/ipfs/",
-            "https://ipfs.io/ipfs/",
-            "https://dweb.link/ipfs/"
+            process.env.PINATA_GATEWAY_URL || "https://gateway.pinata.cloud/ipfs/"
         ],
+        GATEWAY_TOKEN: process.env.PINATA_GATEWAY_TOKEN,
         API_URL: "https://api.pinata.cloud/pinning/pinFileToIPFS"
     },
     DOCKER: {

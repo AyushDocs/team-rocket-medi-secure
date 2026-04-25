@@ -1,11 +1,18 @@
 "use client"
-
+ 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
+import { 
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { 
     Activity, 
     AtSign, 
@@ -25,7 +32,7 @@ import {
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 import { useWeb3 } from "../../../../context/Web3Context"
-
+ 
 export default function PatientProfile() {
     const { patientContract, patientDetailsContract, account } = useWeb3()
     const [loading, setLoading] = useState(true)
@@ -40,7 +47,9 @@ export default function PatientProfile() {
         age: "",
         bloodGroup: ""
     })
-
+ 
+    const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+ 
     // Health Vitals State
     const [vitals, setVitals] = useState({
         bloodPressure: "",
@@ -50,7 +59,7 @@ export default function PatientProfile() {
         temperature: "",
         lastUpdated: 0
     })
-
+ 
     // Nominees State
     const [nominees, setNominees] = useState([])
     const [newNominee, setNewNominee] = useState({
@@ -60,7 +69,7 @@ export default function PatientProfile() {
         contactNumber: ""
     })
     const [addingNominee, setAddingNominee] = useState(false)
-
+ 
     useEffect(() => {
         const fetchData = async () => {
             if (!patientContract || !account) return;
@@ -73,7 +82,7 @@ export default function PatientProfile() {
                    setLoading(false);
                    return;
                 }
-
+ 
                 // Fetch Details
                 const details = await patientContract.getPatientDetails(patientId);
                 setProfile({
@@ -83,11 +92,11 @@ export default function PatientProfile() {
                     age: details.age.toString(),
                     bloodGroup: details.bloodGroup
                 });
-
+ 
                 // Fetch Nominees
                 const fetchedNominees = await patientContract.getNominees(patientId);
                 setNominees(fetchedNominees);
-
+ 
                 // Fetch Vitals from PatientDetails contract
                 if (patientDetailsContract) {
                     const healthVitals = await patientDetailsContract.getVitals(account);
@@ -100,7 +109,7 @@ export default function PatientProfile() {
                         lastUpdated: Number(healthVitals.lastUpdated)
                     });
                 }
-
+ 
             } catch (error) {
                 console.error("Error fetching profile:", error);
                 toast.error("Failed to load profile data.");
@@ -110,15 +119,38 @@ export default function PatientProfile() {
         }
         fetchData();
     }, [patientContract, patientDetailsContract, account]);
-
+ 
+    const validateEmail = (email) => {
+        return String(email)
+          .toLowerCase()
+          .match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+    };
+ 
     const handleUpdateProfile = async (e) => {
         e.preventDefault();
+        
+        if (!profile.name || !profile.email || !profile.age || !profile.bloodGroup) {
+            toast.error("All profile fields are required.");
+            return;
+        }
+ 
+        if (!validateEmail(profile.email)) {
+            toast.error("Please enter a valid email address.");
+            return;
+        }
+ 
+        const ageNum = Number(profile.age);
+        if (isNaN(ageNum) || ageNum < 0 || ageNum > 120) {
+            toast.error("Please enter a valid age (0-120).");
+            return;
+        }
+ 
         try {
             setUpdating(true);
             const tx = await patientContract.updatePatientDetails(
                 profile.name,
                 profile.email,
-                Number(profile.age),
+                ageNum,
                 profile.bloodGroup
             );
             toast.promise(tx.wait(), {
@@ -134,9 +166,15 @@ export default function PatientProfile() {
             setUpdating(false);
         }
     };
-
+ 
     const handleAddNominee = async (e) => {
         e.preventDefault();
+        
+        if (!newNominee.walletAddress.startsWith("0x") || newNominee.walletAddress.length !== 42) {
+            toast.error("Please enter a valid Ethereum wallet address.");
+            return;
+        }
+ 
         try {
             setAddingNominee(true);
             const tx = await patientContract.addNominee(
@@ -159,7 +197,7 @@ export default function PatientProfile() {
             
             // Reset Form
             setNewNominee({ name: "", walletAddress: "", relationship: "", contactNumber: "" });
-
+ 
         } catch (error) {
             console.error("Add Nominee error:", error);
             toast.error(error.reason || "Failed to add nominee.");
@@ -167,11 +205,11 @@ export default function PatientProfile() {
             setAddingNominee(false);
         }
     };
-
+ 
     const handleUpdateVitals = async (e) => {
         e.preventDefault();
         if (!patientDetailsContract) return;
-
+ 
         try {
             setUpdatingVitals(true);
             const tx = await patientDetailsContract.setVitals(
@@ -196,7 +234,7 @@ export default function PatientProfile() {
             setUpdatingVitals(false);
         }
     };
-
+ 
     if (loading) {
         return (
             <div className="max-w-6xl mx-auto p-8 space-y-12 font-outfit">
@@ -211,7 +249,7 @@ export default function PatientProfile() {
             </div>
         )
     }
-
+ 
     return (
         <div className="max-w-6xl mx-auto space-y-12 py-10 px-4 font-outfit animate-in fade-in duration-700">
             {/* Hero Profile Banner */}
@@ -240,7 +278,7 @@ export default function PatientProfile() {
                                 <AtSign className="h-4 w-4" /> @{profile.username}
                             </span>
                             <span className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-xl border border-white/10">
-                                <Wallet className="h-4 w-4" /> {account.slice(0, 6)}...{account.slice(-4)}
+                                <Wallet className="h-4 w-4" /> {account?.slice(0, 6)}...{account?.slice(-4)}
                             </span>
                         </div>
                     </div>
@@ -249,7 +287,7 @@ export default function PatientProfile() {
                 <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -mr-48 -mt-48 blur-3xl invisible md:visible"></div>
                 <div className="absolute bottom-0 right-0 w-64 h-64 bg-indigo-400/10 rounded-full -mr-32 -mb-32 blur-3xl invisible md:visible"></div>
             </div>
-
+ 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 
                 {/* LEFT COLUMN: Identity & Vitals */}
@@ -304,15 +342,20 @@ export default function PatientProfile() {
                                     </div>
                                     <div className="space-y-3">
                                         <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500 ml-1">Blood Essence</Label>
-                                        <div className="relative group/input">
-                                            <Droplets className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-rose-400" />
-                                            <Input 
-                                                className="h-14 pl-12 rounded-2xl border-slate-100 bg-slate-50/50 hover:bg-white hover:border-indigo-200 focus:bg-white transition-all font-bold text-slate-700"
-                                                value={profile.bloodGroup}
-                                                onChange={(e) => setProfile({...profile, bloodGroup: e.target.value})}
-                                                placeholder="e.g. O+"
-                                            />
-                                        </div>
+                                        <Select 
+                                            value={profile.bloodGroup} 
+                                            onValueChange={(val) => setProfile({...profile, bloodGroup: val})}
+                                        >
+                                            <SelectTrigger className="h-14 rounded-2xl border-slate-100 bg-slate-50/50 hover:bg-white hover:border-indigo-200 focus:bg-white transition-all font-bold text-slate-700 pl-12 relative">
+                                                <Droplets className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-rose-400" />
+                                                <SelectValue placeholder="Select Blood Group" />
+                                            </SelectTrigger>
+                                            <SelectContent className="rounded-2xl border-slate-100 shadow-2xl">
+                                                {bloodGroups.map(bg => (
+                                                    <SelectItem key={bg} value={bg} className="font-bold text-slate-700 rounded-xl m-1">{bg}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
                                     </div>
                                 </div>
                                 <Button type="submit" disabled={updating} className="w-full h-16 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg shadow-xl shadow-indigo-100 transition-all hover:translate-y-[-2px] active:scale-95 group">
@@ -330,7 +373,7 @@ export default function PatientProfile() {
                             </form>
                         </CardContent>
                     </Card>
-
+ 
                     {/* Biometric Telemetry Card */}
                     <Card className="rounded-[2.5rem] border-none shadow-xl shadow-rose-100/40 overflow-hidden bg-white mb-8 group">
                         <CardHeader className="p-8 pb-4 relative">
@@ -369,7 +412,7 @@ export default function PatientProfile() {
                                         <Input className="border-none bg-transparent h-8 text-lg font-black text-slate-700 p-0 focus-visible:ring-0" placeholder="98.6 F" value={vitals.temperature} onChange={(e) => setVitals({...vitals, temperature: e.target.value})} />
                                     </div>
                                 </div>
-
+ 
                                 <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-rose-50/30 p-6 rounded-3xl border border-rose-50">
                                     <div className="flex items-center gap-4 text-rose-500">
                                         <Activity className="h-5 w-5" />
@@ -388,7 +431,7 @@ export default function PatientProfile() {
                         </CardContent>
                     </Card>
                 </div>
-
+ 
                 {/* RIGHT COLUMN: Emergency Protocol */}
                 <div className="lg:col-span-4 space-y-8">
                     
@@ -457,7 +500,7 @@ export default function PatientProfile() {
                             </form>
                         </CardContent>
                     </Card>
-
+ 
                     {/* Nominee List card */}
                     <Card className="rounded-[2.5rem] border-none shadow-xl shadow-slate-100 overflow-hidden bg-white">
                         <CardHeader className="p-8 pb-4">

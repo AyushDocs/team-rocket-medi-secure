@@ -4,5 +4,5 @@
   "InsuranceUpgradeable": "0x6082Ac385d4c63be87d5146b3c43E5E826A7341C",
   "network": "localhost (Ganache)",
   "deployedVia": "Hardhat with @openzeppelin/hardhat-upgrades",
-  "timestamp": "2026-04-24T10:38:45.603Z"
+  "timestamp": "2026-04-25T08:45:57.740Z"
 }

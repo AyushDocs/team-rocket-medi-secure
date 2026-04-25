@@ -10,7 +10,7 @@ import toast from "react-hot-toast"
 import { motion, AnimatePresence } from "framer-motion"
 
 export default function WellnessRewardsCard() {
-    const { wellnessContract, patientDetailsContract, account, isConnected } = useWeb3()
+    const { wellnessContract, patientDetailsContract, account, isConnected, tokenBalance, refreshBalances, triggerRefresh } = useWeb3()
     const [streak, setStreak] = useState({ count: 0, lastTimestamp: 0 })
     const [vitals, setVitals] = useState(null)
     const [loading, setLoading] = useState(false)
@@ -28,16 +28,25 @@ export default function WellnessRewardsCard() {
         setLoading(true)
         try {
             const streakInfo = await wellnessContract.patientStreaks(account)
+            
+            const count = streakInfo.count !== undefined ? streakInfo.count : streakInfo[0];
+            const lastTimestamp = streakInfo.lastProofTimestamp !== undefined ? streakInfo.lastProofTimestamp : streakInfo[1];
+
             setStreak({
-                count: Number(streakInfo.count),
-                lastTimestamp: Number(streakInfo.lastProofTimestamp)
+                count: Number(count || 0),
+                lastTimestamp: Number(lastTimestamp || 0)
             })
 
             const v = await patientDetailsContract.getVitals(account)
+            
+            const bp = v.bloodPressure !== undefined ? v.bloodPressure : v[0];
+            const hr = v.heartRate !== undefined ? v.heartRate : v[3];
+            const temp = v.temperature !== undefined ? v.temperature : v[4];
+
             setVitals({
-                sbp: v.bloodPressure,
-                heartRate: Number(v.heartRate),
-                temperature: v.temperature
+                sbp: bp,
+                heartRate: hr ? Number(hr.toString().split(' ')[0]) : 0,
+                temperature: temp
             })
 
             const minInterval = Number(await wellnessContract.minimumInterval())
@@ -58,8 +67,13 @@ export default function WellnessRewardsCard() {
         }
     }
 
+    const isHealthy = vitals && parseInt(vitals.sbp || "0") < 140 && vitals.heartRate < 100
+
     const claimReward = async () => {
-        if (!isEligible) return
+        if (!isEligible || !isHealthy) {
+            if (!isHealthy) toast.error("Vitals do not meet healthy criteria for rebate.")
+            return
+        }
         setClaiming(true)
         
         try {
@@ -76,7 +90,9 @@ export default function WellnessRewardsCard() {
             const data = responseJson.data || responseJson
 
             toast.success("Wellness Rebate Claimed! 50 $SANJ awarded.")
-            fetchWellnessData()
+            await fetchWellnessData()
+            if (refreshBalances) await refreshBalances()
+            if (triggerRefresh) triggerRefresh()
         } catch (e) {
             console.error(e)
             toast.error(e.message)
@@ -110,8 +126,8 @@ export default function WellnessRewardsCard() {
                             whileHover={{ scale: 1.05 }}
                             className="bg-white/20 backdrop-blur-lg px-4 py-2 rounded-2xl border border-white/30 text-center"
                         >
-                            <span className="block text-[10px] uppercase font-black tracking-tighter text-emerald-200">Current Streak</span>
-                            <span className="text-2xl font-black">{streak.count} Check-ins</span>
+                            <span className="block text-[10px] uppercase font-black tracking-tighter text-emerald-200">Current Balance</span>
+                            <span className="text-2xl font-black">{Number(tokenBalance).toLocaleString(undefined, { maximumFractionDigits: 1 })} SANJ</span>
                         </motion.div>
                     </div>
                 </CardHeader>
@@ -120,15 +136,26 @@ export default function WellnessRewardsCard() {
                     <div className="space-y-2">
                         <div className="flex items-center justify-between text-xs font-black uppercase tracking-widest text-slate-400">
                             <span>Milestone Progress</span>
-                            <span className="text-emerald-600">{streak.count % 5} of 5 checks</span>
+                            <span className="text-emerald-600">{(streak.count % 5 === 0 && streak.count > 0) ? 5 : (streak.count % 5)} of 5 checks</span>
                         </div>
                         <div className="relative h-3 bg-slate-100 rounded-full overflow-hidden">
                             <motion.div 
                                 initial={{ width: 0 }}
-                                animate={{ width: `${(streak.count % 5) * 20}%` }}
+                                animate={{ width: `${((streak.count % 5 === 0 && streak.count > 0) ? 5 : (streak.count % 5)) * 20}%` }}
                                 transition={{ duration: 1, ease: "easeOut" }}
                                 className="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"
                             />
+                        </div>
+                    </div>
+
+                    <div className="flex justify-between items-center px-2">
+                        <div className="flex flex-col">
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Lifetime Streak</span>
+                            <span className="text-lg font-black text-slate-700">{streak.count} Check-ins</span>
+                        </div>
+                        <div className="text-right">
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Milestone Reward</span>
+                            <span className="text-lg font-black text-emerald-600">500 $SANJ</span>
                         </div>
                     </div>
 
@@ -159,26 +186,40 @@ export default function WellnessRewardsCard() {
                                 exit={{ opacity: 0, scale: 0.95 }}
                                 className="space-y-4"
                             >
-                                <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-2xl flex gap-3 items-center">
+                                <div className={`p-4 rounded-2xl flex gap-3 items-center ${isHealthy ? 'bg-emerald-50 border-emerald-100' : 'bg-rose-50 border-rose-100'}`}>
                                     <div className="bg-white p-2 rounded-xl shadow-sm">
-                                        <CheckCircle2 className="text-emerald-600" size={20} />
+                                        {isHealthy ? (
+                                            <CheckCircle2 className="text-emerald-600" size={20} />
+                                        ) : (
+                                            <AlertCircle className="text-rose-600" size={20} />
+                                        )}
                                     </div>
-                                    <p className="text-xs font-bold text-emerald-800 leading-tight">
-                                        Status: Optimal. Your cryptographic health proof is ready to be minted.
+                                    <p className={`text-xs font-bold leading-tight ${isHealthy ? 'text-emerald-800' : 'text-rose-800'}`}>
+                                        {isHealthy 
+                                            ? "Status: Optimal. Your cryptographic health proof is ready to be minted."
+                                            : "Status: Suboptimal. Maintain healthy vitals to unlock your SANJ rebate."}
                                     </p>
                                 </div>
                                 <Button 
-                                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-8 rounded-2xl shadow-xl shadow-emerald-200 transition-all active:scale-95 text-lg"
-                                    disabled={claiming}
+                                    className={`w-full h-16 rounded-2xl font-black text-white shadow-xl transition-all active:scale-95 text-lg ${
+                                        isHealthy 
+                                            ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200' 
+                                            : 'bg-slate-300 cursor-not-allowed shadow-none'
+                                    }`}
+                                    disabled={claiming || !isHealthy}
                                     onClick={claimReward}
                                 >
                                     {claiming ? (
                                         <span className="flex items-center gap-2 animate-pulse">
                                             Generating ZK-Proof...
                                         </span>
-                                    ) : (
+                                    ) : isHealthy ? (
                                         <span className="flex items-center gap-2">
                                             Claim 50 $SANJ Rebate <ChevronRight size={20} />
+                                        </span>
+                                    ) : (
+                                        <span className="flex items-center gap-2">
+                                            Criteria Not Met <ShieldCheck size={20} />
                                         </span>
                                     )}
                                 </Button>

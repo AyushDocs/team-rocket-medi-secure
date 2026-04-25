@@ -13,6 +13,7 @@ import {
 import { useRouter } from "next/navigation"
 import RoleGuard from "@/components/RoleGuard"
 import { Logo } from "@/components/Logo"
+import SanjBalance from "@/components/SanjBalance"
 
 
 export default function HospitalDashboardLayout({ children }) {
@@ -53,6 +54,7 @@ export default function HospitalDashboardLayout({ children }) {
             </div>
 
             <div className="flex items-center gap-6">
+              <SanjBalance />
               <div className="hidden sm:flex items-center gap-4 bg-emerald-50/50 px-6 py-3 rounded-2xl border border-emerald-100/50">
                 <div className="text-right">
                     <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Station Wallet</p>

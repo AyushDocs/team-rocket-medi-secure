@@ -12,14 +12,14 @@ const PINATA_API_URL = "https://api.pinata.cloud/pinning/pinFileToIPFS";
 
 async function uploadFileToPinata(localPath, metadata = {}) {
     const full = path.resolve(__dirname, localPath);
-    if (!fs.existsSync(full)) return null;
+    if (!fs.existsSync(full)) {
+        fs.mkdirSync(path.dirname(full), { recursive: true });
+        fs.writeFileSync(full, `Sanjeevni Data Asset\nName: ${metadata.name || path.basename(localPath)}\nTS: ${Date.now()}`);
+    }
 
     const form = new FormData();
     form.append("file", fs.createReadStream(full));
-    form.append("pinataMetadata", JSON.stringify({
-        name: metadata.name || path.basename(localPath),
-        keyvalues: metadata.keyvalues || {}
-    }));
+    form.append("pinataMetadata", JSON.stringify({ name: metadata.name || path.basename(localPath) }));
 
     try {
         if (!PINATA_API_KEY || !PINATA_SECRET_API_KEY) return null;
@@ -37,7 +37,9 @@ async function uploadFileToPinata(localPath, metadata = {}) {
 }
 
 module.exports = async function(callback) {
-    console.log("\n=== SEEDING CONTRACTS ===\n");
+    console.log("\n╔════════════════════════════════════════════════════════════╗");
+    console.log("║          SANJEEVNI ECOSYSTEM SEEDING ENGINE                ║");
+    console.log("╚════════════════════════════════════════════════════════════╝\n");
 
     try {
         const uploadedHashes = [];
@@ -67,147 +69,85 @@ module.exports = async function(callback) {
         const Hospital = artifacts.require("Hospital");
         const Marketplace = artifacts.require("Marketplace");
         const Insurance = artifacts.require("Insurance");
-        const MediSecureAccessControl = artifacts.require("MediSecureAccessControl");
+        const SanjeevniToken = artifacts.require("SanjeevniToken");
         
         const patientContract = await Patient.deployed();
         const doctorContract = await Doctor.deployed();
         const hospitalContract = await Hospital.deployed();
         const marketplaceContract = await Marketplace.deployed();
         const insuranceContract = await Insurance.deployed();
-        const ac = await MediSecureAccessControl.deployed();
+        const tokenContract = await SanjeevniToken.deployed();
 
         const accounts = await web3.eth.getAccounts();
         const deployer = accounts[0];
-        
-        console.log("\nStep 2: Using test accounts that are pre-funded (Ganache deterministic wallet)...");
-        console.log(`   Deployer: ${deployer}`);
-        
-        // The tests work because they deploy fresh contracts and grant admin role
-        // Our deployed contracts have a different issue - let's try calling via deployer
-        // and using a workaround
-        
-        // Try calling grantAdminRole via deployer directly  
-        console.log("\n   Attempting grantAdminRole from deployer...");
-        try {
-            const tx = await ac.grantAdminRole(patientContract.address, { 
-                from: deployer, 
-                gas: 300000 
-            });
-            console.log("   SUCCESS! Tx:", tx.transactionHash);
-        } catch(e) {
-            console.log("   Error:", e.message.slice(0,80));
-            console.log("   (This error is known - trying alternate method)");
+        const patient1 = "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0"; 
+        const drStrange = accounts[2];
+        const hospitalAddr = accounts[7];
+        const companyAddr = accounts[9];
+
+        console.log("\nStep 2: Universal Funding...");
+        for (const acc of [patient1, hospitalAddr, companyAddr, drStrange]) {
+            await web3.eth.sendTransaction({ from: deployer, to: acc, value: web3.utils.toWei("2", "ether") });
         }
 
-        // Alternate method: skip the role grant and just try registration
-        // The contracts ARE deployed and initialized - let's see if registration works
-        // by using account 0 (deployer who already has admin)
-        
-        console.log("\nStep 3: Registering Entities (using deployer who has admin role)...\n");
-        
-        // For seed data, we'll use deployer for all registrations since they have admin role
-        // This is not ideal for production but works for seed data
-        
-        console.log("Registering patient 0xFF... (Patient One) and adding records...");
-        const patient1 = accounts[1];
+        console.log("\nStep 3: Component Registration...");
         try {
-            // Use account[1] as the patient wallet
-            await patientContract.registerPatient("patient1", "Patient One", "patient1@test.com", 30, "O+", { from: patient1, gas: 500000 });
-            console.log("  > Patient 1 registered from accounts[1] (0xFFcf...)");
-
-            // Assign uploaded images to this patient
-            if (uploadedHashes.length > 0) {
-                console.log("  > Assigning uploaded images to Patient 1...");
-                for (const item of uploadedHashes) {
-                    await patientContract.addMedicalRecord(
-                        item.hash, 
-                        item.name, 
-                        "2026-04-23", 
-                        "MediSecure Lab", 
-                        true, 
-                        { from: patient1, gas: 500000 }
-                    );
-                    console.log(`    - Assigned ${item.name} to Patient 1`);
-                }
-
-            }
-        } catch(e) { 
-            console.log("  ! Patient 1 Error:", e.message.slice(0,80)); 
-        }
-
-        console.log("\nRegistering doctor...");
-        try {
-            await doctorContract.registerDoctor("Dr. Strange", "Neurology", "Sanctum Medical", { from: accounts[4], gas: 500000 });
-            console.log("  > Doctor 1 registered");
-        } catch(e) { 
-            console.log("  ! Doctor 1:", e.message.slice(0,80)); 
-        }
-
-        console.log("\nRegistering hospital...");
-        try {
-            await hospitalContract.registerHospital("Community Health", "contact@community.com", "LA", "REG456", { from: accounts[9], gas: 500000 });
-            console.log("  > Hospital 2 registered");
-        } catch(e) { 
-            console.log("  ! Hospital 2:", e.message.slice(0,80)); 
-        }
-
-        console.log("\nRegistering company...");
-        try {
-            await marketplaceContract.registerCompany("Pfizer Research", "info@pfizer.com", { from: accounts[6], gas: 500000 });
-            console.log("  > Company 1 registered");
-        } catch(e) { 
-            console.log("  ! Company 1:", e.message.slice(0,80)); 
-        }
-
-        console.log("\nRegistering insurance...");
-        try {
+            await patientContract.registerPatient("patient1", "Ayush Dubey", "ayush@sanjeevni.com", 24, "B+", { from: patient1 });
+            await doctorContract.registerDoctor("Dr. Stephen Strange", "Neurology", "Sanctum", { from: drStrange });
+            await hospitalContract.registerHospital("City General", "hosp@city.com", "Main St", "H123", { from: hospitalAddr });
+            await marketplaceContract.registerCompany("Global Pharma Corp", "research@globalpharma.com", { from: companyAddr });
             await insuranceContract.registerInsuranceProvider("SafeLife Insurance", { from: accounts[8], gas: 500000 });
-            console.log("  > Insurance provider registered");
-        } catch(e) { 
-            console.log("  ! Insurance:", e.message.slice(0,80)); 
+            console.log("  > Registered Entities: Patient, Doctor, Hospital, Marketplace Company, Insurance.");
+        } catch(e) {
+            console.log("  ! Registration info:", e.message.slice(0, 50));
         }
 
-        console.log("Registering Google/Custodian Patient (0x0156...)...");
+        console.log("\nStep 4: Populating Marketplace Data Banks...");
+        // Fund the company with tokens for offers
+        const sanjBudget = web3.utils.toWei("5000", "ether");
+        await tokenContract.transfer(companyAddr, sanjBudget, { from: deployer });
+        await tokenContract.approve(marketplaceContract.address, sanjBudget, { from: companyAddr });
+        
+        const offers = [
+            { title: "Neuro-Degenerative Research 2026", desc: "Seeking Brain MRI data for Alzheimer's early detection study. Rewards in SANJ tokens.", price: web3.utils.toWei("50", "ether") },
+            { title: "Cardiovascular Trend Analysis", desc: "Correlate heart rate variability with long-term recovery. Rewards in SANJ tokens.", price: web3.utils.toWei("25", "ether") },
+            { title: "Genomic Sequencing Dataset", desc: "Large scale mapping of B+ blood groups in South Asia. Rewards in SANJ tokens.", price: web3.utils.toWei("100", "ether") }
+        ];
+
+        for (const o of offers) {
+            try {
+                await marketplaceContract.createOffer(o.title, o.desc, o.price, true, { from: companyAddr });
+                console.log(`  > Marketplace Offer Created (SANJ): ${o.title}`);
+            } catch(e) { console.log(`  ! Offer failed: ${e.message.slice(0, 50)}`); }
+        }
+
+        console.log("\nStep 5: Syncing Records & Seeding Participation...");
+        const h = await uploadFileToPinata(`./dummy_files/MRI_Final.pdf`, { name: "MRI_Final.pdf" }) || "QmZ4tj3p9f9N79L1Uj76NfS7Qd47E4Z79L1Uj76NfS7Qd4";
+        await patientContract.addMedicalRecord(h, "MRI_Final.pdf", "2026-04-20", "Apollo", true, { from: patient1 });
+        
+        // Sell data to the first offer to seed participation
+        const firstOffer = await marketplaceContract.offers(1);
+        if (firstOffer.isActive) {
+            await marketplaceContract.sellData(1, h, { from: patient1 });
+            console.log("  > Seeded Participation: MRI_Final sold to 'Neuro-Degenerative Research 2026'");
+        }
+
+        console.log("\nStep 6: Registering Google/Custodian Patient...");
         try {
             const googleAddress = "0x0156006AB2dFb07Db490Bf876Fb50E1ce4Aa27c5";
-            // Fund it first!
             await web3.eth.sendTransaction({
                 from: deployer,
                 to: googleAddress,
                 value: web3.utils.toWei("10", "ether")
             });
-            console.log("  > Google patient wallet funded with 10 ETH");
             await patientContract.registerPatient("googleUser", "Ayush Dubey", "ayush@test.com", 25, "B+", { from: googleAddress, gas: 500000 });
-            console.log("  > Google patient registered");
-            
-            // Add a medical record for them
-            await patientContract.addMedicalRecord(
-                "QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco", 
-                "Health Checkup.pdf", 
-                "2026-04-12", 
-                "City General", 
-                true, 
-                { from: googleAddress, gas: 500000 }
-            );
-            console.log("  > Added sample record for Google patient");
-        } catch(e) { 
-            console.log("  ! Google patient:", e.message.slice(0,80)); 
-        }
+            console.log("  > Google patient registered & funded.");
+        } catch(e) {}
 
-        console.log("\n=== SEED COMPLETE ===\n");
-        console.log("Test Accounts:");
-        console.log(`  Patient 1: ${accounts[1]}`);
-        console.log(`  Doctor 1:  ${accounts[4]}`);
-        console.log(`  Hospital 2: ${accounts[9]}`);
-        console.log(`  Company 1:  ${accounts[6]}`);
-        console.log(`  Insurance:  ${accounts[8]}`);
-        console.log("\nContract Addresses:");
-        console.log(`  Patient:     ${patientContract.address}`);
-        console.log(`  Doctor:     ${doctorContract.address}`);
-        console.log(`  Hospital:   ${hospitalContract.address}`);
-        console.log(`  Marketplace: ${marketplaceContract.address}`);
-        console.log(`  Insurance:   ${insuranceContract.address}`);
-        console.log("");
+        console.log("\n╔════════════════════════════════════════════════════════════╗");
+        console.log("║          MARKETPLACE POPULATED - DATA BANKS LIVE           ║");
+        console.log("╚════════════════════════════════════════════════════════════╝\n");
+
         
         callback();
     } catch (error) {

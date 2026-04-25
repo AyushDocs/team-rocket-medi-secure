@@ -10,12 +10,13 @@ import { useState, useEffect } from "react"
 import toast from "react-hot-toast"
 import { useWeb3 } from "../../../context/Web3Context"
 import { motion } from "framer-motion"
-
+import {Mail} from 'lucide-react'
 export default function InsuranceSignup() {
     const { insuranceContract, account } = useWeb3()
     const router = useRouter()
     const [loading, setLoading] = useState(false)
     const [name, setName] = useState("")
+    const [email, setEmail] = useState("")
 
     useEffect(() => {
         const checkExisting = async () => {
@@ -34,10 +35,21 @@ export default function InsuranceSignup() {
         checkExisting()
     }, [insuranceContract, account, router])
 
+    const validateEmail = (email) => {
+        return String(email)
+          .toLowerCase()
+          .match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault()
         if (!insuranceContract || !account) {
             toast.error("Please connect your wallet first.")
+            return
+        }
+
+        if (!validateEmail(email)) {
+            toast.error("Please enter a valid email address.")
             return
         }
 
@@ -62,11 +74,11 @@ export default function InsuranceSignup() {
     }
 
     return (
-        <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center p-6 font-outfit relative overflow-hidden">
+        <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-6 font-outfit relative overflow-hidden">
             {/* Ambient Glow */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/10 rounded-full blur-[120px]"></div>
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/10 rounded-full blur-[120px]"></div>
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-400/5 rounded-full blur-[120px]"></div>
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-400/5 rounded-full blur-[120px]"></div>
             </div>
 
             <motion.div
@@ -75,7 +87,7 @@ export default function InsuranceSignup() {
                 transition={{ duration: 0.5 }}
                 className="w-full max-w-md relative z-10"
             >
-                <Card className="bg-white/5 border-white/10 backdrop-blur-xl shadow-2xl rounded-[2.5rem] overflow-hidden border">
+                <Card className="bg-white border-slate-100 shadow-2xl rounded-[2.5rem] overflow-hidden border">
                     <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-600 to-indigo-600"></div>
                     <CardHeader className="text-center pt-12 pb-6">
                         <motion.div 
@@ -83,46 +95,63 @@ export default function InsuranceSignup() {
                             animate={{ y: 0 }}
                             className="flex justify-center mb-6"
                         >
-                            <div className="bg-gradient-to-br from-blue-500 to-indigo-600 p-5 rounded-3xl shadow-2xl shadow-blue-500/20 ring-4 ring-white/5">
+                            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-5 rounded-3xl shadow-2xl shadow-blue-500/20 ring-4 ring-slate-50">
                                 <Shield className="h-10 w-10 text-white" />
                             </div>
                         </motion.div>
-                        <CardTitle className="text-3xl font-black text-white tracking-tight">Enterprise Setup</CardTitle>
-                        <CardDescription className="text-gray-400 font-medium mt-2">Register your insurance company on the MediSecure network.</CardDescription>
+                        <CardTitle className="text-3xl font-black text-slate-900 tracking-tight">Enterprise Setup</CardTitle>
+                        <CardDescription className="text-slate-500 font-medium mt-2">Register your insurance company on the MediSecure network.</CardDescription>
                     </CardHeader>
                     <CardContent className="px-10 pb-12">
                         <form onSubmit={handleSubmit} className="space-y-8">
-                            <div className="space-y-3">
-                                <Label htmlFor="name" className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                                    <Building2 className="h-3 w-3" /> Provider Identity
-                                </Label>
-                                <Input 
-                                    id="name" 
-                                    placeholder="e.g. Rohindia Healthcare" 
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    className="bg-white/5 border-white/10 rounded-2xl h-16 text-white focus:ring-2 focus:ring-blue-500/50 transition-all text-lg font-medium placeholder:text-gray-600"
-                                    required 
-                                />
+                            <div className="space-y-6">
+                                <div className="space-y-3">
+                                    <Label htmlFor="name" className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2 ml-1">
+                                        <Building2 className="h-3 w-3" /> Provider Identity
+                                    </Label>
+                                    <Input 
+                                        id="name" 
+                                        placeholder="e.g. Rohindia Healthcare" 
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        className="bg-slate-50 border-slate-100 rounded-2xl h-16 text-slate-900 focus:ring-2 focus:ring-blue-500/50 transition-all text-lg font-medium placeholder:text-slate-300"
+                                        required 
+                                    />
+                                </div>
+
+                                <div className="space-y-3">
+                                    <Label htmlFor="email" className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2 ml-1">
+                                        <Mail className="h-3 w-3" /> Secure Email
+                                    </Label>
+                                    <Input 
+                                        id="email" 
+                                        type="email"
+                                        placeholder="contact@entity.com" 
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        className="bg-slate-50 border-slate-100 rounded-2xl h-16 text-slate-900 focus:ring-2 focus:ring-blue-500/50 transition-all text-lg font-medium placeholder:text-slate-300"
+                                        required 
+                                    />
+                                </div>
                             </div>
                             
                             <motion.div 
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ delay: 0.3 }}
-                                className="bg-white/[0.03] p-6 rounded-3xl border border-white/5 flex items-start gap-4"
+                                className="bg-slate-50 p-6 rounded-3xl border border-slate-100 flex items-start gap-4"
                             >
-                                <Sparkles className="h-6 w-6 text-blue-400 shrink-0 mt-1" />
-                                <p className="text-xs text-gray-500 leading-relaxed font-medium">
-                                    Your provider ID will be linked to your wallet address: <span className="text-blue-400 font-bold">{account?.substring(0,6)}...{account?.substring(38)}</span>. 
+                                <Sparkles className="h-6 w-6 text-blue-600 shrink-0 mt-1" />
+                                <p className="text-xs text-slate-500 leading-relaxed font-medium">
+                                    Your provider ID will be linked to your wallet address: <span className="text-blue-600 font-bold">{account?.substring(0,6)}...{account?.substring(38)}</span>. 
                                     This allows you to mint dynamic policies and verify patient ZK-proofs.
                                 </p>
                             </motion.div>
 
                             <Button 
                                 type="submit" 
-                                className="w-full bg-blue-600 hover:bg-blue-500 h-16 rounded-2xl font-black text-white text-lg shadow-2xl shadow-blue-600/20 transition-all active:scale-95 disabled:opacity-50" 
-                                disabled={loading || !name}
+                                className="w-full bg-blue-600 hover:bg-blue-700 h-16 rounded-2xl font-black text-white text-lg shadow-xl shadow-blue-200 transition-all active:scale-95 disabled:opacity-50" 
+                                disabled={loading || !name || !email}
                             >
                                 {loading ? (
                                     <div className="flex items-center gap-3">

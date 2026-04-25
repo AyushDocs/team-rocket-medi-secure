@@ -12,6 +12,8 @@ import { motion, AnimatePresence } from "framer-motion"
 
 export default function PatientMarketplace() {
     const { marketplaceContract, patientContract, account, signSellData } = useWeb3()
+    const [activeTab, setActiveTab] = useState("available")
+    const [participatedIds, setParticipatedIds] = useState([])
     const [offers, setOffers] = useState([])
     const [myRecords, setMyRecords] = useState([])
     const [loading, setLoading] = useState(false)
@@ -30,8 +32,10 @@ export default function PatientMarketplace() {
         setLoadingOffers(true);
         try {
             const allOffers = await marketplaceContract.getAllOffers();
-            const active = allOffers.filter(o => o.isActive && BigInt(o.budget) >= BigInt(o.price));
-            setOffers(active);
+            setOffers(allOffers);
+
+            const participations = await marketplaceContract.getPatientParticipations(account);
+            setParticipatedIds(participations.map(id => id.toString()));
 
             const patientId = await patientContract.walletToPatientId(account);
             if (patientId > 0) {
@@ -39,16 +43,21 @@ export default function PatientMarketplace() {
                 setMyRecords(records.map(r => ({
                     ipfsHash: r.ipfsHash || r[1], 
                     fileName: r.fileName || r[2],
-                    date: r.recordDate || r[3]
+                    date: r.recordDate || r[3],
+                    tokenId: r.tokenId?.toString() || r[0]?.toString()
                 })));
             }
         } catch(e) { 
             console.error("Marketplace Load Error:", e);
-            toast.error("Failed to load marketplace offers");
+            toast.error("Failed to load marketplace data");
         } finally {
             setLoadingOffers(false);
         }
     }
+
+    const filteredOffers = activeTab === "available" 
+        ? offers.filter(o => o.isActive && !participatedIds.includes(o.id.toString()))
+        : offers.filter(o => participatedIds.includes(o.id.toString()));
 
     const handleSell = async () => {
         if(!selectedOffer || !selectedRecord) return;
@@ -84,6 +93,7 @@ export default function PatientMarketplace() {
 
         const sellPromise = new Promise(async (resolve, reject) => {
             try {
+                // Sign the ipfsHash for the sale
                 const signature = await signSellData(selectedOffer.id, selectedRecord.ipfsHash);
                 setStatus("Relaying Signature...");
 
@@ -102,9 +112,7 @@ export default function PatientMarketplace() {
                 const responseJson = await response.json();
                 if (!response.ok) throw new Error(responseJson.error || "Relay failure");
 
-                const data = responseJson.data || responseJson;
-
-                resolve(data);
+                resolve();
                 loadMarketplace();
                 setSelectedOffer(null);
             } catch (e) {
@@ -141,8 +149,30 @@ export default function PatientMarketplace() {
                 </div>
             </div>
 
-            <AnimatePresence>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Tab Switcher */}
+            <div className="flex gap-4 p-1 bg-slate-100 w-fit rounded-2xl">
+                <button 
+                    onClick={() => setActiveTab("available")}
+                    className={`px-8 py-3 rounded-xl font-black text-sm transition-all ${activeTab === 'available' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                    Available Studies
+                </button>
+                <button 
+                    onClick={() => setActiveTab("participated")}
+                    className={`px-8 py-3 rounded-xl font-black text-sm transition-all ${activeTab === 'participated' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                    Participated
+                </button>
+            </div>
+
+            <AnimatePresence mode="wait">
+                <motion.div 
+                    key={activeTab}
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+                >
                     {loadingOffers ? (
                         [1,2,3].map(i => (
                             <div key={i} className="card-premium bg-white p-6 space-y-4">
@@ -152,130 +182,142 @@ export default function PatientMarketplace() {
                                 <Skeleton className="h-12 w-full rounded-xl" />
                             </div>
                         ))
-                    ) : offers.length === 0 ? (
+                    ) : filteredOffers.length === 0 ? (
                         <motion.p 
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             className="text-slate-400 col-span-full text-center py-20 italic font-medium"
                         >
-                            The marketplace is currently waiting for new research offers.
+                            {activeTab === 'available' ? 'The marketplace is currently waiting for new research offers.' : 'You haven\'t participated in any studies yet.'}
                         </motion.p>
                     ) : (
-                        offers.map((offer, idx) => (
+                        filteredOffers.map((offer, idx) => (
                             <motion.div
                                 key={offer.id.toString()}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: idx * 0.1 }}
                             >
-                                <Card className="card-premium h-full bg-white group hover:border-indigo-200 border-none transition-all">
+                                <Card className={`card-premium h-full bg-white group hover:border-indigo-200 border-none transition-all ${activeTab === 'participated' ? 'opacity-90' : ''}`}>
                                     <CardHeader className="pb-4 relative overflow-hidden rounded-t-[2rem]">
                                         <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full -mr-16 -mt-16 group-hover:bg-indigo-100 transition-colors"></div>
                                         <div className="flex justify-between items-start relative z-10">
-                                            <div className="p-3 bg-slate-50 rounded-2xl group-hover:bg-indigo-600 transition-colors">
-                                                <Briefcase className="h-6 w-6 text-slate-400 group-hover:text-white" />
+                                            <div className={`p-3 rounded-2xl transition-colors ${activeTab === 'participated' ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-50 group-hover:bg-indigo-600'}`}>
+                                                {activeTab === 'participated' ? <ShieldCheck className="h-6 w-6" /> : <Briefcase className="h-6 w-6 text-slate-400 group-hover:text-white" />}
                                             </div>
                                             <div className="text-right">
                                                 <p className="text-2xl font-black text-slate-900">{ethers.formatEther(offer.price)}</p>
-                                                <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest leading-none mt-1">ETH Reward</p>
+                                                <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest leading-none mt-1">{offer.isToken ? 'SANJ Reward' : 'ETH Reward'}</p>
                                             </div>
                                         </div>
                                         <CardTitle className="text-xl font-black mt-6 tracking-tight group-hover:text-indigo-600 transition-colors">
                                             {offer.title}
                                         </CardTitle>
-                                        <p className="text-xs text-slate-400 font-mono mt-1">
-                                            Entity: {offer.company.slice(0,6)}...{offer.company.slice(-4)}
-                                        </p>
+                                        <div className="flex items-center gap-2 mt-2">
+                                            <div className="w-4 h-4 rounded-full bg-slate-100 flex items-center justify-center">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-indigo-400"></div>
+                                            </div>
+                                            <p className="text-[10px] text-slate-400 font-mono">
+                                                Entity: {offer.company.slice(0,6)}...{offer.company.slice(-4)}
+                                            </p>
+                                        </div>
                                     </CardHeader>
                                     <CardContent className="pt-2">
                                         <p className="text-sm text-slate-500 font-medium mb-8 line-clamp-2 h-10">
                                             {offer.description}
                                         </p>
                                         
-                                        <Dialog>
-                                            <DialogTrigger asChild>
-                                                <Button 
-                                                    className="w-full bg-slate-900 hover:bg-slate-800 text-white font-black py-7 rounded-2xl transition-all shadow-xl shadow-slate-200 flex items-center gap-2 group-hover:bg-indigo-600 group-hover:shadow-indigo-100"
-                                                    onClick={() => setSelectedOffer(offer)}
-                                                >
-                                                    <ShoppingCart size={18} />
-                                                    Participate in Study
-                                                </Button>
-                                            </DialogTrigger>
-                                            <DialogContent className="rounded-[2.5rem] border-none shadow-3xl max-w-lg p-0 overflow-hidden">
-                                                <div className="bg-indigo-600 p-8 text-white relative">
-                                                    <div className="absolute top-0 right-0 p-8 opacity-10"><Database size={80}/></div>
-                                                    <h3 className="text-2xl font-black tracking-tight relative z-10">Select Contribution</h3>
-                                                    <p className="text-indigo-100 text-sm font-medium mt-1 relative z-10">Earn {ethers.formatEther(offer.price)} ETH for sharing select records.</p>
-                                                </div>
-                                                
-                                                <div className="p-8 space-y-6">
-                                                    <div className="space-y-3 max-h-72 overflow-y-auto pr-2 custom-scrollbar">
-                                                        {myRecords.map((rec, i) => (
-                                                            <motion.div 
-                                                                key={i} 
-                                                                whileTap={{ scale: 0.98 }}
-                                                                onClick={() => setSelectedRecord(rec)}
-                                                                className={`p-5 rounded-3xl border-2 transition-all cursor-pointer flex justify-between items-center ${selectedRecord?.ipfsHash === rec.ipfsHash ? 'bg-indigo-50 border-indigo-600 shadow-lg shadow-indigo-50' : 'bg-slate-50 border-slate-100 hover:border-indigo-200'}`}
-                                                            >
-                                                                <div>
-                                                                    <p className="font-black text-slate-800 tracking-tight">{rec.fileName}</p>
-                                                                    <p className="text-xs text-slate-400 font-bold">{rec.date}</p>
-                                                                </div>
-                                                                {selectedRecord?.ipfsHash === rec.ipfsHash ? (
-                                                                    <div className="bg-indigo-600 p-2 rounded-xl text-white"><ShieldCheck size={18} /></div>
-                                                                ) : (
-                                                                    <Upload className="text-slate-300" size={18} />
-                                                                )}
-                                                            </motion.div>
-                                                        ))}
+                                        {activeTab === 'available' ? (
+                                            <Dialog>
+                                                <DialogTrigger asChild>
+                                                    <Button 
+                                                        className="w-full bg-slate-900 hover:bg-slate-800 text-white font-black py-7 rounded-2xl transition-all shadow-xl shadow-slate-200 flex items-center gap-2 group-hover:bg-indigo-600 group-hover:shadow-indigo-100"
+                                                        onClick={() => setSelectedOffer(offer)}
+                                                    >
+                                                        <ShoppingCart size={18} />
+                                                        Participate in Study
+                                                    </Button>
+                                                </DialogTrigger>
+                                                <DialogContent className="rounded-[2.5rem] border-none shadow-3xl max-w-lg p-0 overflow-hidden">
+                                                    <div className="bg-indigo-600 p-8 text-white relative">
+                                                        <div className="absolute top-0 right-0 p-8 opacity-10"><Database size={80}/></div>
+                                                        <h3 className="text-2xl font-black tracking-tight relative z-10">Select Contribution</h3>
+                                                        <p className="text-indigo-100 text-sm font-medium mt-1 relative z-10">Earn {ethers.formatEther(offer.price)} {offer.isToken ? 'SANJ' : 'ETH'} for sharing select records.</p>
                                                     </div>
-
-                                                    <AnimatePresence mode="wait">
-                                                        {loading ? (
-                                                            <motion.div 
-                                                                initial={{ opacity: 0 }}
-                                                                animate={{ opacity: 1 }}
-                                                                className="text-center py-4 bg-slate-50 rounded-3xl border border-slate-100"
-                                                            >
-                                                                <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-                                                                <p className="text-xs font-black text-indigo-600 uppercase tracking-widest">{status}</p>
-                                                            </motion.div>
-                                                        ) : (
-                                                            <div className="grid grid-cols-2 gap-4 pt-2">
-                                                                <Button 
-                                                                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-black py-8 rounded-2xl shadow-lg shadow-indigo-100 flex flex-col items-center gap-1 group"
-                                                                    disabled={!selectedRecord}
-                                                                    onClick={handleSellGasless}
-                                                                >
-                                                                    <Zap size={18} className="text-indigo-200 group-hover:animate-pulse" />
-                                                                    <span className="text-xs">Gasless Sale</span>
-                                                                </Button>
-                                                                <Button 
-                                                                    variant="outline"
-                                                                    className="border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white font-black py-8 rounded-2xl flex flex-col items-center gap-1"
-                                                                    disabled={!selectedRecord}
-                                                                    onClick={handleSell}
-                                                                >
-                                                                    <ShieldCheck size={18} />
-                                                                    <span className="text-xs">Standard Sale</span>
-                                                                </Button>
-                                                            </div>
-                                                        )}
-                                                    </AnimatePresence>
                                                     
-                                                    <p className="text-[10px] text-center text-slate-400 font-black uppercase tracking-[0.2em]">
-                                                        Verified by Multi-Sig Network
-                                                    </p>
-                                                </div>
-                                            </DialogContent>
-                                        </Dialog>
+                                                    <div className="p-8 space-y-6">
+                                                        <div className="space-y-3 max-h-72 overflow-y-auto pr-2 custom-scrollbar">
+                                                            {myRecords.map((rec, i) => (
+                                                                <motion.div 
+                                                                    key={i} 
+                                                                    whileTap={{ scale: 0.98 }}
+                                                                    onClick={() => setSelectedRecord(rec)}
+                                                                    className={`p-5 rounded-3xl border-2 transition-all cursor-pointer flex justify-between items-center ${selectedRecord?.ipfsHash === rec.ipfsHash ? 'bg-indigo-50 border-indigo-600 shadow-lg shadow-indigo-50' : 'bg-slate-50 border-slate-100 hover:border-indigo-200'}`}
+                                                                >
+                                                                    <div>
+                                                                        <p className="font-black text-slate-800 tracking-tight">{rec.fileName}</p>
+                                                                        <p className="text-xs text-slate-400 font-bold">{rec.date}</p>
+                                                                    </div>
+                                                                    {selectedRecord?.ipfsHash === rec.ipfsHash ? (
+                                                                        <div className="bg-indigo-600 p-2 rounded-xl text-white"><ShieldCheck size={18} /></div>
+                                                                    ) : (
+                                                                        <Upload className="text-slate-300" size={18} />
+                                                                    )}
+                                                                </motion.div>
+                                                            ))}
+                                                        </div>
+
+                                                        <AnimatePresence mode="wait">
+                                                            {loading ? (
+                                                                <motion.div 
+                                                                    initial={{ opacity: 0 }}
+                                                                    animate={{ opacity: 1 }}
+                                                                    className="text-center py-4 bg-slate-50 rounded-3xl border border-slate-100"
+                                                                >
+                                                                    <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+                                                                    <p className="text-xs font-black text-indigo-600 uppercase tracking-widest">{status}</p>
+                                                                </motion.div>
+                                                            ) : (
+                                                                <div className="grid grid-cols-2 gap-4 pt-2">
+                                                                    <Button 
+                                                                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-black py-8 rounded-2xl shadow-lg shadow-indigo-100 flex flex-col items-center gap-1 group"
+                                                                        disabled={!selectedRecord}
+                                                                        onClick={handleSellGasless}
+                                                                    >
+                                                                        <Zap size={18} className="text-indigo-200 group-hover:animate-pulse" />
+                                                                        <span className="text-xs">Gasless Sale</span>
+                                                                    </Button>
+                                                                    <Button 
+                                                                        variant="outline"
+                                                                        className="border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white font-black py-8 rounded-2xl flex flex-col items-center gap-1"
+                                                                        disabled={!selectedRecord}
+                                                                        onClick={handleSell}
+                                                                    >
+                                                                        <ShieldCheck size={18} />
+                                                                        <span className="text-xs">Standard Sale</span>
+                                                                    </Button>
+                                                                </div>
+                                                            )}
+                                                        </AnimatePresence>
+                                                        
+                                                        <p className="text-[10px] text-center text-slate-400 font-black uppercase tracking-[0.2em]">
+                                                            Verified by MediSecure Protocol
+                                                        </p>
+                                                    </div>
+                                                </DialogContent>
+                                            </Dialog>
+                                        ) : (
+                                            <div className="flex items-center justify-center gap-2 py-4 bg-emerald-50 rounded-2xl border border-emerald-100 text-emerald-700">
+                                                <ShieldCheck size={18} />
+                                                <span className="text-sm font-black uppercase tracking-tighter">Contribution Active</span>
+                                            </div>
+                                        )}
                                     </CardContent>
                                 </Card>
                             </motion.div>
                         ))
                     )}
-                </div>
+                </motion.div>
             </AnimatePresence>
         </motion.div>
     )

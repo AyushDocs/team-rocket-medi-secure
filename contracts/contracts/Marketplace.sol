@@ -104,6 +104,7 @@ contract Marketplace is Initializable, ReentrancyGuardUpgradeable, PausableUpgra
     mapping(uint256 => DataOffer) public offers;
     mapping(address => PurchasedRecord[]) public companyPurchases;
     mapping(address => mapping(string => bool)) public hasCompanyPurchased;
+    mapping(address => uint256[]) public patientParticipations; // Offer IDs patient sold data to
     mapping(address => uint256) public pendingEarnings;
     mapping(address => uint256) public pendingTokenEarnings;
 
@@ -200,7 +201,7 @@ contract Marketplace is Initializable, ReentrancyGuardUpgradeable, PausableUpgra
         bytes32 structHash = keccak256(abi.encode(
             SELL_DATA_TYPEHASH,
             _offerId,
-            _ipfsHash,
+            keccak256(bytes(_ipfsHash)),
             _patient,
             nonces[_patient]++
         ));
@@ -227,6 +228,7 @@ contract Marketplace is Initializable, ReentrancyGuardUpgradeable, PausableUpgra
             offerId: _offerId
         }));
         hasCompanyPurchased[offer.company][_ipfsHash] = true;
+        patientParticipations[_patient].push(_offerId);
 
         if (offer.isToken) {
             pendingTokenEarnings[_patient] += offer.price;
@@ -263,6 +265,10 @@ contract Marketplace is Initializable, ReentrancyGuardUpgradeable, PausableUpgra
             unchecked { i++; }
         }
         return allOffers;
+    }
+
+    function getPatientParticipations(address _patient) public view returns (uint256[] memory) {
+        return patientParticipations[_patient];
     }
 
     function getCompanyPurchases(address _company) public view returns (PurchasedRecord[] memory) {

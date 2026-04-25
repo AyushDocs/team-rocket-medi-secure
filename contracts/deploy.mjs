@@ -35,8 +35,25 @@ const contracts = [
     'Insurance',
     'Marketplace',
     'PatientDetails',
-    'HandoffManager'
+    'HandoffManager',
+    'WellnessRewards',
+    'PriceMedianizer',
+    'ConsentSBT',
+    'SanjeevniToken'
 ];
+
+const envMapping = {
+    'Patient': 'NEXT_PUBLIC_PATIENT_CONTRACT',
+    'Doctor': 'NEXT_PUBLIC_DOCTOR_CONTRACT',
+    'Hospital': 'NEXT_PUBLIC_HOSPITAL_CONTRACT',
+    'Insurance': 'NEXT_PUBLIC_INSURANCE_CONTRACT',
+    'Marketplace': 'NEXT_PUBLIC_MARKETPLACE_CONTRACT',
+    'PatientDetails': 'NEXT_PUBLIC_PATIENT_DETAILS_CONTRACT',
+    'WellnessRewards': 'NEXT_PUBLIC_WELLNESS_CONTRACT',
+    'PriceMedianizer': 'NEXT_PUBLIC_MEDIANIZER_CONTRACT',
+    'ConsentSBT': 'NEXT_PUBLIC_CONSENT_SBT_CONTRACT',
+    'SanjeevniToken': 'NEXT_PUBLIC_TOKEN_CONTRACT'
+};
 
 function run(command, options = {}) {
     try {
@@ -95,20 +112,71 @@ function syncToFrontend() {
     }
     
     const contractsSrc = join(CONTRACTS_DIR, 'build', 'contracts');
+    const addresses = {};
     
     let synced = 0;
     for (const contract of contracts) {
         const src = join(contractsSrc, `${contract}.json`);
         if (existsSync(src)) {
+            // Copy ABI
             copyFileSync(src, join(destDir, `${contract}.json`));
+            
+            // Extract address
+            const artifact = JSON.parse(readFileSync(src, 'utf8'));
+            const networkId = artifact.networks?.['1337'] || artifact.networks?.['5777'];
+            if (networkId && networkId.address) {
+                addresses[contract] = networkId.address;
+            }
+            
             synced++;
         }
     }
     
-    const addressData = { network: 'development', deployedAt: new Date().toISOString() };
+    const addressData = { 
+        network: 'development', 
+        deployedAt: new Date().toISOString(),
+        addresses: addresses
+    };
     writeFileSync(join(destDir, 'addresses.json'), JSON.stringify(addressData, null, 2));
     
-    log('green', `Synced ${synced} contracts to frontend`);
+    log('green', `Synced ${synced} contracts to frontend artifacts`);
+    
+    // Auto-update .env.local
+    updateEnvFile(addresses);
+}
+
+function updateEnvFile(addresses) {
+    const envPath = join(FRONTEND_DIR, '.env.local');
+    if (!existsSync(envPath)) {
+        log('yellow', `.env.local not found at ${envPath}, skipping update`);
+        return;
+    }
+
+    log('blue', 'Updating .env.local with new addresses...');
+    let envContent = readFileSync(envPath, 'utf8');
+    let updated = false;
+
+    for (const [contractName, envKey] of Object.entries(envMapping)) {
+        const address = addresses[contractName];
+        if (address) {
+            const regex = new RegExp(`${envKey}=.*`, 'g');
+            if (regex.test(envContent)) {
+                envContent = envContent.replace(regex, `${envKey}=${address}`);
+                updated = true;
+            } else {
+                // If the key doesn't exist, append it at the end
+                envContent += `\n${envKey}=${address}`;
+                updated = true;
+            }
+        }
+    }
+
+    if (updated) {
+        writeFileSync(envPath, envContent);
+        log('green', 'Successfully updated .env.local');
+    } else {
+        log('yellow', 'No addresses were updated in .env.local');
+    }
 }
 
 function validate() {

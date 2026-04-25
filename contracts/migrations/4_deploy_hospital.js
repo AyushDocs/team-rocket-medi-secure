@@ -20,12 +20,15 @@ module.exports = async function (deployer) {
   await ac.setAuthorizedManager(doctorInstance.address, true);
   console.log(`Doctor at ${doctorInstance.address} authorized as manager in AC.`);
 
+  const currentAdmin = (await web3.eth.getAccounts())[0];
+  console.log(`Current Deployer/Admin: ${currentAdmin}`);
+  console.log(`Doctor's AC: ${await doctorInstance.accessControl()}`);
+  console.log(`Actual AC: ${ac.address}`);
+
   // Update Doctor contract with Hospital address
-  // We assume the deployer is the owner of Doctor.
-  // Check if we can call setHospitalContract
   try {
-     await doctorInstance.setHospitalContract(hospitalInstance.address);
-     console.log(`Doctor contract updated with Hospital address: ${hospitalInstance.address} at Network IDs: ${Object.keys(Hospital.networks || {}).join(", ")}`);
+     await doctorInstance.setHospitalContract(hospitalInstance.address, { from: currentAdmin });
+     console.log(`Doctor contract updated with Hospital address: ${hospitalInstance.address}`);
   } catch (err) {
       console.error("Failed to link Hospital to Doctor (Check ownership):", err.message);
   }

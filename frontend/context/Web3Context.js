@@ -1,6 +1,4 @@
 "use client";
-
-import { ethers } from "ethers";
 import { createContext, useContext, useEffect, useState } from "react";
 import DoctorContractABI from "../contracts/Doctor.json";
 import HospitalContractABI from "../contracts/Hospital.json";
@@ -9,6 +7,8 @@ import MarketplaceContractABI from "../contracts/Marketplace.json";
 import PatientContractABI from "../contracts/Patient.json";
 import PatientDetailsContractABI from "../contracts/PatientDetails.json";
 import SanjeevniTokenABI from "../contracts/SanjeevniToken.json";
+import SanjeevniICOABI from "../contracts/SanjeevniICO.json";
+import TokenVestingABI from "../contracts/TokenVesting.json";
 import InsurancePriceOracleABI from "../contracts/InsurancePriceOracle.json";
 import WellnessRewardsABI from "../contracts/WellnessRewards.json";
 import PriceMedianizerABI from "../contracts/PriceMedianizer.json";
@@ -28,101 +28,13 @@ const ENV_CONTRACTS = {
     marketplace: process.env.NEXT_PUBLIC_MARKETPLACE_CONTRACT,
     wellness: process.env.NEXT_PUBLIC_WELLNESS_CONTRACT,
     medianizer: process.env.NEXT_PUBLIC_MEDIANIZER_CONTRACT,
-    consentSbt: process.env.NEXT_PUBLIC_CONSENT_SBT_CONTRACT
+    consentSbt: process.env.NEXT_PUBLIC_CONSENT_SBT_CONTRACT,
+    token: process.env.NEXT_PUBLIC_TOKEN_CONTRACT || process.env.NEXT_PUBLIC_TOKEN_ADDRESS,
+    ico: process.env.NEXT_PUBLIC_ICO_CONTRACT || process.env.NEXT_PUBLIC_ICO_ADDRESS,
+    vesting: process.env.NEXT_PUBLIC_VESTING_CONTRACT || process.env.NEXT_PUBLIC_VESTING_ADDRESS
 };
 
-class ManagedSigner extends ethers.AbstractSigner {
-    constructor(address, provider, userId) {
-        super(provider);
-        this.address = address;
-        this.userId = userId;
-    }
 
-    async getAddress() {
-        return this.address;
-    }
-
-    async signMessage(message) {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5000'}/api/v1/custodian/sign-message`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: this.userId, message })
-        });
-        const data = await response.json();
-        if (!data.success) throw new Error(data.error || "Failed to sign message");
-        return data.signature;
-    }
-
-    async signTransaction(transaction) {
-        throw new Error("signTransaction not supported by ManagedSigner. Use sendTransaction instead.");
-    }
-
-    async signTypedData(domain, types, value) {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5000'}/api/v1/custodian/sign-typed-data`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: this.userId, domain, types, value })
-        });
-        const data = await response.json();
-        if (!data.success) throw new Error(data.error || "Failed to sign typed data");
-        return data.signature;
-    }
-
-    async sendTransaction(transaction) {
-        const txData = {
-            to: transaction.to,
-            data: transaction.data,
-            value: transaction.value ? transaction.value.toString() : "0",
-            gasLimit: transaction.gasLimit ? transaction.gasLimit.toString() : "1000000",
-            gasPrice: transaction.gasPrice ? transaction.gasPrice.toString() : undefined,
-        };
-
-        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5000'}/api/v1/custodian/send-transaction`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: this.userId, txData })
-        });
-        
-        const data = await response.json();
-        if (!data.success) throw new Error(data.error || "Failed to send transaction via custodian");
-        
-        const txHash = data.transactionHash;
-
-        // In Ethers v6, Contract functions expect a TransactionResponse
-        // which should be then-able or have a wait() method.
-        // We return an object that mimics the expected structure.
-        const txResponse = {
-            hash: txHash,
-            to: transaction.to,
-            from: this.address,
-            data: transaction.data || "0x",
-            value: transaction.value ? BigInt(transaction.value.toString()) : 0n,
-            chainId: (await this.provider.getNetwork()).chainId,
-            confirmations: 0,
-            nonce: await this.provider.getTransactionCount(this.address),
-            gasLimit: BigInt(txData.gasLimit),
-            gasPrice: txData.gasPrice ? BigInt(txData.gasPrice) : undefined,
-            type: 0,
-            blockNumber: null,
-            blockHash: null,
-            wait: async (confirms) => {
-                console.log(`Waiting for tx: ${txHash}`);
-                const receipt = await this.provider.waitForTransaction(txHash, confirms);
-                return receipt;
-            }
-        };
-
-        // Ensure it's not double-unwrapped by removing or fixing 'then'
-        // Ethers v6 TransactionResponse is not thenable, but if we want to support 
-        // older patterns where people might await it twice:
-        return txResponse;
-
-    }
-
-    connect(provider) {
-        return new ManagedSigner(this.address, provider, this.userId);
-    }
-}
 
 export const Web3Provider = ({ children }) => {
     const [patientContract, setPatientContract] = useState(null);
@@ -134,6 +46,11 @@ export const Web3Provider = ({ children }) => {
     const [wellnessContract, setWellnessContract] = useState(null);
     const [medianizerContract, setMedianizerContract] = useState(null);
     const [consentSbtContract, setConsentSbtContract] = useState(null);
+    const [tokenContract, setTokenContract] = useState(null);
+    const [icoContract, setIcoContract] = useState(null);
+    const [vestingContract, setVestingContract] = useState(null);
+    const [tokenBalance, setTokenBalance] = useState("0");
+    const [claimableRewards, setClaimableRewards] = useState("0");
     const [emergencyState, setEmergencyState] = useState({ active: false, hospital: "" });
     const [knownHospitals, setKnownHospitals] = useState([
         { name: "City General (NYC)", address: "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1" },
@@ -160,6 +77,7 @@ export const Web3Provider = ({ children }) => {
         setLoading(true);
         setError(null);
         try {
+            const { ethers } = await import("ethers");
             if (typeof window.ethereum === 'undefined')
                 throw new Error("MetaMask is not installed.");
             const provider = new ethers.BrowserProvider(window.ethereum);
@@ -172,9 +90,8 @@ export const Web3Provider = ({ children }) => {
             console.log(`Web3Context: Detected Network ID: ${netId}`);
             
             // Priority: env variables > ABI networks
-            const getContractAddress = (envVar, abiNetworks, netId) => {
+            const getContractAddress = (envVar, abiNetworks, netId, isRequired = true) => {
                 if (envVar && ethers.isAddress(envVar)) {
-                    console.log(`Using contract address from Environment Variable: ${envVar}`);
                     return { address: envVar, fromEnv: true };
                 }
                 const networkData = abiNetworks[netId];
@@ -186,10 +103,10 @@ export const Web3Provider = ({ children }) => {
                 if (keys.length > 0) {
                     const fallbackId = keys[keys.length - 1];
                     const addr = abiNetworks[fallbackId].address;
-                    console.warn(`Contract not found on network ${netId}. Falling back to network ${fallbackId} address: ${addr}`);
+                    if (isRequired) console.warn(`Contract not found on network ${netId}. Falling back to network ${fallbackId} address: ${addr}`);
                     return { address: addr, fromEnv: false };
                 }
-                console.error(`Contract NOT FOUND for network ${netId} and no fallback available.`);
+                if (isRequired) console.error(`Required contract NOT FOUND for network ${netId} and no fallback available.`);
                 return null;
             };
 
@@ -199,9 +116,12 @@ export const Web3Provider = ({ children }) => {
             const hospitalAddr = getContractAddress(ENV_CONTRACTS.hospital, HospitalContractABI.networks, netId);
             const patientDetailsAddr = getContractAddress(ENV_CONTRACTS.patientDetails, PatientDetailsContractABI.networks, netId);
             const insuranceAddr = getContractAddress(ENV_CONTRACTS.insurance, InsuranceContractABI.networks, netId);
-            const wellnessAddr = getContractAddress(ENV_CONTRACTS.wellness, WellnessRewardsABI.networks, netId);
-            const medianizerAddr = getContractAddress(ENV_CONTRACTS.medianizer, PriceMedianizerABI.networks, netId);
-            const sbtAddr = getContractAddress(ENV_CONTRACTS.consentSbt, ConsentSBTABI.networks, netId);
+            const wellnessAddr = getContractAddress(ENV_CONTRACTS.wellness, WellnessRewardsABI.networks, netId, false);
+            const medianizerAddr = getContractAddress(ENV_CONTRACTS.medianizer, PriceMedianizerABI.networks, netId, false);
+            const sbtAddr = getContractAddress(ENV_CONTRACTS.consentSbt, ConsentSBTABI.networks, netId, false);
+            const tokenAddr = getContractAddress(ENV_CONTRACTS.token, SanjeevniTokenABI.networks, netId, false);
+            const icoAddr = getContractAddress(ENV_CONTRACTS.ico, SanjeevniICOABI.networks, netId, false);
+            const vestingAddr = getContractAddress(ENV_CONTRACTS.vesting, TokenVestingABI.networks, netId, false);
 
             if (!patientAddr || !doctorAddr || !marketAddr || !hospitalAddr || !patientDetailsAddr || !insuranceAddr) {
                 throw new Error(`Contracts not deployed on this network (ID: ${netId})`);
@@ -223,6 +143,9 @@ export const Web3Provider = ({ children }) => {
             const wellContract = wellnessAddr ? new ethers.Contract(wellnessAddr.address, WellnessRewardsABI.abi, signer) : null;
             const medContract = medianizerAddr ? new ethers.Contract(medianizerAddr.address, PriceMedianizerABI.abi, signer) : null;
             const sbtContract = sbtAddr ? new ethers.Contract(sbtAddr.address, ConsentSBTABI.abi, signer) : null;
+            const tknContract = tokenAddr ? new ethers.Contract(tokenAddr.address, SanjeevniTokenABI.abi, signer) : null;
+            const icContract = icoAddr ? new ethers.Contract(icoAddr.address, SanjeevniICOABI.abi, signer) : null;
+            const vstContract = vestingAddr ? new ethers.Contract(vestingAddr.address, TokenVestingABI.abi, signer) : null;
 
             setPatientContract(patientContract);
             setDoctorContract(doctorContract);
@@ -233,6 +156,9 @@ export const Web3Provider = ({ children }) => {
             setWellnessContract(wellContract);
             setMedianizerContract(medContract);
             setConsentSbtContract(sbtContract);
+            setTokenContract(tknContract);
+            setIcoContract(icContract);
+            setVestingContract(vstContract);
             setAccount(address);
             setIsConnected(true);
             setAuthMode('wallet');
@@ -316,6 +242,8 @@ export const Web3Provider = ({ children }) => {
         if (isConnecting) return;
         setIsConnecting(true);
         try {
+            const { ethers } = await import("ethers");
+            const { ManagedSigner } = await import("@/lib/ManagedSigner");
             const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL || 'http://localhost:8545');
             const signer = new ManagedSigner(walletAddress, provider, userId);
             const network = await provider.getNetwork();
@@ -346,7 +274,10 @@ export const Web3Provider = ({ children }) => {
                 insurance: getContractAddress(ENV_CONTRACTS.insurance, InsuranceContractABI.networks, netId),
                 wellness: getContractAddress(ENV_CONTRACTS.wellness, WellnessRewardsABI.networks, netId),
                 medianizer: getContractAddress(ENV_CONTRACTS.medianizer, PriceMedianizerABI.networks, netId),
-                consentSbt: getContractAddress(ENV_CONTRACTS.consentSbt, ConsentSBTABI.networks, netId)
+                consentSbt: getContractAddress(ENV_CONTRACTS.consentSbt, ConsentSBTABI.networks, netId),
+                token: getContractAddress(ENV_CONTRACTS.token, SanjeevniTokenABI.networks, netId),
+                ico: getContractAddress(ENV_CONTRACTS.ico, SanjeevniICOABI.networks, netId),
+                vesting: getContractAddress(ENV_CONTRACTS.vesting, TokenVestingABI.networks, netId)
             };
 
             console.log("Web3Context: [Custodian] Patient Address:", addrs.patient);
@@ -361,6 +292,9 @@ export const Web3Provider = ({ children }) => {
             setWellnessContract(new ethers.Contract(addrs.wellness, WellnessRewardsABI.abi, signer));
             setMedianizerContract(new ethers.Contract(addrs.medianizer, PriceMedianizerABI.abi, signer));
             setConsentSbtContract(new ethers.Contract(addrs.consentSbt, ConsentSBTABI.abi, signer));
+            setTokenContract(addrs.token ? new ethers.Contract(addrs.token, SanjeevniTokenABI.abi, signer) : null);
+            setIcoContract(addrs.ico ? new ethers.Contract(addrs.ico, SanjeevniICOABI.abi, signer) : null);
+            setVestingContract(addrs.vesting ? new ethers.Contract(addrs.vesting, TokenVestingABI.abi, signer) : null);
 
             setIsConnected(true);
         } catch (error) {
@@ -446,23 +380,35 @@ export const Web3Provider = ({ children }) => {
         }
         
         const checkConnection = async () => {
-             const isManualDisconnect = localStorage.getItem("mediSecure_manualDisconnect") === "true";
-             if (window.ethereum && !isManualDisconnect && authMode !== 'custodian') {
-                  const provider = new ethers.BrowserProvider(window.ethereum);
-                  const accounts = await provider.listAccounts();
-                  if (accounts.length > 0) {
-                      connectWithWallet();
-                  }
+             try {
+                 const isManualDisconnect = localStorage.getItem("mediSecure_manualDisconnect") === "true";
+                 // Only attempt if not already connecting and not in custodian mode
+                 if (window.ethereum && !isManualDisconnect && authMode !== 'custodian' && !isConnected && !isConnecting) {
+                      const { ethers } = await import("ethers");
+                      const provider = new ethers.BrowserProvider(window.ethereum);
+                      const accounts = await provider.listAccounts().catch(() => []);
+                      if (accounts.length > 0) {
+                          connectWithWallet();
+                      }
+                 }
+             } catch (e) {
+                 console.warn("Web3Context: Initial connection check failed (MetaMask might be locked or not ready)", e.message);
              }
         };
         checkConnection();
     }, [authMode]);
 
     useEffect(() => {
-        const stored = localStorage.getItem("mediSecure_dutyHospital");
-        if (stored && ethers.isAddress(stored)) {
-            setEmergencyState({ active: true, hospital: stored });
+        const checkEmergency = async () => {
+            const stored = localStorage.getItem("mediSecure_dutyHospital");
+            if (stored) {
+                const { ethers } = await import("ethers");
+                if (ethers.isAddress(stored)) {
+                    setEmergencyState({ active: true, hospital: stored });
+                }
+            }
         }
+        checkEmergency();
     }, []);
 
     const updateEmergencyState = (state) => {
@@ -502,7 +448,8 @@ export const Web3Provider = ({ children }) => {
         }
     }, []);
 
-    const addHospital = (address, name = "Custom Hospital") => {
+    const addHospital = async (address, name = "Custom Hospital") => {
+        const { ethers } = await import("ethers");
         if (!ethers.isAddress(address)) return;
         setKnownHospitals(prev => {
             if (prev.find(h => h.address.toLowerCase() === address.toLowerCase())) return prev;
@@ -532,6 +479,62 @@ export const Web3Provider = ({ children }) => {
         emergencyState,
         setEmergencyState: updateEmergencyState,
         toggleEmergencyMode,
+        tokenContract,
+        icoContract,
+        vestingContract,
+        tokenBalance,
+        claimableRewards,
+        refreshBalances: async () => {
+            if (!tokenContract || !account) return;
+            try {
+                const { ethers } = await import("ethers");
+                const balance = await tokenContract.balanceOf(account);
+                setTokenBalance(ethers.formatEther(balance));
+                
+                if (vestingContract) {
+                    const releasable = await vestingContract.getReleasableAmount(account);
+                    setClaimableRewards(ethers.formatEther(releasable));
+                }
+            } catch (e) {
+                console.error("Error refreshing balances:", e);
+            }
+        },
+        getSanjHistory: async () => {
+            if (!tokenContract || !account) return [];
+            try {
+                const { ethers } = await import("ethers");
+                // Querying Transfer(from, to, value)
+                const filterTo = tokenContract.filters.Transfer(null, account);
+                const filterFrom = tokenContract.filters.Transfer(account, null);
+                
+                // For local dev, we can query a large range, but for prod we might want to limit
+                const provider = tokenContract.runner.provider;
+                const currentBlock = await provider.getBlockNumber();
+                const fromBlock = Math.max(0, currentBlock - 5000);
+
+                const [eventsTo, eventsFrom] = await Promise.all([
+                    tokenContract.queryFilter(filterTo, fromBlock), 
+                    tokenContract.queryFilter(filterFrom, fromBlock)
+                ]);
+                
+                // Deduplicate events by transaction hash (a transaction where account is both sender and receiver)
+                const uniqueEvents = Array.from(
+                    new Map([...eventsTo, ...eventsFrom].map(e => [e.transactionHash, e])).values()
+                ).sort((a, b) => b.blockNumber - a.blockNumber);
+                
+                return uniqueEvents.map(e => ({
+                    from: e.args[0],
+                    to: e.args[1],
+                    value: ethers.formatEther(e.args[2]),
+                    hash: e.transactionHash,
+                    blockNumber: e.blockNumber,
+                    type: e.args[0].toLowerCase() === account.toLowerCase() ? 'send' : 'receive'
+                }));
+            } catch (e) {
+                console.error("Error fetching SANJ history:", e);
+                return [];
+            }
+        },
         isConnected,
         account,
         loading,
@@ -580,7 +583,7 @@ export const Web3Provider = ({ children }) => {
             const types = {
                 SellData: [
                     { name: "offerId", type: "uint256" },
-                    { name: "ipfsHash", type: "bytes32" },
+                    { name: "ipfsHash", type: "string" },
                     { name: "patient", type: "address" },
                     { name: "nonce", type: "uint256" }
                 ]

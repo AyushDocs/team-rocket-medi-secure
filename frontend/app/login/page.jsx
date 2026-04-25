@@ -87,11 +87,11 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center p-6 relative overflow-hidden font-outfit">
+        <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center pt-32 pb-20 p-6 relative overflow-hidden font-outfit">
              {/* Ambient Background */}
              <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/10 rounded-full blur-[120px]"></div>
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/10 rounded-full blur-[120px]"></div>
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-400/5 rounded-full blur-[120px]"></div>
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-400/5 rounded-full blur-[120px]"></div>
             </div>
 
             <motion.div 
@@ -99,20 +99,20 @@ export default function LoginPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="max-w-xl w-full relative z-10"
             >
-                <Card className="bg-white/5 border-white/10 backdrop-blur-2xl shadow-2xl rounded-[2.5rem] overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-purple-600 to-blue-600"></div>
+                <Card className="bg-white border-slate-100 shadow-2xl rounded-[2.5rem] overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-600 to-indigo-600"></div>
                     <CardHeader className="text-center pt-12 pb-6">
-                        <CardTitle className="text-3xl font-black text-white tracking-tight italic">Connect Identity</CardTitle>
-                        <CardDescription className="text-gray-400 font-medium mt-2">Choose your entry point into the MediSecure ecosystem.</CardDescription>
+                        <CardTitle className="text-3xl font-black text-slate-900 tracking-tight italic">Connect Identity</CardTitle>
+                        <CardDescription className="text-slate-500 font-medium mt-2">Choose your entry point into the MediSecure ecosystem.</CardDescription>
                     </CardHeader>
                     
                     <CardContent className="px-10 pb-12 space-y-8">
                         {/* Method Selection */}
-                        <div className="flex gap-4 p-1.5 bg-white/5 rounded-2xl border border-white/5">
+                        <div className="flex gap-4 p-1.5 bg-slate-50 rounded-2xl border border-slate-100">
                             <Button
                                 variant="ghost"
                                 onClick={() => setLoginMethod("wallet")}
-                                className={`flex-1 rounded-xl font-bold transition-all h-12 ${loginMethod === "wallet" ? "bg-white/10 text-white shadow-lg" : "text-gray-500"}`}
+                                className={`flex-1 rounded-xl font-bold transition-all h-12 ${loginMethod === "wallet" ? "bg-white text-slate-900 shadow-sm" : "text-slate-400"}`}
                             >
                                 <Wallet className="h-4 w-4 mr-2" />
                                 Web3 Wallet
@@ -120,7 +120,7 @@ export default function LoginPage() {
                             <Button
                                 variant="ghost"
                                 onClick={() => setLoginMethod("google")}
-                                className={`flex-1 rounded-xl font-bold transition-all h-12 ${loginMethod === "google" ? "bg-white/10 text-white shadow-lg" : "text-gray-500"}`}
+                                className={`flex-1 rounded-xl font-bold transition-all h-12 ${loginMethod === "google" ? "bg-white text-slate-900 shadow-sm" : "text-slate-400"}`}
                             >
                                 <svg className="h-4 w-4 mr-2" viewBox="0 0 24 24">
                                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -138,7 +138,7 @@ export default function LoginPage() {
                                     initial={{ opacity: 0, height: 0 }}
                                     animate={{ opacity: 1, height: 'auto' }}
                                     exit={{ opacity: 0, height: 0 }}
-                                    className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl text-[11px] text-blue-400 font-bold"
+                                    className="p-4 bg-blue-50 border border-blue-100 rounded-2xl text-[11px] text-blue-600 font-bold"
                                 >
                                     <p className="uppercase tracking-widest mb-1">Custodian Protocol</p>
                                     <p className="opacity-70 leading-relaxed">Managed wallet security via Firebase. Seamless Web2 to Web3 bridge.</p>
@@ -147,22 +147,22 @@ export default function LoginPage() {
                         </AnimatePresence>
 
                         <Tabs value={userType} onValueChange={setUserType} className="space-y-6">
-                            <TabsList className="grid w-full grid-cols-5 h-auto p-1.5 bg-white/5 rounded-2xl border border-white/5">
+                            <TabsList className="grid w-full grid-cols-5 h-auto p-1.5 bg-slate-50 rounded-2xl border border-slate-100">
                                 {[
-                                    { id: 'patient', icon: Heart, color: 'text-red-400' },
-                                    { id: 'doctor', icon: Stethoscope, color: 'text-blue-400' },
-                                    { id: 'company', icon: Briefcase, color: 'text-amber-400' },
-                                    { id: 'hospital', icon: Building2, color: 'text-emerald-400' },
-                                    { id: 'insurance', icon: Shield, color: 'text-indigo-400' }
+                                    { id: 'patient', icon: Heart, color: 'text-red-500' },
+                                    { id: 'doctor', icon: Stethoscope, color: 'text-blue-500' },
+                                    { id: 'company', icon: Briefcase, color: 'text-amber-500' },
+                                    { id: 'hospital', icon: Building2, color: 'text-emerald-500' },
+                                    { id: 'insurance', icon: Shield, color: 'text-indigo-500' }
                                 ].map(role => (
-                                    <TabsTrigger key={role.id} value={role.id} className="py-3 data-[state=active]:bg-white/10 transition-all rounded-xl group">
-                                        <role.icon className={`h-5 w-5 ${userType === role.id ? role.color : 'text-gray-600 group-hover:text-gray-400'} transition-colors`} />
+                                    <TabsTrigger key={role.id} value={role.id} className="py-3 data-[state=active]:bg-white transition-all rounded-xl group shadow-none data-[state=active]:shadow-sm">
+                                        <role.icon className={`h-5 w-5 ${userType === role.id ? role.color : 'text-slate-300 group-hover:text-slate-400'} transition-colors`} />
                                     </TabsTrigger>
                                 ))}
                             </TabsList>
 
-                            <div className="p-5 bg-white/[0.02] rounded-2xl border border-white/5 text-center min-h-[80px] flex items-center justify-center">
-                                <p className="text-xs font-bold text-gray-500 italic uppercase tracking-widest">
+                            <div className="p-5 bg-slate-50/50 rounded-2xl border border-slate-100 text-center min-h-[80px] flex items-center justify-center">
+                                <p className="text-xs font-bold text-slate-500 italic uppercase tracking-widest">
                                     {userType === 'patient' && "Control medical records and monetize data."}
                                     {userType === 'doctor' && "Access patient history and provide care."}
                                     {userType === 'company' && "Purchase ethical datasets for research."}
@@ -172,7 +172,7 @@ export default function LoginPage() {
                             </div>
 
                             {localError && (
-                                <div className="bg-red-500/10 text-red-400 p-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-center border border-red-500/20">
+                                <div className="bg-red-50 text-red-600 p-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-center border border-red-100">
                                     {localError}
                                 </div>
                             )}
@@ -182,18 +182,18 @@ export default function LoginPage() {
                                     <Button
                                         onClick={routeUser}
                                         disabled={isRouting}
-                                        className="w-full h-16 bg-white text-black hover:bg-gray-200 rounded-2xl font-black text-lg shadow-2xl transition-all active:scale-95"
+                                        className="w-full h-16 bg-blue-600 text-white hover:bg-blue-700 rounded-2xl font-black text-lg shadow-xl shadow-blue-200 transition-all active:scale-95"
                                     >
                                         {isRouting ? "LOADING..." : "ENTER PORTAL"}
                                     </Button>
                                     <div className="text-center">
-                                        <p className="text-[10px] text-gray-600 font-mono mb-4 truncate px-4">
+                                        <p className="text-[10px] text-slate-400 font-mono mb-4 truncate px-4">
                                             {account || custodianUser?.email}
                                         </p>
                                         <Button
                                             onClick={disconnect}
                                             variant="ghost"
-                                            className="text-gray-500 hover:text-red-400 font-bold text-[10px] uppercase tracking-widest"
+                                            className="text-slate-500 hover:text-red-500 font-bold text-[10px] uppercase tracking-widest"
                                         >
                                             Switch Account
                                         </Button>
@@ -203,7 +203,7 @@ export default function LoginPage() {
                                 <Button
                                     onClick={handleConnect}
                                     disabled={web3Loading}
-                                    className="w-full h-16 bg-purple-600 hover:bg-purple-500 text-white rounded-2xl font-black text-lg shadow-2xl shadow-purple-600/20 transition-all active:scale-95"
+                                    className="w-full h-16 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black text-lg shadow-xl shadow-blue-200 transition-all active:scale-95"
                                 >
                                     {web3Loading ? "CONNECTING..." : (loginMethod === "wallet" ? "CONNECT WALLET" : "SIGN IN WITH GOOGLE")}
                                 </Button>
@@ -219,9 +219,9 @@ export default function LoginPage() {
                         { icon: Building2, label: "Ethical", sub: "Data Econ" }
                     ].map((feat, i) => (
                         <div key={i} className="flex flex-col items-center gap-2">
-                            <feat.icon className="h-5 w-5 text-gray-700" />
-                            <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{feat.label}</p>
-                            <p className="text-[8px] font-bold text-gray-700 uppercase">{feat.sub}</p>
+                            <feat.icon className="h-5 w-5 text-slate-300" />
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{feat.label}</p>
+                            <p className="text-[8px] font-bold text-slate-300 uppercase">{feat.sub}</p>
                         </div>
                     ))}
                 </div>
