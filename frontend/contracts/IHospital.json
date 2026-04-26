@@ -1,0 +1,594 @@
+{
+  "contractName": "IHospital",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "wallet",
+          "type": "address"
+        }
+      ],
+      "name": "walletToHospitalId",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "hospitalId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "doctor",
+          "type": "address"
+        }
+      ],
+      "name": "isDoctorApproved",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "doctor",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "hospitalAddress",
+          "type": "address"
+        }
+      ],
+      "name": "isDoctorOnDuty",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_hospital",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_patient",
+          "type": "address"
+        }
+      ],
+      "name": "receiveSettlement",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.8.20+commit.a1b79de6\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"hospitalId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"doctor\",\"type\":\"address\"}],\"name\":\"isDoctorApproved\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"doctor\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"hospitalAddress\",\"type\":\"address\"}],\"name\":\"isDoctorOnDuty\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_hospital\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_patient\",\"type\":\"address\"}],\"name\":\"receiveSettlement\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"wallet\",\"type\":\"address\"}],\"name\":\"walletToHospitalId\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Interface for hospital contract interactions.\",\"kind\":\"dev\",\"methods\":{\"isDoctorApproved(uint256,address)\":{\"details\":\"Checks if a doctor is approved by the hospital.\",\"params\":{\"doctor\":\"The doctor's wallet address.\",\"hospitalId\":\"The hospital's unique ID.\"},\"returns\":{\"_0\":\"True if the doctor is approved, false otherwise.\"}},\"walletToHospitalId(address)\":{\"details\":\"Gets the hospital ID associated with a wallet address.\",\"params\":{\"wallet\":\"The wallet address to query.\"},\"returns\":{\"_0\":\"The hospital ID.\"}}},\"title\":\"IHospital\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Defines the functions that hospital contracts must implement for interoperability.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/interfaces/IHospital.sol\":\"IHospital\"},\"evmVersion\":\"shanghai\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/interfaces/IHospital.sol\":{\"keccak256\":\"0x1db2c43afbd5e87bd4316114a3df5def3979cd1fea431cf8ece9d334a815a792\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://42b6911c7529796d21d540b46d9722274c0b73d8adbb8413201da42d22e9442d\",\"dweb:/ipfs/Qmd4DMCw4fW59T2Xh4krJXiQPyLBhiYqNqyUhRYkS9E5Sn\"]}},\"version\":1}",
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "// SPDX-License-Identifier: MIT\r\npragma solidity 0.8.20;\r\n\r\n/**\r\n * @title IHospital\r\n * @dev Interface for hospital contract interactions.\r\n * @notice Defines the functions that hospital contracts must implement for interoperability.\r\n */\r\ninterface IHospital {\r\n    /**\r\n     * @dev Gets the hospital ID associated with a wallet address.\r\n     * @param wallet The wallet address to query.\r\n     * @return The hospital ID.\r\n     */\r\n    function walletToHospitalId(address wallet) external view returns (uint256);\r\n\r\n    /**\r\n     * @dev Checks if a doctor is approved by the hospital.\r\n     * @param hospitalId The hospital's unique ID.\r\n     * @param doctor The doctor's wallet address.\r\n     * @return True if the doctor is approved, false otherwise.\r\n     */\r\n    function isDoctorApproved(\r\n        uint256 hospitalId,\r\n        address doctor\r\n    ) external view returns (bool);\r\n    function isDoctorOnDuty(\r\n        address doctor,\r\n        address hospitalAddress\r\n    ) external view returns (bool);\r\n\r\n    function receiveSettlement(address _hospital, address _patient) external payable;\r\n}\r\n",
+  "sourcePath": "C:\\Users\\night\\Downloads\\team-rocket-medi-secure\\team-rocket-medi-secure\\contracts\\contracts\\interfaces\\IHospital.sol",
+  "ast": {
+    "absolutePath": "project:/contracts/interfaces/IHospital.sol",
+    "exportedSymbols": {
+      "IHospital": [
+        27119
+      ]
+    },
+    "id": 27120,
+    "license": "MIT",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 27083,
+        "literals": [
+          "solidity",
+          "0.8",
+          ".20"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "33:23:99"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IHospital",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": {
+          "id": 27084,
+          "nodeType": "StructuredDocumentation",
+          "src": "60:179:99",
+          "text": " @title IHospital\n @dev Interface for hospital contract interactions.\n @notice Defines the functions that hospital contracts must implement for interoperability."
+        },
+        "fullyImplemented": false,
+        "id": 27119,
+        "linearizedBaseContracts": [
+          27119
+        ],
+        "name": "IHospital",
+        "nameLocation": "251:9:99",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "documentation": {
+              "id": 27085,
+              "nodeType": "StructuredDocumentation",
+              "src": "268:164:99",
+              "text": " @dev Gets the hospital ID associated with a wallet address.\n @param wallet The wallet address to query.\n @return The hospital ID."
+            },
+            "functionSelector": "e2aece4a",
+            "id": 27092,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "walletToHospitalId",
+            "nameLocation": "447:18:99",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 27088,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 27087,
+                  "mutability": "mutable",
+                  "name": "wallet",
+                  "nameLocation": "474:6:99",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27092,
+                  "src": "466:14:99",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 27086,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "466:7:99",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "465:16:99"
+            },
+            "returnParameters": {
+              "id": 27091,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 27090,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27092,
+                  "src": "505:7:99",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 27089,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "505:7:99",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "504:9:99"
+            },
+            "scope": 27119,
+            "src": "438:76:99",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 27093,
+              "nodeType": "StructuredDocumentation",
+              "src": "522:241:99",
+              "text": " @dev Checks if a doctor is approved by the hospital.\n @param hospitalId The hospital's unique ID.\n @param doctor The doctor's wallet address.\n @return True if the doctor is approved, false otherwise."
+            },
+            "functionSelector": "babef8f6",
+            "id": 27102,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "isDoctorApproved",
+            "nameLocation": "778:16:99",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 27098,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 27095,
+                  "mutability": "mutable",
+                  "name": "hospitalId",
+                  "nameLocation": "813:10:99",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27102,
+                  "src": "805:18:99",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 27094,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "805:7:99",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 27097,
+                  "mutability": "mutable",
+                  "name": "doctor",
+                  "nameLocation": "842:6:99",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27102,
+                  "src": "834:14:99",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 27096,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "834:7:99",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "794:61:99"
+            },
+            "returnParameters": {
+              "id": 27101,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 27100,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27102,
+                  "src": "879:4:99",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 27099,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "879:4:99",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "878:6:99"
+            },
+            "scope": 27119,
+            "src": "769:116:99",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "functionSelector": "b6d85395",
+            "id": 27111,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "isDoctorOnDuty",
+            "nameLocation": "900:14:99",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 27107,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 27104,
+                  "mutability": "mutable",
+                  "name": "doctor",
+                  "nameLocation": "933:6:99",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27111,
+                  "src": "925:14:99",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 27103,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "925:7:99",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 27106,
+                  "mutability": "mutable",
+                  "name": "hospitalAddress",
+                  "nameLocation": "958:15:99",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27111,
+                  "src": "950:23:99",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 27105,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "950:7:99",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "914:66:99"
+            },
+            "returnParameters": {
+              "id": 27110,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 27109,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27111,
+                  "src": "1004:4:99",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 27108,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1004:4:99",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1003:6:99"
+            },
+            "scope": 27119,
+            "src": "891:119:99",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "functionSelector": "3dc33e2c",
+            "id": 27118,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "receiveSettlement",
+            "nameLocation": "1027:17:99",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 27116,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 27113,
+                  "mutability": "mutable",
+                  "name": "_hospital",
+                  "nameLocation": "1053:9:99",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27118,
+                  "src": "1045:17:99",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 27112,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1045:7:99",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 27115,
+                  "mutability": "mutable",
+                  "name": "_patient",
+                  "nameLocation": "1072:8:99",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27118,
+                  "src": "1064:16:99",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 27114,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1064:7:99",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1044:37:99"
+            },
+            "returnParameters": {
+              "id": 27117,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1098:0:99"
+            },
+            "scope": 27119,
+            "src": "1018:81:99",
+            "stateMutability": "payable",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "scope": 27120,
+        "src": "241:861:99",
+        "usedErrors": [],
+        "usedEvents": []
+      }
+    ],
+    "src": "33:1071:99"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.8.20+commit.a1b79de6.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.16",
+  "updatedAt": "2026-04-24T10:38:31.216Z",
+  "devdoc": {
+    "details": "Interface for hospital contract interactions.",
+    "kind": "dev",
+    "methods": {
+      "isDoctorApproved(uint256,address)": {
+        "details": "Checks if a doctor is approved by the hospital.",
+        "params": {
+          "doctor": "The doctor's wallet address.",
+          "hospitalId": "The hospital's unique ID."
+        },
+        "returns": {
+          "_0": "True if the doctor is approved, false otherwise."
+        }
+      },
+      "walletToHospitalId(address)": {
+        "details": "Gets the hospital ID associated with a wallet address.",
+        "params": {
+          "wallet": "The wallet address to query."
+        },
+        "returns": {
+          "_0": "The hospital ID."
+        }
+      }
+    },
+    "title": "IHospital",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "notice": "Defines the functions that hospital contracts must implement for interoperability.",
+    "version": 1
+  }
+}

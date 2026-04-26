@@ -1,0 +1,3932 @@
+{
+  "contractName": "AccessControl",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "AccessControlBadConfirmation",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "neededRole",
+          "type": "bytes32"
+        }
+      ],
+      "name": "AccessControlUnauthorizedAccount",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "previousAdminRole",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "newAdminRole",
+          "type": "bytes32"
+        }
+      ],
+      "name": "RoleAdminChanged",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        }
+      ],
+      "name": "RoleGranted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        }
+      ],
+      "name": "RoleRevoked",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "DEFAULT_ADMIN_ROLE",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes4",
+          "name": "interfaceId",
+          "type": "bytes4"
+        }
+      ],
+      "name": "supportsInterface",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "hasRole",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getRoleAdmin",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "grantRole",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "revokeRole",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "callerConfirmation",
+          "type": "address"
+        }
+      ],
+      "name": "renounceRole",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.8.20+commit.a1b79de6\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"AccessControlBadConfirmation\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"neededRole\",\"type\":\"bytes32\"}],\"name\":\"AccessControlUnauthorizedAccount\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"previousAdminRole\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"newAdminRole\",\"type\":\"bytes32\"}],\"name\":\"RoleAdminChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"RoleGranted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"RoleRevoked\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"DEFAULT_ADMIN_ROLE\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"}],\"name\":\"getRoleAdmin\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"grantRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"hasRole\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"callerConfirmation\",\"type\":\"address\"}],\"name\":\"renounceRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"revokeRole\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"interfaceId\",\"type\":\"bytes4\"}],\"name\":\"supportsInterface\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Contract module that allows children to implement role-based access control mechanisms. This is a lightweight version that doesn't allow enumerating role members except through off-chain means by accessing the contract event logs. Some applications may benefit from on-chain enumerability, for those cases see {AccessControlEnumerable}. Roles are referred to by their `bytes32` identifier. These should be exposed in the external API and be unique. The best way to achieve this is by using `public constant` hash digests: ```solidity bytes32 public constant MY_ROLE = keccak256(\\\"MY_ROLE\\\"); ``` Roles can be used to represent a set of permissions. To restrict access to a function call, use {hasRole}: ```solidity function foo() public {     require(hasRole(MY_ROLE, msg.sender));     ... } ``` Roles can be granted and revoked dynamically via the {grantRole} and {revokeRole} functions. Each role has an associated admin role, and only accounts that have a role's admin role can call {grantRole} and {revokeRole}. By default, the admin role for all roles is `DEFAULT_ADMIN_ROLE`, which means that only accounts with this role will be able to grant or revoke other roles. More complex role relationships can be created by using {_setRoleAdmin}. WARNING: The `DEFAULT_ADMIN_ROLE` is also its own admin: it has permission to grant and revoke this role. Extra precautions should be taken to secure accounts that have been granted it. We recommend using {AccessControlDefaultAdminRules} to enforce additional security measures for this role.\",\"errors\":{\"AccessControlBadConfirmation()\":[{\"details\":\"The caller of a function is not the expected one. NOTE: Don't confuse with {AccessControlUnauthorizedAccount}.\"}],\"AccessControlUnauthorizedAccount(address,bytes32)\":[{\"details\":\"The `account` is missing a role.\"}]},\"events\":{\"RoleAdminChanged(bytes32,bytes32,bytes32)\":{\"details\":\"Emitted when `newAdminRole` is set as ``role``'s admin role, replacing `previousAdminRole` `DEFAULT_ADMIN_ROLE` is the starting admin for all roles, despite {RoleAdminChanged} not being emitted signaling this.\"},\"RoleGranted(bytes32,address,address)\":{\"details\":\"Emitted when `account` is granted `role`. `sender` is the account that originated the contract call, an admin role bearer except when using {AccessControl-_setupRole}.\"},\"RoleRevoked(bytes32,address,address)\":{\"details\":\"Emitted when `account` is revoked `role`. `sender` is the account that originated the contract call:   - if using `revokeRole`, it is the admin role bearer   - if using `renounceRole`, it is the role bearer (i.e. `account`)\"}},\"kind\":\"dev\",\"methods\":{\"getRoleAdmin(bytes32)\":{\"details\":\"Returns the admin role that controls `role`. See {grantRole} and {revokeRole}. To change a role's admin, use {_setRoleAdmin}.\"},\"grantRole(bytes32,address)\":{\"details\":\"Grants `role` to `account`. If `account` had not been already granted `role`, emits a {RoleGranted} event. Requirements: - the caller must have ``role``'s admin role. May emit a {RoleGranted} event.\"},\"hasRole(bytes32,address)\":{\"details\":\"Returns `true` if `account` has been granted `role`.\"},\"renounceRole(bytes32,address)\":{\"details\":\"Revokes `role` from the calling account. Roles are often managed via {grantRole} and {revokeRole}: this function's purpose is to provide a mechanism for accounts to lose their privileges if they are compromised (such as when a trusted device is misplaced). If the calling account had been revoked `role`, emits a {RoleRevoked} event. Requirements: - the caller must be `callerConfirmation`. May emit a {RoleRevoked} event.\"},\"revokeRole(bytes32,address)\":{\"details\":\"Revokes `role` from `account`. If `account` had been granted `role`, emits a {RoleRevoked} event. Requirements: - the caller must have ``role``'s admin role. May emit a {RoleRevoked} event.\"},\"supportsInterface(bytes4)\":{\"details\":\"See {IERC165-supportsInterface}.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"@openzeppelin/contracts/access/AccessControl.sol\":\"AccessControl\"},\"evmVersion\":\"shanghai\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/access/AccessControl.sol\":{\"keccak256\":\"0xa0e92d42942f4f57c5be50568dac11e9d00c93efcb458026e18d2d9b9b2e7308\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://46326c0bb1e296b67185e81c918e0b40501b8b6386165855df0a3f3c634b6a80\",\"dweb:/ipfs/QmTwyrDYtsxsk6pymJTK94PnEpzsmkpUxFuzEiakDopy4Z\"]},\"@openzeppelin/contracts/access/IAccessControl.sol\":{\"keccak256\":\"0xb6b36edd6a2999fd243ff226d6cbf84bd71af2432bbd0dfe19392996a1d9cb41\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://1fd2f35495652e57e3f99bc6c510bc5f7dd398a176ea2e72d8ed730aebc6ca26\",\"dweb:/ipfs/QmTQV6X4gkikTib49cho5iDX3JvSQbdsoEChoDwrk3CbbH\"]},\"@openzeppelin/contracts/utils/Context.sol\":{\"keccak256\":\"0x493033a8d1b176a037b2cc6a04dad01a5c157722049bbecf632ca876224dd4b2\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6a708e8a5bdb1011c2c381c9a5cfd8a9a956d7d0a9dc1bd8bcdaf52f76ef2f12\",\"dweb:/ipfs/Qmax9WHBnVsZP46ZxEMNRQpLQnrdE4dK8LehML1Py8FowF\"]},\"@openzeppelin/contracts/utils/introspection/ERC165.sol\":{\"keccak256\":\"0x9e8778b14317ba9e256c30a76fd6c32b960af621987f56069e1e819c77c6a133\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://1777404f1dcd0fac188e55a288724ec3c67b45288e49cc64723e95e702b49ab8\",\"dweb:/ipfs/QmZFdC626GButBApwDUvvTnUzdinevC3B24d7yyh57XkiA\"]},\"@openzeppelin/contracts/utils/introspection/IERC165.sol\":{\"keccak256\":\"0x4296879f55019b23e135000eb36896057e7101fb7fb859c5ef690cf14643757b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://87b3541437c8c443ccd36795e56a338ed12855eec17f8da624511b8d1a7e14df\",\"dweb:/ipfs/QmeJQCtZrQjtJLr6u7ZHWeH3pBnjtLWzvRrKViAi7UZqxL\"]}},\"version\":1}",
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "// SPDX-License-Identifier: MIT\n// OpenZeppelin Contracts (last updated v5.0.0) (access/AccessControl.sol)\n\npragma solidity ^0.8.20;\n\nimport {IAccessControl} from \"./IAccessControl.sol\";\nimport {Context} from \"../utils/Context.sol\";\nimport {ERC165} from \"../utils/introspection/ERC165.sol\";\n\n/**\n * @dev Contract module that allows children to implement role-based access\n * control mechanisms. This is a lightweight version that doesn't allow enumerating role\n * members except through off-chain means by accessing the contract event logs. Some\n * applications may benefit from on-chain enumerability, for those cases see\n * {AccessControlEnumerable}.\n *\n * Roles are referred to by their `bytes32` identifier. These should be exposed\n * in the external API and be unique. The best way to achieve this is by\n * using `public constant` hash digests:\n *\n * ```solidity\n * bytes32 public constant MY_ROLE = keccak256(\"MY_ROLE\");\n * ```\n *\n * Roles can be used to represent a set of permissions. To restrict access to a\n * function call, use {hasRole}:\n *\n * ```solidity\n * function foo() public {\n *     require(hasRole(MY_ROLE, msg.sender));\n *     ...\n * }\n * ```\n *\n * Roles can be granted and revoked dynamically via the {grantRole} and\n * {revokeRole} functions. Each role has an associated admin role, and only\n * accounts that have a role's admin role can call {grantRole} and {revokeRole}.\n *\n * By default, the admin role for all roles is `DEFAULT_ADMIN_ROLE`, which means\n * that only accounts with this role will be able to grant or revoke other\n * roles. More complex role relationships can be created by using\n * {_setRoleAdmin}.\n *\n * WARNING: The `DEFAULT_ADMIN_ROLE` is also its own admin: it has permission to\n * grant and revoke this role. Extra precautions should be taken to secure\n * accounts that have been granted it. We recommend using {AccessControlDefaultAdminRules}\n * to enforce additional security measures for this role.\n */\nabstract contract AccessControl is Context, IAccessControl, ERC165 {\n    struct RoleData {\n        mapping(address account => bool) hasRole;\n        bytes32 adminRole;\n    }\n\n    mapping(bytes32 role => RoleData) private _roles;\n\n    bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;\n\n    /**\n     * @dev Modifier that checks that an account has a specific role. Reverts\n     * with an {AccessControlUnauthorizedAccount} error including the required role.\n     */\n    modifier onlyRole(bytes32 role) {\n        _checkRole(role);\n        _;\n    }\n\n    /**\n     * @dev See {IERC165-supportsInterface}.\n     */\n    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {\n        return interfaceId == type(IAccessControl).interfaceId || super.supportsInterface(interfaceId);\n    }\n\n    /**\n     * @dev Returns `true` if `account` has been granted `role`.\n     */\n    function hasRole(bytes32 role, address account) public view virtual returns (bool) {\n        return _roles[role].hasRole[account];\n    }\n\n    /**\n     * @dev Reverts with an {AccessControlUnauthorizedAccount} error if `_msgSender()`\n     * is missing `role`. Overriding this function changes the behavior of the {onlyRole} modifier.\n     */\n    function _checkRole(bytes32 role) internal view virtual {\n        _checkRole(role, _msgSender());\n    }\n\n    /**\n     * @dev Reverts with an {AccessControlUnauthorizedAccount} error if `account`\n     * is missing `role`.\n     */\n    function _checkRole(bytes32 role, address account) internal view virtual {\n        if (!hasRole(role, account)) {\n            revert AccessControlUnauthorizedAccount(account, role);\n        }\n    }\n\n    /**\n     * @dev Returns the admin role that controls `role`. See {grantRole} and\n     * {revokeRole}.\n     *\n     * To change a role's admin, use {_setRoleAdmin}.\n     */\n    function getRoleAdmin(bytes32 role) public view virtual returns (bytes32) {\n        return _roles[role].adminRole;\n    }\n\n    /**\n     * @dev Grants `role` to `account`.\n     *\n     * If `account` had not been already granted `role`, emits a {RoleGranted}\n     * event.\n     *\n     * Requirements:\n     *\n     * - the caller must have ``role``'s admin role.\n     *\n     * May emit a {RoleGranted} event.\n     */\n    function grantRole(bytes32 role, address account) public virtual onlyRole(getRoleAdmin(role)) {\n        _grantRole(role, account);\n    }\n\n    /**\n     * @dev Revokes `role` from `account`.\n     *\n     * If `account` had been granted `role`, emits a {RoleRevoked} event.\n     *\n     * Requirements:\n     *\n     * - the caller must have ``role``'s admin role.\n     *\n     * May emit a {RoleRevoked} event.\n     */\n    function revokeRole(bytes32 role, address account) public virtual onlyRole(getRoleAdmin(role)) {\n        _revokeRole(role, account);\n    }\n\n    /**\n     * @dev Revokes `role` from the calling account.\n     *\n     * Roles are often managed via {grantRole} and {revokeRole}: this function's\n     * purpose is to provide a mechanism for accounts to lose their privileges\n     * if they are compromised (such as when a trusted device is misplaced).\n     *\n     * If the calling account had been revoked `role`, emits a {RoleRevoked}\n     * event.\n     *\n     * Requirements:\n     *\n     * - the caller must be `callerConfirmation`.\n     *\n     * May emit a {RoleRevoked} event.\n     */\n    function renounceRole(bytes32 role, address callerConfirmation) public virtual {\n        if (callerConfirmation != _msgSender()) {\n            revert AccessControlBadConfirmation();\n        }\n\n        _revokeRole(role, callerConfirmation);\n    }\n\n    /**\n     * @dev Sets `adminRole` as ``role``'s admin role.\n     *\n     * Emits a {RoleAdminChanged} event.\n     */\n    function _setRoleAdmin(bytes32 role, bytes32 adminRole) internal virtual {\n        bytes32 previousAdminRole = getRoleAdmin(role);\n        _roles[role].adminRole = adminRole;\n        emit RoleAdminChanged(role, previousAdminRole, adminRole);\n    }\n\n    /**\n     * @dev Attempts to grant `role` to `account` and returns a boolean indicating if `role` was granted.\n     *\n     * Internal function without access restriction.\n     *\n     * May emit a {RoleGranted} event.\n     */\n    function _grantRole(bytes32 role, address account) internal virtual returns (bool) {\n        if (!hasRole(role, account)) {\n            _roles[role].hasRole[account] = true;\n            emit RoleGranted(role, account, _msgSender());\n            return true;\n        } else {\n            return false;\n        }\n    }\n\n    /**\n     * @dev Attempts to revoke `role` to `account` and returns a boolean indicating if `role` was revoked.\n     *\n     * Internal function without access restriction.\n     *\n     * May emit a {RoleRevoked} event.\n     */\n    function _revokeRole(bytes32 role, address account) internal virtual returns (bool) {\n        if (hasRole(role, account)) {\n            _roles[role].hasRole[account] = false;\n            emit RoleRevoked(role, account, _msgSender());\n            return true;\n        } else {\n            return false;\n        }\n    }\n}\n",
+  "sourcePath": "@openzeppelin\\contracts\\access\\AccessControl.sol",
+  "ast": {
+    "absolutePath": "@openzeppelin/contracts/access/AccessControl.sol",
+    "exportedSymbols": {
+      "AccessControl": [
+        3317
+      ],
+      "Context": [
+        8457
+      ],
+      "ERC165": [
+        9966
+      ],
+      "IAccessControl": [
+        3400
+      ]
+    },
+    "id": 3318,
+    "license": "MIT",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 3023,
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".20"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "108:24:18"
+      },
+      {
+        "absolutePath": "@openzeppelin/contracts/access/IAccessControl.sol",
+        "file": "./IAccessControl.sol",
+        "id": 3025,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 3318,
+        "sourceUnit": 3401,
+        "src": "134:52:18",
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 3024,
+              "name": "IAccessControl",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 3400,
+              "src": "142:14:18",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "@openzeppelin/contracts/utils/Context.sol",
+        "file": "../utils/Context.sol",
+        "id": 3027,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 3318,
+        "sourceUnit": 8458,
+        "src": "187:45:18",
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 3026,
+              "name": "Context",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 8457,
+              "src": "195:7:18",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "@openzeppelin/contracts/utils/introspection/ERC165.sol",
+        "file": "../utils/introspection/ERC165.sol",
+        "id": 3029,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 3318,
+        "sourceUnit": 9967,
+        "src": "233:57:18",
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 3028,
+              "name": "ERC165",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 9966,
+              "src": "241:6:18",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "abstract": true,
+        "baseContracts": [
+          {
+            "baseName": {
+              "id": 3031,
+              "name": "Context",
+              "nameLocations": [
+                "1988:7:18"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 8457,
+              "src": "1988:7:18"
+            },
+            "id": 3032,
+            "nodeType": "InheritanceSpecifier",
+            "src": "1988:7:18"
+          },
+          {
+            "baseName": {
+              "id": 3033,
+              "name": "IAccessControl",
+              "nameLocations": [
+                "1997:14:18"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 3400,
+              "src": "1997:14:18"
+            },
+            "id": 3034,
+            "nodeType": "InheritanceSpecifier",
+            "src": "1997:14:18"
+          },
+          {
+            "baseName": {
+              "id": 3035,
+              "name": "ERC165",
+              "nameLocations": [
+                "2013:6:18"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 9966,
+              "src": "2013:6:18"
+            },
+            "id": 3036,
+            "nodeType": "InheritanceSpecifier",
+            "src": "2013:6:18"
+          }
+        ],
+        "canonicalName": "AccessControl",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": {
+          "id": 3030,
+          "nodeType": "StructuredDocumentation",
+          "src": "292:1660:18",
+          "text": " @dev Contract module that allows children to implement role-based access\n control mechanisms. This is a lightweight version that doesn't allow enumerating role\n members except through off-chain means by accessing the contract event logs. Some\n applications may benefit from on-chain enumerability, for those cases see\n {AccessControlEnumerable}.\n Roles are referred to by their `bytes32` identifier. These should be exposed\n in the external API and be unique. The best way to achieve this is by\n using `public constant` hash digests:\n ```solidity\n bytes32 public constant MY_ROLE = keccak256(\"MY_ROLE\");\n ```\n Roles can be used to represent a set of permissions. To restrict access to a\n function call, use {hasRole}:\n ```solidity\n function foo() public {\n     require(hasRole(MY_ROLE, msg.sender));\n     ...\n }\n ```\n Roles can be granted and revoked dynamically via the {grantRole} and\n {revokeRole} functions. Each role has an associated admin role, and only\n accounts that have a role's admin role can call {grantRole} and {revokeRole}.\n By default, the admin role for all roles is `DEFAULT_ADMIN_ROLE`, which means\n that only accounts with this role will be able to grant or revoke other\n roles. More complex role relationships can be created by using\n {_setRoleAdmin}.\n WARNING: The `DEFAULT_ADMIN_ROLE` is also its own admin: it has permission to\n grant and revoke this role. Extra precautions should be taken to secure\n accounts that have been granted it. We recommend using {AccessControlDefaultAdminRules}\n to enforce additional security measures for this role."
+        },
+        "fullyImplemented": true,
+        "id": 3317,
+        "linearizedBaseContracts": [
+          3317,
+          9966,
+          9978,
+          3400,
+          8457
+        ],
+        "name": "AccessControl",
+        "nameLocation": "1971:13:18",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "canonicalName": "AccessControl.RoleData",
+            "id": 3043,
+            "members": [
+              {
+                "constant": false,
+                "id": 3040,
+                "mutability": "mutable",
+                "name": "hasRole",
+                "nameLocation": "2085:7:18",
+                "nodeType": "VariableDeclaration",
+                "scope": 3043,
+                "src": "2052:40:18",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_mapping$_t_address_$_t_bool_$",
+                  "typeString": "mapping(address => bool)"
+                },
+                "typeName": {
+                  "id": 3039,
+                  "keyName": "account",
+                  "keyNameLocation": "2068:7:18",
+                  "keyType": {
+                    "id": 3037,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2060:7:18",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "nodeType": "Mapping",
+                  "src": "2052:32:18",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_mapping$_t_address_$_t_bool_$",
+                    "typeString": "mapping(address => bool)"
+                  },
+                  "valueName": "",
+                  "valueNameLocation": "-1:-1:-1",
+                  "valueType": {
+                    "id": 3038,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2079:4:18",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 3042,
+                "mutability": "mutable",
+                "name": "adminRole",
+                "nameLocation": "2110:9:18",
+                "nodeType": "VariableDeclaration",
+                "scope": 3043,
+                "src": "2102:17:18",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bytes32",
+                  "typeString": "bytes32"
+                },
+                "typeName": {
+                  "id": 3041,
+                  "name": "bytes32",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2102:7:18",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "RoleData",
+            "nameLocation": "2033:8:18",
+            "nodeType": "StructDefinition",
+            "scope": 3317,
+            "src": "2026:100:18",
+            "visibility": "public"
+          },
+          {
+            "constant": false,
+            "id": 3048,
+            "mutability": "mutable",
+            "name": "_roles",
+            "nameLocation": "2174:6:18",
+            "nodeType": "VariableDeclaration",
+            "scope": 3317,
+            "src": "2132:48:18",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_mapping$_t_bytes32_$_t_struct$_RoleData_$3043_storage_$",
+              "typeString": "mapping(bytes32 => struct AccessControl.RoleData)"
+            },
+            "typeName": {
+              "id": 3047,
+              "keyName": "role",
+              "keyNameLocation": "2148:4:18",
+              "keyType": {
+                "id": 3044,
+                "name": "bytes32",
+                "nodeType": "ElementaryTypeName",
+                "src": "2140:7:18",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bytes32",
+                  "typeString": "bytes32"
+                }
+              },
+              "nodeType": "Mapping",
+              "src": "2132:33:18",
+              "typeDescriptions": {
+                "typeIdentifier": "t_mapping$_t_bytes32_$_t_struct$_RoleData_$3043_storage_$",
+                "typeString": "mapping(bytes32 => struct AccessControl.RoleData)"
+              },
+              "valueName": "",
+              "valueNameLocation": "-1:-1:-1",
+              "valueType": {
+                "id": 3046,
+                "nodeType": "UserDefinedTypeName",
+                "pathNode": {
+                  "id": 3045,
+                  "name": "RoleData",
+                  "nameLocations": [
+                    "2156:8:18"
+                  ],
+                  "nodeType": "IdentifierPath",
+                  "referencedDeclaration": 3043,
+                  "src": "2156:8:18"
+                },
+                "referencedDeclaration": 3043,
+                "src": "2156:8:18",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_struct$_RoleData_$3043_storage_ptr",
+                  "typeString": "struct AccessControl.RoleData"
+                }
+              }
+            },
+            "visibility": "private"
+          },
+          {
+            "constant": true,
+            "functionSelector": "a217fddf",
+            "id": 3051,
+            "mutability": "constant",
+            "name": "DEFAULT_ADMIN_ROLE",
+            "nameLocation": "2211:18:18",
+            "nodeType": "VariableDeclaration",
+            "scope": 3317,
+            "src": "2187:49:18",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_bytes32",
+              "typeString": "bytes32"
+            },
+            "typeName": {
+              "id": 3049,
+              "name": "bytes32",
+              "nodeType": "ElementaryTypeName",
+              "src": "2187:7:18",
+              "typeDescriptions": {
+                "typeIdentifier": "t_bytes32",
+                "typeString": "bytes32"
+              }
+            },
+            "value": {
+              "hexValue": "30783030",
+              "id": 3050,
+              "isConstant": false,
+              "isLValue": false,
+              "isPure": true,
+              "kind": "number",
+              "lValueRequested": false,
+              "nodeType": "Literal",
+              "src": "2232:4:18",
+              "typeDescriptions": {
+                "typeIdentifier": "t_rational_0_by_1",
+                "typeString": "int_const 0"
+              },
+              "value": "0x00"
+            },
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 3061,
+              "nodeType": "Block",
+              "src": "2454:44:18",
+              "statements": [
+                {
+                  "expression": {
+                    "arguments": [
+                      {
+                        "id": 3057,
+                        "name": "role",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 3054,
+                        "src": "2475:4:18",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      ],
+                      "id": 3056,
+                      "name": "_checkRole",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [
+                        3115,
+                        3136
+                      ],
+                      "referencedDeclaration": 3115,
+                      "src": "2464:10:18",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_view$_t_bytes32_$returns$__$",
+                        "typeString": "function (bytes32) view"
+                      }
+                    },
+                    "id": 3058,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "2464:16:18",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 3059,
+                  "nodeType": "ExpressionStatement",
+                  "src": "2464:16:18"
+                },
+                {
+                  "id": 3060,
+                  "nodeType": "PlaceholderStatement",
+                  "src": "2490:1:18"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 3052,
+              "nodeType": "StructuredDocumentation",
+              "src": "2243:174:18",
+              "text": " @dev Modifier that checks that an account has a specific role. Reverts\n with an {AccessControlUnauthorizedAccount} error including the required role."
+            },
+            "id": 3062,
+            "name": "onlyRole",
+            "nameLocation": "2431:8:18",
+            "nodeType": "ModifierDefinition",
+            "parameters": {
+              "id": 3055,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3054,
+                  "mutability": "mutable",
+                  "name": "role",
+                  "nameLocation": "2448:4:18",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3062,
+                  "src": "2440:12:18",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 3053,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2440:7:18",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2439:14:18"
+            },
+            "src": "2422:76:18",
+            "virtual": false,
+            "visibility": "internal"
+          },
+          {
+            "baseFunctions": [
+              9965
+            ],
+            "body": {
+              "id": 3083,
+              "nodeType": "Block",
+              "src": "2656:111:18",
+              "statements": [
+                {
+                  "expression": {
+                    "commonType": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    },
+                    "id": 3081,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftExpression": {
+                      "commonType": {
+                        "typeIdentifier": "t_bytes4",
+                        "typeString": "bytes4"
+                      },
+                      "id": 3076,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "leftExpression": {
+                        "id": 3071,
+                        "name": "interfaceId",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 3065,
+                        "src": "2673:11:18",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes4",
+                          "typeString": "bytes4"
+                        }
+                      },
+                      "nodeType": "BinaryOperation",
+                      "operator": "==",
+                      "rightExpression": {
+                        "expression": {
+                          "arguments": [
+                            {
+                              "id": 3073,
+                              "name": "IAccessControl",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 3400,
+                              "src": "2693:14:18",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_type$_t_contract$_IAccessControl_$3400_$",
+                                "typeString": "type(contract IAccessControl)"
+                              }
+                            }
+                          ],
+                          "expression": {
+                            "argumentTypes": [
+                              {
+                                "typeIdentifier": "t_type$_t_contract$_IAccessControl_$3400_$",
+                                "typeString": "type(contract IAccessControl)"
+                              }
+                            ],
+                            "id": 3072,
+                            "name": "type",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 4294967269,
+                            "src": "2688:4:18",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_function_metatype_pure$__$returns$__$",
+                              "typeString": "function () pure"
+                            }
+                          },
+                          "id": 3074,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "kind": "functionCall",
+                          "lValueRequested": false,
+                          "nameLocations": [],
+                          "names": [],
+                          "nodeType": "FunctionCall",
+                          "src": "2688:20:18",
+                          "tryCall": false,
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_magic_meta_type_t_contract$_IAccessControl_$3400",
+                            "typeString": "type(contract IAccessControl)"
+                          }
+                        },
+                        "id": 3075,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "lValueRequested": false,
+                        "memberLocation": "2709:11:18",
+                        "memberName": "interfaceId",
+                        "nodeType": "MemberAccess",
+                        "src": "2688:32:18",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes4",
+                          "typeString": "bytes4"
+                        }
+                      },
+                      "src": "2673:47:18",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "nodeType": "BinaryOperation",
+                    "operator": "||",
+                    "rightExpression": {
+                      "arguments": [
+                        {
+                          "id": 3079,
+                          "name": "interfaceId",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 3065,
+                          "src": "2748:11:18",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bytes4",
+                            "typeString": "bytes4"
+                          }
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": [
+                          {
+                            "typeIdentifier": "t_bytes4",
+                            "typeString": "bytes4"
+                          }
+                        ],
+                        "expression": {
+                          "id": 3077,
+                          "name": "super",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 4294967271,
+                          "src": "2724:5:18",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_type$_t_super$_AccessControl_$3317_$",
+                            "typeString": "type(contract super AccessControl)"
+                          }
+                        },
+                        "id": 3078,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberLocation": "2730:17:18",
+                        "memberName": "supportsInterface",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 9965,
+                        "src": "2724:23:18",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_function_internal_view$_t_bytes4_$returns$_t_bool_$",
+                          "typeString": "function (bytes4) view returns (bool)"
+                        }
+                      },
+                      "id": 3080,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "functionCall",
+                      "lValueRequested": false,
+                      "nameLocations": [],
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "2724:36:18",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "src": "2673:87:18",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "functionReturnParameters": 3070,
+                  "id": 3082,
+                  "nodeType": "Return",
+                  "src": "2666:94:18"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 3063,
+              "nodeType": "StructuredDocumentation",
+              "src": "2504:56:18",
+              "text": " @dev See {IERC165-supportsInterface}."
+            },
+            "functionSelector": "01ffc9a7",
+            "id": 3084,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "supportsInterface",
+            "nameLocation": "2574:17:18",
+            "nodeType": "FunctionDefinition",
+            "overrides": {
+              "id": 3067,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "2632:8:18"
+            },
+            "parameters": {
+              "id": 3066,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3065,
+                  "mutability": "mutable",
+                  "name": "interfaceId",
+                  "nameLocation": "2599:11:18",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3084,
+                  "src": "2592:18:18",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes4",
+                    "typeString": "bytes4"
+                  },
+                  "typeName": {
+                    "id": 3064,
+                    "name": "bytes4",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2592:6:18",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes4",
+                      "typeString": "bytes4"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2591:20:18"
+            },
+            "returnParameters": {
+              "id": 3070,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3069,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3084,
+                  "src": "2650:4:18",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 3068,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2650:4:18",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2649:6:18"
+            },
+            "scope": 3317,
+            "src": "2565:202:18",
+            "stateMutability": "view",
+            "virtual": true,
+            "visibility": "public"
+          },
+          {
+            "baseFunctions": [
+              3367
+            ],
+            "body": {
+              "id": 3101,
+              "nodeType": "Block",
+              "src": "2937:53:18",
+              "statements": [
+                {
+                  "expression": {
+                    "baseExpression": {
+                      "expression": {
+                        "baseExpression": {
+                          "id": 3094,
+                          "name": "_roles",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 3048,
+                          "src": "2954:6:18",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_mapping$_t_bytes32_$_t_struct$_RoleData_$3043_storage_$",
+                            "typeString": "mapping(bytes32 => struct AccessControl.RoleData storage ref)"
+                          }
+                        },
+                        "id": 3096,
+                        "indexExpression": {
+                          "id": 3095,
+                          "name": "role",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 3087,
+                          "src": "2961:4:18",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bytes32",
+                            "typeString": "bytes32"
+                          }
+                        },
+                        "isConstant": false,
+                        "isLValue": true,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "nodeType": "IndexAccess",
+                        "src": "2954:12:18",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_RoleData_$3043_storage",
+                          "typeString": "struct AccessControl.RoleData storage ref"
+                        }
+                      },
+                      "id": 3097,
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberLocation": "2967:7:18",
+                      "memberName": "hasRole",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 3040,
+                      "src": "2954:20:18",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_mapping$_t_address_$_t_bool_$",
+                        "typeString": "mapping(address => bool)"
+                      }
+                    },
+                    "id": 3099,
+                    "indexExpression": {
+                      "id": 3098,
+                      "name": "account",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 3089,
+                      "src": "2975:7:18",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "isConstant": false,
+                    "isLValue": true,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "nodeType": "IndexAccess",
+                    "src": "2954:29:18",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "functionReturnParameters": 3093,
+                  "id": 3100,
+                  "nodeType": "Return",
+                  "src": "2947:36:18"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 3085,
+              "nodeType": "StructuredDocumentation",
+              "src": "2773:76:18",
+              "text": " @dev Returns `true` if `account` has been granted `role`."
+            },
+            "functionSelector": "91d14854",
+            "id": 3102,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "hasRole",
+            "nameLocation": "2863:7:18",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 3090,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3087,
+                  "mutability": "mutable",
+                  "name": "role",
+                  "nameLocation": "2879:4:18",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3102,
+                  "src": "2871:12:18",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 3086,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2871:7:18",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 3089,
+                  "mutability": "mutable",
+                  "name": "account",
+                  "nameLocation": "2893:7:18",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3102,
+                  "src": "2885:15:18",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 3088,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2885:7:18",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2870:31:18"
+            },
+            "returnParameters": {
+              "id": 3093,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3092,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3102,
+                  "src": "2931:4:18",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 3091,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2931:4:18",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2930:6:18"
+            },
+            "scope": 3317,
+            "src": "2854:136:18",
+            "stateMutability": "view",
+            "virtual": true,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 3114,
+              "nodeType": "Block",
+              "src": "3255:47:18",
+              "statements": [
+                {
+                  "expression": {
+                    "arguments": [
+                      {
+                        "id": 3109,
+                        "name": "role",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 3105,
+                        "src": "3276:4:18",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      },
+                      {
+                        "arguments": [],
+                        "expression": {
+                          "argumentTypes": [],
+                          "id": 3110,
+                          "name": "_msgSender",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 8439,
+                          "src": "3282:10:18",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_function_internal_view$__$returns$_t_address_$",
+                            "typeString": "function () view returns (address)"
+                          }
+                        },
+                        "id": 3111,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "kind": "functionCall",
+                        "lValueRequested": false,
+                        "nameLocations": [],
+                        "names": [],
+                        "nodeType": "FunctionCall",
+                        "src": "3282:12:18",
+                        "tryCall": false,
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        },
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      ],
+                      "id": 3108,
+                      "name": "_checkRole",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [
+                        3115,
+                        3136
+                      ],
+                      "referencedDeclaration": 3136,
+                      "src": "3265:10:18",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_view$_t_bytes32_$_t_address_$returns$__$",
+                        "typeString": "function (bytes32,address) view"
+                      }
+                    },
+                    "id": 3112,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "3265:30:18",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 3113,
+                  "nodeType": "ExpressionStatement",
+                  "src": "3265:30:18"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 3103,
+              "nodeType": "StructuredDocumentation",
+              "src": "2996:198:18",
+              "text": " @dev Reverts with an {AccessControlUnauthorizedAccount} error if `_msgSender()`\n is missing `role`. Overriding this function changes the behavior of the {onlyRole} modifier."
+            },
+            "id": 3115,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "_checkRole",
+            "nameLocation": "3208:10:18",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 3106,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3105,
+                  "mutability": "mutable",
+                  "name": "role",
+                  "nameLocation": "3227:4:18",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3115,
+                  "src": "3219:12:18",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 3104,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3219:7:18",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3218:14:18"
+            },
+            "returnParameters": {
+              "id": 3107,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "3255:0:18"
+            },
+            "scope": 3317,
+            "src": "3199:103:18",
+            "stateMutability": "view",
+            "virtual": true,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 3135,
+              "nodeType": "Block",
+              "src": "3505:124:18",
+              "statements": [
+                {
+                  "condition": {
+                    "id": 3127,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "nodeType": "UnaryOperation",
+                    "operator": "!",
+                    "prefix": true,
+                    "src": "3519:23:18",
+                    "subExpression": {
+                      "arguments": [
+                        {
+                          "id": 3124,
+                          "name": "role",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 3118,
+                          "src": "3528:4:18",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bytes32",
+                            "typeString": "bytes32"
+                          }
+                        },
+                        {
+                          "id": 3125,
+                          "name": "account",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 3120,
+                          "src": "3534:7:18",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": [
+                          {
+                            "typeIdentifier": "t_bytes32",
+                            "typeString": "bytes32"
+                          },
+                          {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        ],
+                        "id": 3123,
+                        "name": "hasRole",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 3102,
+                        "src": "3520:7:18",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_function_internal_view$_t_bytes32_$_t_address_$returns$_t_bool_$",
+                          "typeString": "function (bytes32,address) view returns (bool)"
+                        }
+                      },
+                      "id": 3126,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "functionCall",
+                      "lValueRequested": false,
+                      "nameLocations": [],
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "3520:22:18",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 3134,
+                  "nodeType": "IfStatement",
+                  "src": "3515:108:18",
+                  "trueBody": {
+                    "id": 3133,
+                    "nodeType": "Block",
+                    "src": "3544:79:18",
+                    "statements": [
+                      {
+                        "errorCall": {
+                          "arguments": [
+                            {
+                              "id": 3129,
+                              "name": "account",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 3120,
+                              "src": "3598:7:18",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            },
+                            {
+                              "id": 3130,
+                              "name": "role",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 3118,
+                              "src": "3607:4:18",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_bytes32",
+                                "typeString": "bytes32"
+                              }
+                            }
+                          ],
+                          "expression": {
+                            "argumentTypes": [
+                              {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              },
+                              {
+                                "typeIdentifier": "t_bytes32",
+                                "typeString": "bytes32"
+                              }
+                            ],
+                            "id": 3128,
+                            "name": "AccessControlUnauthorizedAccount",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 3327,
+                            "src": "3565:32:18",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_function_error_pure$_t_address_$_t_bytes32_$returns$__$",
+                              "typeString": "function (address,bytes32) pure"
+                            }
+                          },
+                          "id": 3131,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "kind": "functionCall",
+                          "lValueRequested": false,
+                          "nameLocations": [],
+                          "names": [],
+                          "nodeType": "FunctionCall",
+                          "src": "3565:47:18",
+                          "tryCall": false,
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_tuple$__$",
+                            "typeString": "tuple()"
+                          }
+                        },
+                        "id": 3132,
+                        "nodeType": "RevertStatement",
+                        "src": "3558:54:18"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "documentation": {
+              "id": 3116,
+              "nodeType": "StructuredDocumentation",
+              "src": "3308:119:18",
+              "text": " @dev Reverts with an {AccessControlUnauthorizedAccount} error if `account`\n is missing `role`."
+            },
+            "id": 3136,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "_checkRole",
+            "nameLocation": "3441:10:18",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 3121,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3118,
+                  "mutability": "mutable",
+                  "name": "role",
+                  "nameLocation": "3460:4:18",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3136,
+                  "src": "3452:12:18",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 3117,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3452:7:18",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 3120,
+                  "mutability": "mutable",
+                  "name": "account",
+                  "nameLocation": "3474:7:18",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3136,
+                  "src": "3466:15:18",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 3119,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3466:7:18",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3451:31:18"
+            },
+            "returnParameters": {
+              "id": 3122,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "3505:0:18"
+            },
+            "scope": 3317,
+            "src": "3432:197:18",
+            "stateMutability": "view",
+            "virtual": true,
+            "visibility": "internal"
+          },
+          {
+            "baseFunctions": [
+              3375
+            ],
+            "body": {
+              "id": 3149,
+              "nodeType": "Block",
+              "src": "3884:46:18",
+              "statements": [
+                {
+                  "expression": {
+                    "expression": {
+                      "baseExpression": {
+                        "id": 3144,
+                        "name": "_roles",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 3048,
+                        "src": "3901:6:18",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_mapping$_t_bytes32_$_t_struct$_RoleData_$3043_storage_$",
+                          "typeString": "mapping(bytes32 => struct AccessControl.RoleData storage ref)"
+                        }
+                      },
+                      "id": 3146,
+                      "indexExpression": {
+                        "id": 3145,
+                        "name": "role",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 3139,
+                        "src": "3908:4:18",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      },
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "nodeType": "IndexAccess",
+                      "src": "3901:12:18",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_struct$_RoleData_$3043_storage",
+                        "typeString": "struct AccessControl.RoleData storage ref"
+                      }
+                    },
+                    "id": 3147,
+                    "isConstant": false,
+                    "isLValue": true,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "memberLocation": "3914:9:18",
+                    "memberName": "adminRole",
+                    "nodeType": "MemberAccess",
+                    "referencedDeclaration": 3042,
+                    "src": "3901:22:18",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "functionReturnParameters": 3143,
+                  "id": 3148,
+                  "nodeType": "Return",
+                  "src": "3894:29:18"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 3137,
+              "nodeType": "StructuredDocumentation",
+              "src": "3635:170:18",
+              "text": " @dev Returns the admin role that controls `role`. See {grantRole} and\n {revokeRole}.\n To change a role's admin, use {_setRoleAdmin}."
+            },
+            "functionSelector": "248a9ca3",
+            "id": 3150,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getRoleAdmin",
+            "nameLocation": "3819:12:18",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 3140,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3139,
+                  "mutability": "mutable",
+                  "name": "role",
+                  "nameLocation": "3840:4:18",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3150,
+                  "src": "3832:12:18",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 3138,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3832:7:18",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3831:14:18"
+            },
+            "returnParameters": {
+              "id": 3143,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3142,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3150,
+                  "src": "3875:7:18",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 3141,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3875:7:18",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3874:9:18"
+            },
+            "scope": 3317,
+            "src": "3810:120:18",
+            "stateMutability": "view",
+            "virtual": true,
+            "visibility": "public"
+          },
+          {
+            "baseFunctions": [
+              3383
+            ],
+            "body": {
+              "id": 3168,
+              "nodeType": "Block",
+              "src": "4320:42:18",
+              "statements": [
+                {
+                  "expression": {
+                    "arguments": [
+                      {
+                        "id": 3164,
+                        "name": "role",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 3153,
+                        "src": "4341:4:18",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      },
+                      {
+                        "id": 3165,
+                        "name": "account",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 3155,
+                        "src": "4347:7:18",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        },
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      ],
+                      "id": 3163,
+                      "name": "_grantRole",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 3278,
+                      "src": "4330:10:18",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_nonpayable$_t_bytes32_$_t_address_$returns$_t_bool_$",
+                        "typeString": "function (bytes32,address) returns (bool)"
+                      }
+                    },
+                    "id": 3166,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "4330:25:18",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 3167,
+                  "nodeType": "ExpressionStatement",
+                  "src": "4330:25:18"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 3151,
+              "nodeType": "StructuredDocumentation",
+              "src": "3936:285:18",
+              "text": " @dev Grants `role` to `account`.\n If `account` had not been already granted `role`, emits a {RoleGranted}\n event.\n Requirements:\n - the caller must have ``role``'s admin role.\n May emit a {RoleGranted} event."
+            },
+            "functionSelector": "2f2ff15d",
+            "id": 3169,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [
+              {
+                "arguments": [
+                  {
+                    "arguments": [
+                      {
+                        "id": 3159,
+                        "name": "role",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 3153,
+                        "src": "4313:4:18",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      ],
+                      "id": 3158,
+                      "name": "getRoleAdmin",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 3150,
+                      "src": "4300:12:18",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_view$_t_bytes32_$returns$_t_bytes32_$",
+                        "typeString": "function (bytes32) view returns (bytes32)"
+                      }
+                    },
+                    "id": 3160,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "4300:18:18",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  }
+                ],
+                "id": 3161,
+                "kind": "modifierInvocation",
+                "modifierName": {
+                  "id": 3157,
+                  "name": "onlyRole",
+                  "nameLocations": [
+                    "4291:8:18"
+                  ],
+                  "nodeType": "IdentifierPath",
+                  "referencedDeclaration": 3062,
+                  "src": "4291:8:18"
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "4291:28:18"
+              }
+            ],
+            "name": "grantRole",
+            "nameLocation": "4235:9:18",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 3156,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3153,
+                  "mutability": "mutable",
+                  "name": "role",
+                  "nameLocation": "4253:4:18",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3169,
+                  "src": "4245:12:18",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 3152,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4245:7:18",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 3155,
+                  "mutability": "mutable",
+                  "name": "account",
+                  "nameLocation": "4267:7:18",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3169,
+                  "src": "4259:15:18",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 3154,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4259:7:18",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "4244:31:18"
+            },
+            "returnParameters": {
+              "id": 3162,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "4320:0:18"
+            },
+            "scope": 3317,
+            "src": "4226:136:18",
+            "stateMutability": "nonpayable",
+            "virtual": true,
+            "visibility": "public"
+          },
+          {
+            "baseFunctions": [
+              3391
+            ],
+            "body": {
+              "id": 3187,
+              "nodeType": "Block",
+              "src": "4737:43:18",
+              "statements": [
+                {
+                  "expression": {
+                    "arguments": [
+                      {
+                        "id": 3183,
+                        "name": "role",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 3172,
+                        "src": "4759:4:18",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      },
+                      {
+                        "id": 3184,
+                        "name": "account",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 3174,
+                        "src": "4765:7:18",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        },
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      ],
+                      "id": 3182,
+                      "name": "_revokeRole",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 3316,
+                      "src": "4747:11:18",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_nonpayable$_t_bytes32_$_t_address_$returns$_t_bool_$",
+                        "typeString": "function (bytes32,address) returns (bool)"
+                      }
+                    },
+                    "id": 3185,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "4747:26:18",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 3186,
+                  "nodeType": "ExpressionStatement",
+                  "src": "4747:26:18"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 3170,
+              "nodeType": "StructuredDocumentation",
+              "src": "4368:269:18",
+              "text": " @dev Revokes `role` from `account`.\n If `account` had been granted `role`, emits a {RoleRevoked} event.\n Requirements:\n - the caller must have ``role``'s admin role.\n May emit a {RoleRevoked} event."
+            },
+            "functionSelector": "d547741f",
+            "id": 3188,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [
+              {
+                "arguments": [
+                  {
+                    "arguments": [
+                      {
+                        "id": 3178,
+                        "name": "role",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 3172,
+                        "src": "4730:4:18",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      ],
+                      "id": 3177,
+                      "name": "getRoleAdmin",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 3150,
+                      "src": "4717:12:18",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_view$_t_bytes32_$returns$_t_bytes32_$",
+                        "typeString": "function (bytes32) view returns (bytes32)"
+                      }
+                    },
+                    "id": 3179,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "4717:18:18",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  }
+                ],
+                "id": 3180,
+                "kind": "modifierInvocation",
+                "modifierName": {
+                  "id": 3176,
+                  "name": "onlyRole",
+                  "nameLocations": [
+                    "4708:8:18"
+                  ],
+                  "nodeType": "IdentifierPath",
+                  "referencedDeclaration": 3062,
+                  "src": "4708:8:18"
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "4708:28:18"
+              }
+            ],
+            "name": "revokeRole",
+            "nameLocation": "4651:10:18",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 3175,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3172,
+                  "mutability": "mutable",
+                  "name": "role",
+                  "nameLocation": "4670:4:18",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3188,
+                  "src": "4662:12:18",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 3171,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4662:7:18",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 3174,
+                  "mutability": "mutable",
+                  "name": "account",
+                  "nameLocation": "4684:7:18",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3188,
+                  "src": "4676:15:18",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 3173,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4676:7:18",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "4661:31:18"
+            },
+            "returnParameters": {
+              "id": 3181,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "4737:0:18"
+            },
+            "scope": 3317,
+            "src": "4642:138:18",
+            "stateMutability": "nonpayable",
+            "virtual": true,
+            "visibility": "public"
+          },
+          {
+            "baseFunctions": [
+              3399
+            ],
+            "body": {
+              "id": 3210,
+              "nodeType": "Block",
+              "src": "5407:166:18",
+              "statements": [
+                {
+                  "condition": {
+                    "commonType": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    },
+                    "id": 3199,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftExpression": {
+                      "id": 3196,
+                      "name": "callerConfirmation",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 3193,
+                      "src": "5421:18:18",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "nodeType": "BinaryOperation",
+                    "operator": "!=",
+                    "rightExpression": {
+                      "arguments": [],
+                      "expression": {
+                        "argumentTypes": [],
+                        "id": 3197,
+                        "name": "_msgSender",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 8439,
+                        "src": "5443:10:18",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_function_internal_view$__$returns$_t_address_$",
+                          "typeString": "function () view returns (address)"
+                        }
+                      },
+                      "id": 3198,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "functionCall",
+                      "lValueRequested": false,
+                      "nameLocations": [],
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "5443:12:18",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "src": "5421:34:18",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 3204,
+                  "nodeType": "IfStatement",
+                  "src": "5417:102:18",
+                  "trueBody": {
+                    "id": 3203,
+                    "nodeType": "Block",
+                    "src": "5457:62:18",
+                    "statements": [
+                      {
+                        "errorCall": {
+                          "arguments": [],
+                          "expression": {
+                            "argumentTypes": [],
+                            "id": 3200,
+                            "name": "AccessControlBadConfirmation",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 3330,
+                            "src": "5478:28:18",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_function_error_pure$__$returns$__$",
+                              "typeString": "function () pure"
+                            }
+                          },
+                          "id": 3201,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "kind": "functionCall",
+                          "lValueRequested": false,
+                          "nameLocations": [],
+                          "names": [],
+                          "nodeType": "FunctionCall",
+                          "src": "5478:30:18",
+                          "tryCall": false,
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_tuple$__$",
+                            "typeString": "tuple()"
+                          }
+                        },
+                        "id": 3202,
+                        "nodeType": "RevertStatement",
+                        "src": "5471:37:18"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "expression": {
+                    "arguments": [
+                      {
+                        "id": 3206,
+                        "name": "role",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 3191,
+                        "src": "5541:4:18",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      },
+                      {
+                        "id": 3207,
+                        "name": "callerConfirmation",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 3193,
+                        "src": "5547:18:18",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        },
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      ],
+                      "id": 3205,
+                      "name": "_revokeRole",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 3316,
+                      "src": "5529:11:18",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_nonpayable$_t_bytes32_$_t_address_$returns$_t_bool_$",
+                        "typeString": "function (bytes32,address) returns (bool)"
+                      }
+                    },
+                    "id": 3208,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "5529:37:18",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 3209,
+                  "nodeType": "ExpressionStatement",
+                  "src": "5529:37:18"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 3189,
+              "nodeType": "StructuredDocumentation",
+              "src": "4786:537:18",
+              "text": " @dev Revokes `role` from the calling account.\n Roles are often managed via {grantRole} and {revokeRole}: this function's\n purpose is to provide a mechanism for accounts to lose their privileges\n if they are compromised (such as when a trusted device is misplaced).\n If the calling account had been revoked `role`, emits a {RoleRevoked}\n event.\n Requirements:\n - the caller must be `callerConfirmation`.\n May emit a {RoleRevoked} event."
+            },
+            "functionSelector": "36568abe",
+            "id": 3211,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "renounceRole",
+            "nameLocation": "5337:12:18",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 3194,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3191,
+                  "mutability": "mutable",
+                  "name": "role",
+                  "nameLocation": "5358:4:18",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3211,
+                  "src": "5350:12:18",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 3190,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5350:7:18",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 3193,
+                  "mutability": "mutable",
+                  "name": "callerConfirmation",
+                  "nameLocation": "5372:18:18",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3211,
+                  "src": "5364:26:18",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 3192,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5364:7:18",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "5349:42:18"
+            },
+            "returnParameters": {
+              "id": 3195,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "5407:0:18"
+            },
+            "scope": 3317,
+            "src": "5328:245:18",
+            "stateMutability": "nonpayable",
+            "virtual": true,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 3238,
+              "nodeType": "Block",
+              "src": "5771:174:18",
+              "statements": [
+                {
+                  "assignments": [
+                    3220
+                  ],
+                  "declarations": [
+                    {
+                      "constant": false,
+                      "id": 3220,
+                      "mutability": "mutable",
+                      "name": "previousAdminRole",
+                      "nameLocation": "5789:17:18",
+                      "nodeType": "VariableDeclaration",
+                      "scope": 3238,
+                      "src": "5781:25:18",
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      },
+                      "typeName": {
+                        "id": 3219,
+                        "name": "bytes32",
+                        "nodeType": "ElementaryTypeName",
+                        "src": "5781:7:18",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      },
+                      "visibility": "internal"
+                    }
+                  ],
+                  "id": 3224,
+                  "initialValue": {
+                    "arguments": [
+                      {
+                        "id": 3222,
+                        "name": "role",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 3214,
+                        "src": "5822:4:18",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      ],
+                      "id": 3221,
+                      "name": "getRoleAdmin",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 3150,
+                      "src": "5809:12:18",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_view$_t_bytes32_$returns$_t_bytes32_$",
+                        "typeString": "function (bytes32) view returns (bytes32)"
+                      }
+                    },
+                    "id": 3223,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "5809:18:18",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "nodeType": "VariableDeclarationStatement",
+                  "src": "5781:46:18"
+                },
+                {
+                  "expression": {
+                    "id": 3230,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "expression": {
+                        "baseExpression": {
+                          "id": 3225,
+                          "name": "_roles",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 3048,
+                          "src": "5837:6:18",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_mapping$_t_bytes32_$_t_struct$_RoleData_$3043_storage_$",
+                            "typeString": "mapping(bytes32 => struct AccessControl.RoleData storage ref)"
+                          }
+                        },
+                        "id": 3227,
+                        "indexExpression": {
+                          "id": 3226,
+                          "name": "role",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 3214,
+                          "src": "5844:4:18",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bytes32",
+                            "typeString": "bytes32"
+                          }
+                        },
+                        "isConstant": false,
+                        "isLValue": true,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "nodeType": "IndexAccess",
+                        "src": "5837:12:18",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_RoleData_$3043_storage",
+                          "typeString": "struct AccessControl.RoleData storage ref"
+                        }
+                      },
+                      "id": 3228,
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": true,
+                      "memberLocation": "5850:9:18",
+                      "memberName": "adminRole",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 3042,
+                      "src": "5837:22:18",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "id": 3229,
+                      "name": "adminRole",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 3216,
+                      "src": "5862:9:18",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "src": "5837:34:18",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "id": 3231,
+                  "nodeType": "ExpressionStatement",
+                  "src": "5837:34:18"
+                },
+                {
+                  "eventCall": {
+                    "arguments": [
+                      {
+                        "id": 3233,
+                        "name": "role",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 3214,
+                        "src": "5903:4:18",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      },
+                      {
+                        "id": 3234,
+                        "name": "previousAdminRole",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 3220,
+                        "src": "5909:17:18",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      },
+                      {
+                        "id": 3235,
+                        "name": "adminRole",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 3216,
+                        "src": "5928:9:18",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        },
+                        {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        },
+                        {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      ],
+                      "id": 3232,
+                      "name": "RoleAdminChanged",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 3339,
+                      "src": "5886:16:18",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_event_nonpayable$_t_bytes32_$_t_bytes32_$_t_bytes32_$returns$__$",
+                        "typeString": "function (bytes32,bytes32,bytes32)"
+                      }
+                    },
+                    "id": 3236,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "5886:52:18",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 3237,
+                  "nodeType": "EmitStatement",
+                  "src": "5881:57:18"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 3212,
+              "nodeType": "StructuredDocumentation",
+              "src": "5579:114:18",
+              "text": " @dev Sets `adminRole` as ``role``'s admin role.\n Emits a {RoleAdminChanged} event."
+            },
+            "id": 3239,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "_setRoleAdmin",
+            "nameLocation": "5707:13:18",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 3217,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3214,
+                  "mutability": "mutable",
+                  "name": "role",
+                  "nameLocation": "5729:4:18",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3239,
+                  "src": "5721:12:18",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 3213,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5721:7:18",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 3216,
+                  "mutability": "mutable",
+                  "name": "adminRole",
+                  "nameLocation": "5743:9:18",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3239,
+                  "src": "5735:17:18",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 3215,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5735:7:18",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "5720:33:18"
+            },
+            "returnParameters": {
+              "id": 3218,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "5771:0:18"
+            },
+            "scope": 3317,
+            "src": "5698:247:18",
+            "stateMutability": "nonpayable",
+            "virtual": true,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 3277,
+              "nodeType": "Block",
+              "src": "6262:233:18",
+              "statements": [
+                {
+                  "condition": {
+                    "id": 3253,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "nodeType": "UnaryOperation",
+                    "operator": "!",
+                    "prefix": true,
+                    "src": "6276:23:18",
+                    "subExpression": {
+                      "arguments": [
+                        {
+                          "id": 3250,
+                          "name": "role",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 3242,
+                          "src": "6285:4:18",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bytes32",
+                            "typeString": "bytes32"
+                          }
+                        },
+                        {
+                          "id": 3251,
+                          "name": "account",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 3244,
+                          "src": "6291:7:18",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": [
+                          {
+                            "typeIdentifier": "t_bytes32",
+                            "typeString": "bytes32"
+                          },
+                          {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        ],
+                        "id": 3249,
+                        "name": "hasRole",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 3102,
+                        "src": "6277:7:18",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_function_internal_view$_t_bytes32_$_t_address_$returns$_t_bool_$",
+                          "typeString": "function (bytes32,address) view returns (bool)"
+                        }
+                      },
+                      "id": 3252,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "functionCall",
+                      "lValueRequested": false,
+                      "nameLocations": [],
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "6277:22:18",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "falseBody": {
+                    "id": 3275,
+                    "nodeType": "Block",
+                    "src": "6452:37:18",
+                    "statements": [
+                      {
+                        "expression": {
+                          "hexValue": "66616c7365",
+                          "id": 3273,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "kind": "bool",
+                          "lValueRequested": false,
+                          "nodeType": "Literal",
+                          "src": "6473:5:18",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bool",
+                            "typeString": "bool"
+                          },
+                          "value": "false"
+                        },
+                        "functionReturnParameters": 3248,
+                        "id": 3274,
+                        "nodeType": "Return",
+                        "src": "6466:12:18"
+                      }
+                    ]
+                  },
+                  "id": 3276,
+                  "nodeType": "IfStatement",
+                  "src": "6272:217:18",
+                  "trueBody": {
+                    "id": 3272,
+                    "nodeType": "Block",
+                    "src": "6301:145:18",
+                    "statements": [
+                      {
+                        "expression": {
+                          "id": 3261,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "leftHandSide": {
+                            "baseExpression": {
+                              "expression": {
+                                "baseExpression": {
+                                  "id": 3254,
+                                  "name": "_roles",
+                                  "nodeType": "Identifier",
+                                  "overloadedDeclarations": [],
+                                  "referencedDeclaration": 3048,
+                                  "src": "6315:6:18",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_mapping$_t_bytes32_$_t_struct$_RoleData_$3043_storage_$",
+                                    "typeString": "mapping(bytes32 => struct AccessControl.RoleData storage ref)"
+                                  }
+                                },
+                                "id": 3256,
+                                "indexExpression": {
+                                  "id": 3255,
+                                  "name": "role",
+                                  "nodeType": "Identifier",
+                                  "overloadedDeclarations": [],
+                                  "referencedDeclaration": 3242,
+                                  "src": "6322:4:18",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_bytes32",
+                                    "typeString": "bytes32"
+                                  }
+                                },
+                                "isConstant": false,
+                                "isLValue": true,
+                                "isPure": false,
+                                "lValueRequested": false,
+                                "nodeType": "IndexAccess",
+                                "src": "6315:12:18",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_struct$_RoleData_$3043_storage",
+                                  "typeString": "struct AccessControl.RoleData storage ref"
+                                }
+                              },
+                              "id": 3257,
+                              "isConstant": false,
+                              "isLValue": true,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "memberLocation": "6328:7:18",
+                              "memberName": "hasRole",
+                              "nodeType": "MemberAccess",
+                              "referencedDeclaration": 3040,
+                              "src": "6315:20:18",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_mapping$_t_address_$_t_bool_$",
+                                "typeString": "mapping(address => bool)"
+                              }
+                            },
+                            "id": 3259,
+                            "indexExpression": {
+                              "id": 3258,
+                              "name": "account",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 3244,
+                              "src": "6336:7:18",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            },
+                            "isConstant": false,
+                            "isLValue": true,
+                            "isPure": false,
+                            "lValueRequested": true,
+                            "nodeType": "IndexAccess",
+                            "src": "6315:29:18",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_bool",
+                              "typeString": "bool"
+                            }
+                          },
+                          "nodeType": "Assignment",
+                          "operator": "=",
+                          "rightHandSide": {
+                            "hexValue": "74727565",
+                            "id": 3260,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": true,
+                            "kind": "bool",
+                            "lValueRequested": false,
+                            "nodeType": "Literal",
+                            "src": "6347:4:18",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_bool",
+                              "typeString": "bool"
+                            },
+                            "value": "true"
+                          },
+                          "src": "6315:36:18",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bool",
+                            "typeString": "bool"
+                          }
+                        },
+                        "id": 3262,
+                        "nodeType": "ExpressionStatement",
+                        "src": "6315:36:18"
+                      },
+                      {
+                        "eventCall": {
+                          "arguments": [
+                            {
+                              "id": 3264,
+                              "name": "role",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 3242,
+                              "src": "6382:4:18",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_bytes32",
+                                "typeString": "bytes32"
+                              }
+                            },
+                            {
+                              "id": 3265,
+                              "name": "account",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 3244,
+                              "src": "6388:7:18",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            },
+                            {
+                              "arguments": [],
+                              "expression": {
+                                "argumentTypes": [],
+                                "id": 3266,
+                                "name": "_msgSender",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 8439,
+                                "src": "6397:10:18",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_function_internal_view$__$returns$_t_address_$",
+                                  "typeString": "function () view returns (address)"
+                                }
+                              },
+                              "id": 3267,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "kind": "functionCall",
+                              "lValueRequested": false,
+                              "nameLocations": [],
+                              "names": [],
+                              "nodeType": "FunctionCall",
+                              "src": "6397:12:18",
+                              "tryCall": false,
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            }
+                          ],
+                          "expression": {
+                            "argumentTypes": [
+                              {
+                                "typeIdentifier": "t_bytes32",
+                                "typeString": "bytes32"
+                              },
+                              {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              },
+                              {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            ],
+                            "id": 3263,
+                            "name": "RoleGranted",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 3348,
+                            "src": "6370:11:18",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_function_event_nonpayable$_t_bytes32_$_t_address_$_t_address_$returns$__$",
+                              "typeString": "function (bytes32,address,address)"
+                            }
+                          },
+                          "id": 3268,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "kind": "functionCall",
+                          "lValueRequested": false,
+                          "nameLocations": [],
+                          "names": [],
+                          "nodeType": "FunctionCall",
+                          "src": "6370:40:18",
+                          "tryCall": false,
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_tuple$__$",
+                            "typeString": "tuple()"
+                          }
+                        },
+                        "id": 3269,
+                        "nodeType": "EmitStatement",
+                        "src": "6365:45:18"
+                      },
+                      {
+                        "expression": {
+                          "hexValue": "74727565",
+                          "id": 3270,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "kind": "bool",
+                          "lValueRequested": false,
+                          "nodeType": "Literal",
+                          "src": "6431:4:18",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bool",
+                            "typeString": "bool"
+                          },
+                          "value": "true"
+                        },
+                        "functionReturnParameters": 3248,
+                        "id": 3271,
+                        "nodeType": "Return",
+                        "src": "6424:11:18"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "documentation": {
+              "id": 3240,
+              "nodeType": "StructuredDocumentation",
+              "src": "5951:223:18",
+              "text": " @dev Attempts to grant `role` to `account` and returns a boolean indicating if `role` was granted.\n Internal function without access restriction.\n May emit a {RoleGranted} event."
+            },
+            "id": 3278,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "_grantRole",
+            "nameLocation": "6188:10:18",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 3245,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3242,
+                  "mutability": "mutable",
+                  "name": "role",
+                  "nameLocation": "6207:4:18",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3278,
+                  "src": "6199:12:18",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 3241,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6199:7:18",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 3244,
+                  "mutability": "mutable",
+                  "name": "account",
+                  "nameLocation": "6221:7:18",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3278,
+                  "src": "6213:15:18",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 3243,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6213:7:18",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "6198:31:18"
+            },
+            "returnParameters": {
+              "id": 3248,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3247,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3278,
+                  "src": "6256:4:18",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 3246,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6256:4:18",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "6255:6:18"
+            },
+            "scope": 3317,
+            "src": "6179:316:18",
+            "stateMutability": "nonpayable",
+            "virtual": true,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 3315,
+              "nodeType": "Block",
+              "src": "6814:233:18",
+              "statements": [
+                {
+                  "condition": {
+                    "arguments": [
+                      {
+                        "id": 3289,
+                        "name": "role",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 3281,
+                        "src": "6836:4:18",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      },
+                      {
+                        "id": 3290,
+                        "name": "account",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 3283,
+                        "src": "6842:7:18",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        },
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      ],
+                      "id": 3288,
+                      "name": "hasRole",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 3102,
+                      "src": "6828:7:18",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_view$_t_bytes32_$_t_address_$returns$_t_bool_$",
+                        "typeString": "function (bytes32,address) view returns (bool)"
+                      }
+                    },
+                    "id": 3291,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "6828:22:18",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "falseBody": {
+                    "id": 3313,
+                    "nodeType": "Block",
+                    "src": "7004:37:18",
+                    "statements": [
+                      {
+                        "expression": {
+                          "hexValue": "66616c7365",
+                          "id": 3311,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "kind": "bool",
+                          "lValueRequested": false,
+                          "nodeType": "Literal",
+                          "src": "7025:5:18",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bool",
+                            "typeString": "bool"
+                          },
+                          "value": "false"
+                        },
+                        "functionReturnParameters": 3287,
+                        "id": 3312,
+                        "nodeType": "Return",
+                        "src": "7018:12:18"
+                      }
+                    ]
+                  },
+                  "id": 3314,
+                  "nodeType": "IfStatement",
+                  "src": "6824:217:18",
+                  "trueBody": {
+                    "id": 3310,
+                    "nodeType": "Block",
+                    "src": "6852:146:18",
+                    "statements": [
+                      {
+                        "expression": {
+                          "id": 3299,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "leftHandSide": {
+                            "baseExpression": {
+                              "expression": {
+                                "baseExpression": {
+                                  "id": 3292,
+                                  "name": "_roles",
+                                  "nodeType": "Identifier",
+                                  "overloadedDeclarations": [],
+                                  "referencedDeclaration": 3048,
+                                  "src": "6866:6:18",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_mapping$_t_bytes32_$_t_struct$_RoleData_$3043_storage_$",
+                                    "typeString": "mapping(bytes32 => struct AccessControl.RoleData storage ref)"
+                                  }
+                                },
+                                "id": 3294,
+                                "indexExpression": {
+                                  "id": 3293,
+                                  "name": "role",
+                                  "nodeType": "Identifier",
+                                  "overloadedDeclarations": [],
+                                  "referencedDeclaration": 3281,
+                                  "src": "6873:4:18",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_bytes32",
+                                    "typeString": "bytes32"
+                                  }
+                                },
+                                "isConstant": false,
+                                "isLValue": true,
+                                "isPure": false,
+                                "lValueRequested": false,
+                                "nodeType": "IndexAccess",
+                                "src": "6866:12:18",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_struct$_RoleData_$3043_storage",
+                                  "typeString": "struct AccessControl.RoleData storage ref"
+                                }
+                              },
+                              "id": 3295,
+                              "isConstant": false,
+                              "isLValue": true,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "memberLocation": "6879:7:18",
+                              "memberName": "hasRole",
+                              "nodeType": "MemberAccess",
+                              "referencedDeclaration": 3040,
+                              "src": "6866:20:18",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_mapping$_t_address_$_t_bool_$",
+                                "typeString": "mapping(address => bool)"
+                              }
+                            },
+                            "id": 3297,
+                            "indexExpression": {
+                              "id": 3296,
+                              "name": "account",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 3283,
+                              "src": "6887:7:18",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            },
+                            "isConstant": false,
+                            "isLValue": true,
+                            "isPure": false,
+                            "lValueRequested": true,
+                            "nodeType": "IndexAccess",
+                            "src": "6866:29:18",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_bool",
+                              "typeString": "bool"
+                            }
+                          },
+                          "nodeType": "Assignment",
+                          "operator": "=",
+                          "rightHandSide": {
+                            "hexValue": "66616c7365",
+                            "id": 3298,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": true,
+                            "kind": "bool",
+                            "lValueRequested": false,
+                            "nodeType": "Literal",
+                            "src": "6898:5:18",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_bool",
+                              "typeString": "bool"
+                            },
+                            "value": "false"
+                          },
+                          "src": "6866:37:18",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bool",
+                            "typeString": "bool"
+                          }
+                        },
+                        "id": 3300,
+                        "nodeType": "ExpressionStatement",
+                        "src": "6866:37:18"
+                      },
+                      {
+                        "eventCall": {
+                          "arguments": [
+                            {
+                              "id": 3302,
+                              "name": "role",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 3281,
+                              "src": "6934:4:18",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_bytes32",
+                                "typeString": "bytes32"
+                              }
+                            },
+                            {
+                              "id": 3303,
+                              "name": "account",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 3283,
+                              "src": "6940:7:18",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            },
+                            {
+                              "arguments": [],
+                              "expression": {
+                                "argumentTypes": [],
+                                "id": 3304,
+                                "name": "_msgSender",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 8439,
+                                "src": "6949:10:18",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_function_internal_view$__$returns$_t_address_$",
+                                  "typeString": "function () view returns (address)"
+                                }
+                              },
+                              "id": 3305,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "kind": "functionCall",
+                              "lValueRequested": false,
+                              "nameLocations": [],
+                              "names": [],
+                              "nodeType": "FunctionCall",
+                              "src": "6949:12:18",
+                              "tryCall": false,
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            }
+                          ],
+                          "expression": {
+                            "argumentTypes": [
+                              {
+                                "typeIdentifier": "t_bytes32",
+                                "typeString": "bytes32"
+                              },
+                              {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              },
+                              {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            ],
+                            "id": 3301,
+                            "name": "RoleRevoked",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 3357,
+                            "src": "6922:11:18",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_function_event_nonpayable$_t_bytes32_$_t_address_$_t_address_$returns$__$",
+                              "typeString": "function (bytes32,address,address)"
+                            }
+                          },
+                          "id": 3306,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "kind": "functionCall",
+                          "lValueRequested": false,
+                          "nameLocations": [],
+                          "names": [],
+                          "nodeType": "FunctionCall",
+                          "src": "6922:40:18",
+                          "tryCall": false,
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_tuple$__$",
+                            "typeString": "tuple()"
+                          }
+                        },
+                        "id": 3307,
+                        "nodeType": "EmitStatement",
+                        "src": "6917:45:18"
+                      },
+                      {
+                        "expression": {
+                          "hexValue": "74727565",
+                          "id": 3308,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "kind": "bool",
+                          "lValueRequested": false,
+                          "nodeType": "Literal",
+                          "src": "6983:4:18",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bool",
+                            "typeString": "bool"
+                          },
+                          "value": "true"
+                        },
+                        "functionReturnParameters": 3287,
+                        "id": 3309,
+                        "nodeType": "Return",
+                        "src": "6976:11:18"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "documentation": {
+              "id": 3279,
+              "nodeType": "StructuredDocumentation",
+              "src": "6501:224:18",
+              "text": " @dev Attempts to revoke `role` to `account` and returns a boolean indicating if `role` was revoked.\n Internal function without access restriction.\n May emit a {RoleRevoked} event."
+            },
+            "id": 3316,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "_revokeRole",
+            "nameLocation": "6739:11:18",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 3284,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3281,
+                  "mutability": "mutable",
+                  "name": "role",
+                  "nameLocation": "6759:4:18",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3316,
+                  "src": "6751:12:18",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 3280,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6751:7:18",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 3283,
+                  "mutability": "mutable",
+                  "name": "account",
+                  "nameLocation": "6773:7:18",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3316,
+                  "src": "6765:15:18",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 3282,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6765:7:18",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "6750:31:18"
+            },
+            "returnParameters": {
+              "id": 3287,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3286,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3316,
+                  "src": "6808:4:18",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 3285,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6808:4:18",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "6807:6:18"
+            },
+            "scope": 3317,
+            "src": "6730:317:18",
+            "stateMutability": "nonpayable",
+            "virtual": true,
+            "visibility": "internal"
+          }
+        ],
+        "scope": 3318,
+        "src": "1953:5096:18",
+        "usedErrors": [
+          3327,
+          3330
+        ],
+        "usedEvents": [
+          3339,
+          3348,
+          3357
+        ]
+      }
+    ],
+    "src": "108:6942:18"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.8.20+commit.a1b79de6.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.16",
+  "updatedAt": "2026-04-24T10:38:30.896Z",
+  "devdoc": {
+    "details": "Contract module that allows children to implement role-based access control mechanisms. This is a lightweight version that doesn't allow enumerating role members except through off-chain means by accessing the contract event logs. Some applications may benefit from on-chain enumerability, for those cases see {AccessControlEnumerable}. Roles are referred to by their `bytes32` identifier. These should be exposed in the external API and be unique. The best way to achieve this is by using `public constant` hash digests: ```solidity bytes32 public constant MY_ROLE = keccak256(\"MY_ROLE\"); ``` Roles can be used to represent a set of permissions. To restrict access to a function call, use {hasRole}: ```solidity function foo() public {     require(hasRole(MY_ROLE, msg.sender));     ... } ``` Roles can be granted and revoked dynamically via the {grantRole} and {revokeRole} functions. Each role has an associated admin role, and only accounts that have a role's admin role can call {grantRole} and {revokeRole}. By default, the admin role for all roles is `DEFAULT_ADMIN_ROLE`, which means that only accounts with this role will be able to grant or revoke other roles. More complex role relationships can be created by using {_setRoleAdmin}. WARNING: The `DEFAULT_ADMIN_ROLE` is also its own admin: it has permission to grant and revoke this role. Extra precautions should be taken to secure accounts that have been granted it. We recommend using {AccessControlDefaultAdminRules} to enforce additional security measures for this role.",
+    "errors": {
+      "AccessControlBadConfirmation()": [
+        {
+          "details": "The caller of a function is not the expected one. NOTE: Don't confuse with {AccessControlUnauthorizedAccount}."
+        }
+      ],
+      "AccessControlUnauthorizedAccount(address,bytes32)": [
+        {
+          "details": "The `account` is missing a role."
+        }
+      ]
+    },
+    "events": {
+      "RoleAdminChanged(bytes32,bytes32,bytes32)": {
+        "details": "Emitted when `newAdminRole` is set as ``role``'s admin role, replacing `previousAdminRole` `DEFAULT_ADMIN_ROLE` is the starting admin for all roles, despite {RoleAdminChanged} not being emitted signaling this."
+      },
+      "RoleGranted(bytes32,address,address)": {
+        "details": "Emitted when `account` is granted `role`. `sender` is the account that originated the contract call, an admin role bearer except when using {AccessControl-_setupRole}."
+      },
+      "RoleRevoked(bytes32,address,address)": {
+        "details": "Emitted when `account` is revoked `role`. `sender` is the account that originated the contract call:   - if using `revokeRole`, it is the admin role bearer   - if using `renounceRole`, it is the role bearer (i.e. `account`)"
+      }
+    },
+    "kind": "dev",
+    "methods": {
+      "getRoleAdmin(bytes32)": {
+        "details": "Returns the admin role that controls `role`. See {grantRole} and {revokeRole}. To change a role's admin, use {_setRoleAdmin}."
+      },
+      "grantRole(bytes32,address)": {
+        "details": "Grants `role` to `account`. If `account` had not been already granted `role`, emits a {RoleGranted} event. Requirements: - the caller must have ``role``'s admin role. May emit a {RoleGranted} event."
+      },
+      "hasRole(bytes32,address)": {
+        "details": "Returns `true` if `account` has been granted `role`."
+      },
+      "renounceRole(bytes32,address)": {
+        "details": "Revokes `role` from the calling account. Roles are often managed via {grantRole} and {revokeRole}: this function's purpose is to provide a mechanism for accounts to lose their privileges if they are compromised (such as when a trusted device is misplaced). If the calling account had been revoked `role`, emits a {RoleRevoked} event. Requirements: - the caller must be `callerConfirmation`. May emit a {RoleRevoked} event."
+      },
+      "revokeRole(bytes32,address)": {
+        "details": "Revokes `role` from `account`. If `account` had been granted `role`, emits a {RoleRevoked} event. Requirements: - the caller must have ``role``'s admin role. May emit a {RoleRevoked} event."
+      },
+      "supportsInterface(bytes4)": {
+        "details": "See {IERC165-supportsInterface}."
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}

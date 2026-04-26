@@ -1,0 +1,2375 @@
+{
+  "contractName": "MediSecureAuth",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "accessControl",
+      "outputs": [
+        {
+          "internalType": "contract MediSecureAccessControl",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "forwarder",
+          "type": "address"
+        }
+      ],
+      "name": "isTrustedForwarder",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "trustedForwarder",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "isAdmin",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "hasRole",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum Roles",
+          "name": "role",
+          "type": "uint8"
+        },
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "hasRole",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.8.20+commit.a1b79de6\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"accessControl\",\"outputs\":[{\"internalType\":\"contract MediSecureAccessControl\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"role\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"hasRole\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"enum Roles\",\"name\":\"role\",\"type\":\"uint8\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"hasRole\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"isAdmin\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"forwarder\",\"type\":\"address\"}],\"name\":\"isTrustedForwarder\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"trustedForwarder\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Base contract for role-based access control pointing to a central registry. Supports EIP-2771 Meta-transactions and is Proxy-compatible.\",\"kind\":\"dev\",\"methods\":{\"isTrustedForwarder(address)\":{\"details\":\"Indicates whether any particular address is the trusted forwarder.\"},\"trustedForwarder()\":{\"details\":\"Returns the address of the trusted forwarder.\"}},\"title\":\"MediSecureAuth\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/common/MediSecureAuth.sol\":\"MediSecureAuth\"},\"evmVersion\":\"shanghai\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol\":{\"keccak256\":\"0x631188737069917d2f909d29ce62c4d48611d326686ba6683e26b72a23bfac0b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://7a61054ae84cd6c4d04c0c4450ba1d6de41e27e0a2c4f1bcdf58f796b401c609\",\"dweb:/ipfs/QmUvtdp7X1mRVyC3CsHrtPbgoqWaXHp3S1ZR24tpAQYJWM\"]},\"@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol\":{\"keccak256\":\"0xdbef5f0c787055227243a7318ef74c8a5a1108ca3a07f2b3a00ef67769e1e397\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://08e39f23d5b4692f9a40803e53a8156b72b4c1f9902a88cd65ba964db103dab9\",\"dweb:/ipfs/QmPKn6EYDgpga7KtpkA8wV2yJCYGMtc9K4LkJfhKX2RVSV\"]},\"@openzeppelin/contracts/access/AccessControl.sol\":{\"keccak256\":\"0xa0e92d42942f4f57c5be50568dac11e9d00c93efcb458026e18d2d9b9b2e7308\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://46326c0bb1e296b67185e81c918e0b40501b8b6386165855df0a3f3c634b6a80\",\"dweb:/ipfs/QmTwyrDYtsxsk6pymJTK94PnEpzsmkpUxFuzEiakDopy4Z\"]},\"@openzeppelin/contracts/access/IAccessControl.sol\":{\"keccak256\":\"0xb6b36edd6a2999fd243ff226d6cbf84bd71af2432bbd0dfe19392996a1d9cb41\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://1fd2f35495652e57e3f99bc6c510bc5f7dd398a176ea2e72d8ed730aebc6ca26\",\"dweb:/ipfs/QmTQV6X4gkikTib49cho5iDX3JvSQbdsoEChoDwrk3CbbH\"]},\"@openzeppelin/contracts/metatx/ERC2771Context.sol\":{\"keccak256\":\"0x98256cf37b71a69b2f5a8a6fe975ea03590dff703102bd141a830f94e8adebf6\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6251fe1f6a1e45e6d619d150c123afc88b8646b38ee26a136efa9a6988a31d3f\",\"dweb:/ipfs/QmeXDT85wSZdP31wkz3ah3KhponCiksJLP5o2LR5e1JxcK\"]},\"@openzeppelin/contracts/utils/Context.sol\":{\"keccak256\":\"0x493033a8d1b176a037b2cc6a04dad01a5c157722049bbecf632ca876224dd4b2\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6a708e8a5bdb1011c2c381c9a5cfd8a9a956d7d0a9dc1bd8bcdaf52f76ef2f12\",\"dweb:/ipfs/Qmax9WHBnVsZP46ZxEMNRQpLQnrdE4dK8LehML1Py8FowF\"]},\"@openzeppelin/contracts/utils/Pausable.sol\":{\"keccak256\":\"0xb2e5f50762c27fb4b123e3619c3c02bdcba5e515309382e5bfb6f7d6486510bd\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://1a4b83328c98d518a2699c2cbe9e9b055e78aa57fa8639f1b88deb8b3750b5dc\",\"dweb:/ipfs/QmXdcYj5v7zQxXFPULShHkR5p4Wa2zYuupbHnFdV3cHYtc\"]},\"@openzeppelin/contracts/utils/introspection/ERC165.sol\":{\"keccak256\":\"0x9e8778b14317ba9e256c30a76fd6c32b960af621987f56069e1e819c77c6a133\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://1777404f1dcd0fac188e55a288724ec3c67b45288e49cc64723e95e702b49ab8\",\"dweb:/ipfs/QmZFdC626GButBApwDUvvTnUzdinevC3B24d7yyh57XkiA\"]},\"@openzeppelin/contracts/utils/introspection/IERC165.sol\":{\"keccak256\":\"0x4296879f55019b23e135000eb36896057e7101fb7fb859c5ef690cf14643757b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://87b3541437c8c443ccd36795e56a338ed12855eec17f8da624511b8d1a7e14df\",\"dweb:/ipfs/QmeJQCtZrQjtJLr6u7ZHWeH3pBnjtLWzvRrKViAi7UZqxL\"]},\"project:/contracts/MediSecureAccessControl.sol\":{\"keccak256\":\"0x6b9dd0236577e0f68b90d0163eb709ea557bd28f2e6b6e9d6436533356a5ee64\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://a59d2e7a381bbc1fa78e1a9a0cd0628a44e20a42b3f31a946edab009eb0822b9\",\"dweb:/ipfs/QmPefB8LtDJ5e7HEJtbzDDC7FpZuzqFgJXfUSDufceDE84\"]},\"project:/contracts/common/MediSecureAuth.sol\":{\"keccak256\":\"0x2f0f5af6ad892c98c718facd7cb65425346acb3cea3e9c7f2789e6b837de6f8b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://42c5d5bec0e7b631ffcb9073f107958788249538eab53c5976b21ba4f98556a8\",\"dweb:/ipfs/QmR2VuDEGzPX1Ct1fUPhpJsY7wSJyfmFNfvfEFbjKPxywe\"]}},\"version\":1}",
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.20;\r\n\r\nimport \"@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol\";\r\nimport \"@openzeppelin/contracts/metatx/ERC2771Context.sol\";\r\nimport \"../MediSecureAccessControl.sol\";\r\n\r\n/**\r\n * @title MediSecureAuth\r\n * @dev Base contract for role-based access control pointing to a central registry.\r\n * Supports EIP-2771 Meta-transactions and is Proxy-compatible.\r\n */\r\nabstract contract MediSecureAuth is ERC2771Context {\r\n    MediSecureAccessControl public accessControl;\r\n\r\n    constructor(\r\n        address _accessControl,\r\n        address _trustedForwarder\r\n    ) ERC2771Context(_trustedForwarder) {\r\n        if (_accessControl != address(0)) {\r\n            accessControl = MediSecureAccessControl(_accessControl);\r\n        }\r\n    }\r\n\r\n    /**\r\n     * @dev Internal setter for proxies to initialize accessControl.\r\n     */\r\n    function _setAccessControl(address _accessControl) internal {\r\n        if (_accessControl == address(0)) revert(\"Invalid access control\");\r\n        accessControl = MediSecureAccessControl(_accessControl);\r\n    }\r\n\r\n    modifier onlyRoleName(Roles role) {\r\n        if (!accessControl.hasRole(role, _msgSender()))\r\n            revert(\"AccessControl: restricted-to-role\");\r\n        if (accessControl.paused()) revert(\"MediSecure Protocol: paused\");\r\n        _;\r\n    }\r\n\r\n    modifier onlyRoleHash(bytes32 roleHash) {\r\n        if (!accessControl.hasRole(roleHash, _msgSender()))\r\n            revert(\"AccessControl: restricted-to-role\");\r\n        _;\r\n    }\r\n\r\n    modifier onlyAdmin() {\r\n        if (!accessControl.hasRole(Roles.ADMIN, _msgSender()))\r\n            revert(\"AccessControl: restricted-to-admin\");\r\n        _;\r\n    }\r\n\r\n    function isAdmin(address account) public view returns (bool) {\r\n        return accessControl.hasRole(Roles.ADMIN, account);\r\n    }\r\n\r\n    function hasRole(bytes32 role, address account) public view returns (bool) {\r\n        return accessControl.hasRole(role, account);\r\n    }\r\n\r\n    function hasRole(Roles role, address account) public view returns (bool) {\r\n        return accessControl.hasRole(role, account);\r\n    }\r\n}\r\n",
+  "sourcePath": "C:\\Users\\night\\Downloads\\team-rocket-medi-secure\\team-rocket-medi-secure\\contracts\\contracts\\common\\MediSecureAuth.sol",
+  "ast": {
+    "absolutePath": "project:/contracts/common/MediSecureAuth.sol",
+    "exportedSymbols": {
+      "AccessControl": [
+        3317
+      ],
+      "Context": [
+        8457
+      ],
+      "ContextUpgradeable": [
+        2332
+      ],
+      "ERC165": [
+        9966
+      ],
+      "ERC2771Context": [
+        4915
+      ],
+      "IAccessControl": [
+        3400
+      ],
+      "Initializable": [
+        972
+      ],
+      "MediSecureAccessControl": [
+        20644
+      ],
+      "MediSecureAuth": [
+        26217
+      ],
+      "Pausable": [
+        8642
+      ],
+      "Roles": [
+        20172
+      ]
+    },
+    "id": 26218,
+    "license": "MIT",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 26048,
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".20"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "33:24:91"
+      },
+      {
+        "absolutePath": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol",
+        "file": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol",
+        "id": 26049,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 26218,
+        "sourceUnit": 2333,
+        "src": "61:74:91",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "@openzeppelin/contracts/metatx/ERC2771Context.sol",
+        "file": "@openzeppelin/contracts/metatx/ERC2771Context.sol",
+        "id": 26050,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 26218,
+        "sourceUnit": 4916,
+        "src": "137:59:91",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "project:/contracts/MediSecureAccessControl.sol",
+        "file": "../MediSecureAccessControl.sol",
+        "id": 26051,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 26218,
+        "sourceUnit": 20645,
+        "src": "198:40:91",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "abstract": true,
+        "baseContracts": [
+          {
+            "baseName": {
+              "id": 26053,
+              "name": "ERC2771Context",
+              "nameLocations": [
+                "464:14:91"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 4915,
+              "src": "464:14:91"
+            },
+            "id": 26054,
+            "nodeType": "InheritanceSpecifier",
+            "src": "464:14:91"
+          }
+        ],
+        "canonicalName": "MediSecureAuth",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": {
+          "id": 26052,
+          "nodeType": "StructuredDocumentation",
+          "src": "242:184:91",
+          "text": " @title MediSecureAuth\n @dev Base contract for role-based access control pointing to a central registry.\n Supports EIP-2771 Meta-transactions and is Proxy-compatible."
+        },
+        "fullyImplemented": true,
+        "id": 26217,
+        "linearizedBaseContracts": [
+          26217,
+          4915,
+          8457
+        ],
+        "name": "MediSecureAuth",
+        "nameLocation": "446:14:91",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": false,
+            "functionSelector": "13007d55",
+            "id": 26057,
+            "mutability": "mutable",
+            "name": "accessControl",
+            "nameLocation": "517:13:91",
+            "nodeType": "VariableDeclaration",
+            "scope": 26217,
+            "src": "486:44:91",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_contract$_MediSecureAccessControl_$20644",
+              "typeString": "contract MediSecureAccessControl"
+            },
+            "typeName": {
+              "id": 26056,
+              "nodeType": "UserDefinedTypeName",
+              "pathNode": {
+                "id": 26055,
+                "name": "MediSecureAccessControl",
+                "nameLocations": [
+                  "486:23:91"
+                ],
+                "nodeType": "IdentifierPath",
+                "referencedDeclaration": 20644,
+                "src": "486:23:91"
+              },
+              "referencedDeclaration": 20644,
+              "src": "486:23:91",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_MediSecureAccessControl_$20644",
+                "typeString": "contract MediSecureAccessControl"
+              }
+            },
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 26081,
+              "nodeType": "Block",
+              "src": "661:134:91",
+              "statements": [
+                {
+                  "condition": {
+                    "commonType": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    },
+                    "id": 26072,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftExpression": {
+                      "id": 26067,
+                      "name": "_accessControl",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 26059,
+                      "src": "676:14:91",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "nodeType": "BinaryOperation",
+                    "operator": "!=",
+                    "rightExpression": {
+                      "arguments": [
+                        {
+                          "hexValue": "30",
+                          "id": 26070,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "kind": "number",
+                          "lValueRequested": false,
+                          "nodeType": "Literal",
+                          "src": "702:1:91",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_rational_0_by_1",
+                            "typeString": "int_const 0"
+                          },
+                          "value": "0"
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": [
+                          {
+                            "typeIdentifier": "t_rational_0_by_1",
+                            "typeString": "int_const 0"
+                          }
+                        ],
+                        "id": 26069,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "lValueRequested": false,
+                        "nodeType": "ElementaryTypeNameExpression",
+                        "src": "694:7:91",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_address_$",
+                          "typeString": "type(address)"
+                        },
+                        "typeName": {
+                          "id": 26068,
+                          "name": "address",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "694:7:91",
+                          "typeDescriptions": {}
+                        }
+                      },
+                      "id": 26071,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "kind": "typeConversion",
+                      "lValueRequested": false,
+                      "nameLocations": [],
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "694:10:91",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "src": "676:28:91",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 26080,
+                  "nodeType": "IfStatement",
+                  "src": "672:116:91",
+                  "trueBody": {
+                    "id": 26079,
+                    "nodeType": "Block",
+                    "src": "706:82:91",
+                    "statements": [
+                      {
+                        "expression": {
+                          "id": 26077,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "leftHandSide": {
+                            "id": 26073,
+                            "name": "accessControl",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 26057,
+                            "src": "721:13:91",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_contract$_MediSecureAccessControl_$20644",
+                              "typeString": "contract MediSecureAccessControl"
+                            }
+                          },
+                          "nodeType": "Assignment",
+                          "operator": "=",
+                          "rightHandSide": {
+                            "arguments": [
+                              {
+                                "id": 26075,
+                                "name": "_accessControl",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 26059,
+                                "src": "761:14:91",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_address",
+                                  "typeString": "address"
+                                }
+                              }
+                            ],
+                            "expression": {
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_address",
+                                  "typeString": "address"
+                                }
+                              ],
+                              "id": 26074,
+                              "name": "MediSecureAccessControl",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 20644,
+                              "src": "737:23:91",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_type$_t_contract$_MediSecureAccessControl_$20644_$",
+                                "typeString": "type(contract MediSecureAccessControl)"
+                              }
+                            },
+                            "id": 26076,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "kind": "typeConversion",
+                            "lValueRequested": false,
+                            "nameLocations": [],
+                            "names": [],
+                            "nodeType": "FunctionCall",
+                            "src": "737:39:91",
+                            "tryCall": false,
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_contract$_MediSecureAccessControl_$20644",
+                              "typeString": "contract MediSecureAccessControl"
+                            }
+                          },
+                          "src": "721:55:91",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_contract$_MediSecureAccessControl_$20644",
+                            "typeString": "contract MediSecureAccessControl"
+                          }
+                        },
+                        "id": 26078,
+                        "nodeType": "ExpressionStatement",
+                        "src": "721:55:91"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "id": 26082,
+            "implemented": true,
+            "kind": "constructor",
+            "modifiers": [
+              {
+                "arguments": [
+                  {
+                    "id": 26064,
+                    "name": "_trustedForwarder",
+                    "nodeType": "Identifier",
+                    "overloadedDeclarations": [],
+                    "referencedDeclaration": 26061,
+                    "src": "642:17:91",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  }
+                ],
+                "id": 26065,
+                "kind": "baseConstructorSpecifier",
+                "modifierName": {
+                  "id": 26063,
+                  "name": "ERC2771Context",
+                  "nameLocations": [
+                    "627:14:91"
+                  ],
+                  "nodeType": "IdentifierPath",
+                  "referencedDeclaration": 4915,
+                  "src": "627:14:91"
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "627:33:91"
+              }
+            ],
+            "name": "",
+            "nameLocation": "-1:-1:-1",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 26062,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 26059,
+                  "mutability": "mutable",
+                  "name": "_accessControl",
+                  "nameLocation": "569:14:91",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 26082,
+                  "src": "561:22:91",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 26058,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "561:7:91",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 26061,
+                  "mutability": "mutable",
+                  "name": "_trustedForwarder",
+                  "nameLocation": "602:17:91",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 26082,
+                  "src": "594:25:91",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 26060,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "594:7:91",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "550:76:91"
+            },
+            "returnParameters": {
+              "id": 26066,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "661:0:91"
+            },
+            "scope": 26217,
+            "src": "539:256:91",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 26105,
+              "nodeType": "Block",
+              "src": "951:151:91",
+              "statements": [
+                {
+                  "condition": {
+                    "commonType": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    },
+                    "id": 26093,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftExpression": {
+                      "id": 26088,
+                      "name": "_accessControl",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 26085,
+                      "src": "966:14:91",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "nodeType": "BinaryOperation",
+                    "operator": "==",
+                    "rightExpression": {
+                      "arguments": [
+                        {
+                          "hexValue": "30",
+                          "id": 26091,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "kind": "number",
+                          "lValueRequested": false,
+                          "nodeType": "Literal",
+                          "src": "992:1:91",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_rational_0_by_1",
+                            "typeString": "int_const 0"
+                          },
+                          "value": "0"
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": [
+                          {
+                            "typeIdentifier": "t_rational_0_by_1",
+                            "typeString": "int_const 0"
+                          }
+                        ],
+                        "id": 26090,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "lValueRequested": false,
+                        "nodeType": "ElementaryTypeNameExpression",
+                        "src": "984:7:91",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_address_$",
+                          "typeString": "type(address)"
+                        },
+                        "typeName": {
+                          "id": 26089,
+                          "name": "address",
+                          "nodeType": "ElementaryTypeName",
+                          "src": "984:7:91",
+                          "typeDescriptions": {}
+                        }
+                      },
+                      "id": 26092,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "kind": "typeConversion",
+                      "lValueRequested": false,
+                      "nameLocations": [],
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "984:10:91",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "src": "966:28:91",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 26098,
+                  "nodeType": "IfStatement",
+                  "src": "962:66:91",
+                  "trueBody": {
+                    "expression": {
+                      "arguments": [
+                        {
+                          "hexValue": "496e76616c69642061636365737320636f6e74726f6c",
+                          "id": 26095,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "kind": "string",
+                          "lValueRequested": false,
+                          "nodeType": "Literal",
+                          "src": "1003:24:91",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_stringliteral_214ef3fd30cf5edf742b01649a3bb3efdb325842f34b0d41555be4f060211277",
+                            "typeString": "literal_string \"Invalid access control\""
+                          },
+                          "value": "Invalid access control"
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": [
+                          {
+                            "typeIdentifier": "t_stringliteral_214ef3fd30cf5edf742b01649a3bb3efdb325842f34b0d41555be4f060211277",
+                            "typeString": "literal_string \"Invalid access control\""
+                          }
+                        ],
+                        "id": 26094,
+                        "name": "revert",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [
+                          4294967277,
+                          4294967277
+                        ],
+                        "referencedDeclaration": 4294967277,
+                        "src": "996:6:91",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_function_revert_pure$_t_string_memory_ptr_$returns$__$",
+                          "typeString": "function (string memory) pure"
+                        }
+                      },
+                      "id": 26096,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "functionCall",
+                      "lValueRequested": false,
+                      "nameLocations": [],
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "996:32:91",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_tuple$__$",
+                        "typeString": "tuple()"
+                      }
+                    },
+                    "id": 26097,
+                    "nodeType": "ExpressionStatement",
+                    "src": "996:32:91"
+                  }
+                },
+                {
+                  "expression": {
+                    "id": 26103,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "id": 26099,
+                      "name": "accessControl",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 26057,
+                      "src": "1039:13:91",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_contract$_MediSecureAccessControl_$20644",
+                        "typeString": "contract MediSecureAccessControl"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "arguments": [
+                        {
+                          "id": 26101,
+                          "name": "_accessControl",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 26085,
+                          "src": "1079:14:91",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": [
+                          {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        ],
+                        "id": 26100,
+                        "name": "MediSecureAccessControl",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 20644,
+                        "src": "1055:23:91",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_contract$_MediSecureAccessControl_$20644_$",
+                          "typeString": "type(contract MediSecureAccessControl)"
+                        }
+                      },
+                      "id": 26102,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "typeConversion",
+                      "lValueRequested": false,
+                      "nameLocations": [],
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "1055:39:91",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_contract$_MediSecureAccessControl_$20644",
+                        "typeString": "contract MediSecureAccessControl"
+                      }
+                    },
+                    "src": "1039:55:91",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_MediSecureAccessControl_$20644",
+                      "typeString": "contract MediSecureAccessControl"
+                    }
+                  },
+                  "id": 26104,
+                  "nodeType": "ExpressionStatement",
+                  "src": "1039:55:91"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 26083,
+              "nodeType": "StructuredDocumentation",
+              "src": "803:82:91",
+              "text": " @dev Internal setter for proxies to initialize accessControl."
+            },
+            "id": 26106,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "_setAccessControl",
+            "nameLocation": "900:17:91",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 26086,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 26085,
+                  "mutability": "mutable",
+                  "name": "_accessControl",
+                  "nameLocation": "926:14:91",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 26106,
+                  "src": "918:22:91",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 26084,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "918:7:91",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "917:24:91"
+            },
+            "returnParameters": {
+              "id": 26087,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "951:0:91"
+            },
+            "scope": 26217,
+            "src": "891:211:91",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 26132,
+              "nodeType": "Block",
+              "src": "1144:211:91",
+              "statements": [
+                {
+                  "condition": {
+                    "id": 26117,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "nodeType": "UnaryOperation",
+                    "operator": "!",
+                    "prefix": true,
+                    "src": "1159:42:91",
+                    "subExpression": {
+                      "arguments": [
+                        {
+                          "id": 26113,
+                          "name": "role",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 26109,
+                          "src": "1182:4:91",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_enum$_Roles_$20172",
+                            "typeString": "enum Roles"
+                          }
+                        },
+                        {
+                          "arguments": [],
+                          "expression": {
+                            "argumentTypes": [],
+                            "id": 26114,
+                            "name": "_msgSender",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [
+                              4863
+                            ],
+                            "referencedDeclaration": 4863,
+                            "src": "1188:10:91",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_function_internal_view$__$returns$_t_address_$",
+                              "typeString": "function () view returns (address)"
+                            }
+                          },
+                          "id": 26115,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "kind": "functionCall",
+                          "lValueRequested": false,
+                          "nameLocations": [],
+                          "names": [],
+                          "nodeType": "FunctionCall",
+                          "src": "1188:12:91",
+                          "tryCall": false,
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": [
+                          {
+                            "typeIdentifier": "t_enum$_Roles_$20172",
+                            "typeString": "enum Roles"
+                          },
+                          {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        ],
+                        "expression": {
+                          "id": 26111,
+                          "name": "accessControl",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 26057,
+                          "src": "1160:13:91",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_contract$_MediSecureAccessControl_$20644",
+                            "typeString": "contract MediSecureAccessControl"
+                          }
+                        },
+                        "id": 26112,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberLocation": "1174:7:91",
+                        "memberName": "hasRole",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 20337,
+                        "src": "1160:21:91",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_function_external_view$_t_enum$_Roles_$20172_$_t_address_$returns$_t_bool_$",
+                          "typeString": "function (enum Roles,address) view external returns (bool)"
+                        }
+                      },
+                      "id": 26116,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "functionCall",
+                      "lValueRequested": false,
+                      "nameLocations": [],
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "1160:41:91",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 26122,
+                  "nodeType": "IfStatement",
+                  "src": "1155:104:91",
+                  "trueBody": {
+                    "expression": {
+                      "arguments": [
+                        {
+                          "hexValue": "416363657373436f6e74726f6c3a20726573747269637465642d746f2d726f6c65",
+                          "id": 26119,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "kind": "string",
+                          "lValueRequested": false,
+                          "nodeType": "Literal",
+                          "src": "1223:35:91",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_stringliteral_5a8e15522503dae4b6907acf5f57ae79f924d0ad9bc2f64782a5f199c3abf387",
+                            "typeString": "literal_string \"AccessControl: restricted-to-role\""
+                          },
+                          "value": "AccessControl: restricted-to-role"
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": [
+                          {
+                            "typeIdentifier": "t_stringliteral_5a8e15522503dae4b6907acf5f57ae79f924d0ad9bc2f64782a5f199c3abf387",
+                            "typeString": "literal_string \"AccessControl: restricted-to-role\""
+                          }
+                        ],
+                        "id": 26118,
+                        "name": "revert",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [
+                          4294967277,
+                          4294967277
+                        ],
+                        "referencedDeclaration": 4294967277,
+                        "src": "1216:6:91",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_function_revert_pure$_t_string_memory_ptr_$returns$__$",
+                          "typeString": "function (string memory) pure"
+                        }
+                      },
+                      "id": 26120,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "functionCall",
+                      "lValueRequested": false,
+                      "nameLocations": [],
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "1216:43:91",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_tuple$__$",
+                        "typeString": "tuple()"
+                      }
+                    },
+                    "id": 26121,
+                    "nodeType": "ExpressionStatement",
+                    "src": "1216:43:91"
+                  }
+                },
+                {
+                  "condition": {
+                    "arguments": [],
+                    "expression": {
+                      "argumentTypes": [],
+                      "expression": {
+                        "id": 26123,
+                        "name": "accessControl",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 26057,
+                        "src": "1274:13:91",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_contract$_MediSecureAccessControl_$20644",
+                          "typeString": "contract MediSecureAccessControl"
+                        }
+                      },
+                      "id": 26124,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberLocation": "1288:6:91",
+                      "memberName": "paused",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 8584,
+                      "src": "1274:20:91",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_external_view$__$returns$_t_bool_$",
+                        "typeString": "function () view external returns (bool)"
+                      }
+                    },
+                    "id": 26125,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "1274:22:91",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 26130,
+                  "nodeType": "IfStatement",
+                  "src": "1270:65:91",
+                  "trueBody": {
+                    "expression": {
+                      "arguments": [
+                        {
+                          "hexValue": "4d6564695365637572652050726f746f636f6c3a20706175736564",
+                          "id": 26127,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "kind": "string",
+                          "lValueRequested": false,
+                          "nodeType": "Literal",
+                          "src": "1305:29:91",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_stringliteral_02fb90030f44906fb321daafad4ec1dae64168c22958a661ea81e0352bc77cb4",
+                            "typeString": "literal_string \"MediSecure Protocol: paused\""
+                          },
+                          "value": "MediSecure Protocol: paused"
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": [
+                          {
+                            "typeIdentifier": "t_stringliteral_02fb90030f44906fb321daafad4ec1dae64168c22958a661ea81e0352bc77cb4",
+                            "typeString": "literal_string \"MediSecure Protocol: paused\""
+                          }
+                        ],
+                        "id": 26126,
+                        "name": "revert",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [
+                          4294967277,
+                          4294967277
+                        ],
+                        "referencedDeclaration": 4294967277,
+                        "src": "1298:6:91",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_function_revert_pure$_t_string_memory_ptr_$returns$__$",
+                          "typeString": "function (string memory) pure"
+                        }
+                      },
+                      "id": 26128,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "functionCall",
+                      "lValueRequested": false,
+                      "nameLocations": [],
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "1298:37:91",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_tuple$__$",
+                        "typeString": "tuple()"
+                      }
+                    },
+                    "id": 26129,
+                    "nodeType": "ExpressionStatement",
+                    "src": "1298:37:91"
+                  }
+                },
+                {
+                  "id": 26131,
+                  "nodeType": "PlaceholderStatement",
+                  "src": "1346:1:91"
+                }
+              ]
+            },
+            "id": 26133,
+            "name": "onlyRoleName",
+            "nameLocation": "1119:12:91",
+            "nodeType": "ModifierDefinition",
+            "parameters": {
+              "id": 26110,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 26109,
+                  "mutability": "mutable",
+                  "name": "role",
+                  "nameLocation": "1138:4:91",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 26133,
+                  "src": "1132:10:91",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_Roles_$20172",
+                    "typeString": "enum Roles"
+                  },
+                  "typeName": {
+                    "id": 26108,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 26107,
+                      "name": "Roles",
+                      "nameLocations": [
+                        "1132:5:91"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 20172,
+                      "src": "1132:5:91"
+                    },
+                    "referencedDeclaration": 20172,
+                    "src": "1132:5:91",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_enum$_Roles_$20172",
+                      "typeString": "enum Roles"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1131:12:91"
+            },
+            "src": "1110:245:91",
+            "virtual": false,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 26150,
+              "nodeType": "Block",
+              "src": "1403:139:91",
+              "statements": [
+                {
+                  "condition": {
+                    "id": 26143,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "nodeType": "UnaryOperation",
+                    "operator": "!",
+                    "prefix": true,
+                    "src": "1418:46:91",
+                    "subExpression": {
+                      "arguments": [
+                        {
+                          "id": 26139,
+                          "name": "roleHash",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 26135,
+                          "src": "1441:8:91",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bytes32",
+                            "typeString": "bytes32"
+                          }
+                        },
+                        {
+                          "arguments": [],
+                          "expression": {
+                            "argumentTypes": [],
+                            "id": 26140,
+                            "name": "_msgSender",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [
+                              4863
+                            ],
+                            "referencedDeclaration": 4863,
+                            "src": "1451:10:91",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_function_internal_view$__$returns$_t_address_$",
+                              "typeString": "function () view returns (address)"
+                            }
+                          },
+                          "id": 26141,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "kind": "functionCall",
+                          "lValueRequested": false,
+                          "nameLocations": [],
+                          "names": [],
+                          "nodeType": "FunctionCall",
+                          "src": "1451:12:91",
+                          "tryCall": false,
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": [
+                          {
+                            "typeIdentifier": "t_bytes32",
+                            "typeString": "bytes32"
+                          },
+                          {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        ],
+                        "expression": {
+                          "id": 26137,
+                          "name": "accessControl",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 26057,
+                          "src": "1419:13:91",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_contract$_MediSecureAccessControl_$20644",
+                            "typeString": "contract MediSecureAccessControl"
+                          }
+                        },
+                        "id": 26138,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberLocation": "1433:7:91",
+                        "memberName": "hasRole",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 3102,
+                        "src": "1419:21:91",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_function_external_view$_t_bytes32_$_t_address_$returns$_t_bool_$",
+                          "typeString": "function (bytes32,address) view external returns (bool)"
+                        }
+                      },
+                      "id": 26142,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "functionCall",
+                      "lValueRequested": false,
+                      "nameLocations": [],
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "1419:45:91",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 26148,
+                  "nodeType": "IfStatement",
+                  "src": "1414:108:91",
+                  "trueBody": {
+                    "expression": {
+                      "arguments": [
+                        {
+                          "hexValue": "416363657373436f6e74726f6c3a20726573747269637465642d746f2d726f6c65",
+                          "id": 26145,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "kind": "string",
+                          "lValueRequested": false,
+                          "nodeType": "Literal",
+                          "src": "1486:35:91",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_stringliteral_5a8e15522503dae4b6907acf5f57ae79f924d0ad9bc2f64782a5f199c3abf387",
+                            "typeString": "literal_string \"AccessControl: restricted-to-role\""
+                          },
+                          "value": "AccessControl: restricted-to-role"
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": [
+                          {
+                            "typeIdentifier": "t_stringliteral_5a8e15522503dae4b6907acf5f57ae79f924d0ad9bc2f64782a5f199c3abf387",
+                            "typeString": "literal_string \"AccessControl: restricted-to-role\""
+                          }
+                        ],
+                        "id": 26144,
+                        "name": "revert",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [
+                          4294967277,
+                          4294967277
+                        ],
+                        "referencedDeclaration": 4294967277,
+                        "src": "1479:6:91",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_function_revert_pure$_t_string_memory_ptr_$returns$__$",
+                          "typeString": "function (string memory) pure"
+                        }
+                      },
+                      "id": 26146,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "functionCall",
+                      "lValueRequested": false,
+                      "nameLocations": [],
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "1479:43:91",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_tuple$__$",
+                        "typeString": "tuple()"
+                      }
+                    },
+                    "id": 26147,
+                    "nodeType": "ExpressionStatement",
+                    "src": "1479:43:91"
+                  }
+                },
+                {
+                  "id": 26149,
+                  "nodeType": "PlaceholderStatement",
+                  "src": "1533:1:91"
+                }
+              ]
+            },
+            "id": 26151,
+            "name": "onlyRoleHash",
+            "nameLocation": "1372:12:91",
+            "nodeType": "ModifierDefinition",
+            "parameters": {
+              "id": 26136,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 26135,
+                  "mutability": "mutable",
+                  "name": "roleHash",
+                  "nameLocation": "1393:8:91",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 26151,
+                  "src": "1385:16:91",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 26134,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1385:7:91",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1384:18:91"
+            },
+            "src": "1363:179:91",
+            "virtual": false,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 26167,
+              "nodeType": "Block",
+              "src": "1571:143:91",
+              "statements": [
+                {
+                  "condition": {
+                    "id": 26160,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "nodeType": "UnaryOperation",
+                    "operator": "!",
+                    "prefix": true,
+                    "src": "1586:49:91",
+                    "subExpression": {
+                      "arguments": [
+                        {
+                          "expression": {
+                            "id": 26155,
+                            "name": "Roles",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 20172,
+                            "src": "1609:5:91",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_type$_t_enum$_Roles_$20172_$",
+                              "typeString": "type(enum Roles)"
+                            }
+                          },
+                          "id": 26156,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "lValueRequested": false,
+                          "memberLocation": "1615:5:91",
+                          "memberName": "ADMIN",
+                          "nodeType": "MemberAccess",
+                          "referencedDeclaration": 20163,
+                          "src": "1609:11:91",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_enum$_Roles_$20172",
+                            "typeString": "enum Roles"
+                          }
+                        },
+                        {
+                          "arguments": [],
+                          "expression": {
+                            "argumentTypes": [],
+                            "id": 26157,
+                            "name": "_msgSender",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [
+                              4863
+                            ],
+                            "referencedDeclaration": 4863,
+                            "src": "1622:10:91",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_function_internal_view$__$returns$_t_address_$",
+                              "typeString": "function () view returns (address)"
+                            }
+                          },
+                          "id": 26158,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "kind": "functionCall",
+                          "lValueRequested": false,
+                          "nameLocations": [],
+                          "names": [],
+                          "nodeType": "FunctionCall",
+                          "src": "1622:12:91",
+                          "tryCall": false,
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": [
+                          {
+                            "typeIdentifier": "t_enum$_Roles_$20172",
+                            "typeString": "enum Roles"
+                          },
+                          {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        ],
+                        "expression": {
+                          "id": 26153,
+                          "name": "accessControl",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 26057,
+                          "src": "1587:13:91",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_contract$_MediSecureAccessControl_$20644",
+                            "typeString": "contract MediSecureAccessControl"
+                          }
+                        },
+                        "id": 26154,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberLocation": "1601:7:91",
+                        "memberName": "hasRole",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 20337,
+                        "src": "1587:21:91",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_function_external_view$_t_enum$_Roles_$20172_$_t_address_$returns$_t_bool_$",
+                          "typeString": "function (enum Roles,address) view external returns (bool)"
+                        }
+                      },
+                      "id": 26159,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "functionCall",
+                      "lValueRequested": false,
+                      "nameLocations": [],
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "1587:48:91",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 26165,
+                  "nodeType": "IfStatement",
+                  "src": "1582:112:91",
+                  "trueBody": {
+                    "expression": {
+                      "arguments": [
+                        {
+                          "hexValue": "416363657373436f6e74726f6c3a20726573747269637465642d746f2d61646d696e",
+                          "id": 26162,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "kind": "string",
+                          "lValueRequested": false,
+                          "nodeType": "Literal",
+                          "src": "1657:36:91",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_stringliteral_fb79b63fa62ced58009d96c3ae78c7ffc3a48d2d19ecc5474660c177c0ad9125",
+                            "typeString": "literal_string \"AccessControl: restricted-to-admin\""
+                          },
+                          "value": "AccessControl: restricted-to-admin"
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": [
+                          {
+                            "typeIdentifier": "t_stringliteral_fb79b63fa62ced58009d96c3ae78c7ffc3a48d2d19ecc5474660c177c0ad9125",
+                            "typeString": "literal_string \"AccessControl: restricted-to-admin\""
+                          }
+                        ],
+                        "id": 26161,
+                        "name": "revert",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [
+                          4294967277,
+                          4294967277
+                        ],
+                        "referencedDeclaration": 4294967277,
+                        "src": "1650:6:91",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_function_revert_pure$_t_string_memory_ptr_$returns$__$",
+                          "typeString": "function (string memory) pure"
+                        }
+                      },
+                      "id": 26163,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "functionCall",
+                      "lValueRequested": false,
+                      "nameLocations": [],
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "1650:44:91",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_tuple$__$",
+                        "typeString": "tuple()"
+                      }
+                    },
+                    "id": 26164,
+                    "nodeType": "ExpressionStatement",
+                    "src": "1650:44:91"
+                  }
+                },
+                {
+                  "id": 26166,
+                  "nodeType": "PlaceholderStatement",
+                  "src": "1705:1:91"
+                }
+              ]
+            },
+            "id": 26168,
+            "name": "onlyAdmin",
+            "nameLocation": "1559:9:91",
+            "nodeType": "ModifierDefinition",
+            "parameters": {
+              "id": 26152,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1568:2:91"
+            },
+            "src": "1550:164:91",
+            "virtual": false,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 26182,
+              "nodeType": "Block",
+              "src": "1783:69:91",
+              "statements": [
+                {
+                  "expression": {
+                    "arguments": [
+                      {
+                        "expression": {
+                          "id": 26177,
+                          "name": "Roles",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 20172,
+                          "src": "1823:5:91",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_type$_t_enum$_Roles_$20172_$",
+                            "typeString": "type(enum Roles)"
+                          }
+                        },
+                        "id": 26178,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "lValueRequested": false,
+                        "memberLocation": "1829:5:91",
+                        "memberName": "ADMIN",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 20163,
+                        "src": "1823:11:91",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_enum$_Roles_$20172",
+                          "typeString": "enum Roles"
+                        }
+                      },
+                      {
+                        "id": 26179,
+                        "name": "account",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 26170,
+                        "src": "1836:7:91",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_enum$_Roles_$20172",
+                          "typeString": "enum Roles"
+                        },
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      ],
+                      "expression": {
+                        "id": 26175,
+                        "name": "accessControl",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 26057,
+                        "src": "1801:13:91",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_contract$_MediSecureAccessControl_$20644",
+                          "typeString": "contract MediSecureAccessControl"
+                        }
+                      },
+                      "id": 26176,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberLocation": "1815:7:91",
+                      "memberName": "hasRole",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 20337,
+                      "src": "1801:21:91",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_external_view$_t_enum$_Roles_$20172_$_t_address_$returns$_t_bool_$",
+                        "typeString": "function (enum Roles,address) view external returns (bool)"
+                      }
+                    },
+                    "id": 26180,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "1801:43:91",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "functionReturnParameters": 26174,
+                  "id": 26181,
+                  "nodeType": "Return",
+                  "src": "1794:50:91"
+                }
+              ]
+            },
+            "functionSelector": "24d7806c",
+            "id": 26183,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "isAdmin",
+            "nameLocation": "1731:7:91",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 26171,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 26170,
+                  "mutability": "mutable",
+                  "name": "account",
+                  "nameLocation": "1747:7:91",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 26183,
+                  "src": "1739:15:91",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 26169,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1739:7:91",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1738:17:91"
+            },
+            "returnParameters": {
+              "id": 26174,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 26173,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 26183,
+                  "src": "1777:4:91",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 26172,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1777:4:91",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1776:6:91"
+            },
+            "scope": 26217,
+            "src": "1722:130:91",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 26198,
+              "nodeType": "Block",
+              "src": "1935:62:91",
+              "statements": [
+                {
+                  "expression": {
+                    "arguments": [
+                      {
+                        "id": 26194,
+                        "name": "role",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 26185,
+                        "src": "1975:4:91",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      },
+                      {
+                        "id": 26195,
+                        "name": "account",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 26187,
+                        "src": "1981:7:91",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        },
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      ],
+                      "expression": {
+                        "id": 26192,
+                        "name": "accessControl",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 26057,
+                        "src": "1953:13:91",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_contract$_MediSecureAccessControl_$20644",
+                          "typeString": "contract MediSecureAccessControl"
+                        }
+                      },
+                      "id": 26193,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberLocation": "1967:7:91",
+                      "memberName": "hasRole",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 3102,
+                      "src": "1953:21:91",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_external_view$_t_bytes32_$_t_address_$returns$_t_bool_$",
+                        "typeString": "function (bytes32,address) view external returns (bool)"
+                      }
+                    },
+                    "id": 26196,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "1953:36:91",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "functionReturnParameters": 26191,
+                  "id": 26197,
+                  "nodeType": "Return",
+                  "src": "1946:43:91"
+                }
+              ]
+            },
+            "functionSelector": "91d14854",
+            "id": 26199,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "hasRole",
+            "nameLocation": "1869:7:91",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 26188,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 26185,
+                  "mutability": "mutable",
+                  "name": "role",
+                  "nameLocation": "1885:4:91",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 26199,
+                  "src": "1877:12:91",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 26184,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1877:7:91",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 26187,
+                  "mutability": "mutable",
+                  "name": "account",
+                  "nameLocation": "1899:7:91",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 26199,
+                  "src": "1891:15:91",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 26186,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1891:7:91",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1876:31:91"
+            },
+            "returnParameters": {
+              "id": 26191,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 26190,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 26199,
+                  "src": "1929:4:91",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 26189,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1929:4:91",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1928:6:91"
+            },
+            "scope": 26217,
+            "src": "1860:137:91",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 26215,
+              "nodeType": "Block",
+              "src": "2078:62:91",
+              "statements": [
+                {
+                  "expression": {
+                    "arguments": [
+                      {
+                        "id": 26211,
+                        "name": "role",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 26202,
+                        "src": "2118:4:91",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_enum$_Roles_$20172",
+                          "typeString": "enum Roles"
+                        }
+                      },
+                      {
+                        "id": 26212,
+                        "name": "account",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 26204,
+                        "src": "2124:7:91",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_enum$_Roles_$20172",
+                          "typeString": "enum Roles"
+                        },
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      ],
+                      "expression": {
+                        "id": 26209,
+                        "name": "accessControl",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 26057,
+                        "src": "2096:13:91",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_contract$_MediSecureAccessControl_$20644",
+                          "typeString": "contract MediSecureAccessControl"
+                        }
+                      },
+                      "id": 26210,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberLocation": "2110:7:91",
+                      "memberName": "hasRole",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 20337,
+                      "src": "2096:21:91",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_external_view$_t_enum$_Roles_$20172_$_t_address_$returns$_t_bool_$",
+                        "typeString": "function (enum Roles,address) view external returns (bool)"
+                      }
+                    },
+                    "id": 26213,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "2096:36:91",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "functionReturnParameters": 26208,
+                  "id": 26214,
+                  "nodeType": "Return",
+                  "src": "2089:43:91"
+                }
+              ]
+            },
+            "functionSelector": "9e97b8f6",
+            "id": 26216,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "hasRole",
+            "nameLocation": "2014:7:91",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 26205,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 26202,
+                  "mutability": "mutable",
+                  "name": "role",
+                  "nameLocation": "2028:4:91",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 26216,
+                  "src": "2022:10:91",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_Roles_$20172",
+                    "typeString": "enum Roles"
+                  },
+                  "typeName": {
+                    "id": 26201,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 26200,
+                      "name": "Roles",
+                      "nameLocations": [
+                        "2022:5:91"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 20172,
+                      "src": "2022:5:91"
+                    },
+                    "referencedDeclaration": 20172,
+                    "src": "2022:5:91",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_enum$_Roles_$20172",
+                      "typeString": "enum Roles"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 26204,
+                  "mutability": "mutable",
+                  "name": "account",
+                  "nameLocation": "2042:7:91",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 26216,
+                  "src": "2034:15:91",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 26203,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2034:7:91",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2021:29:91"
+            },
+            "returnParameters": {
+              "id": 26208,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 26207,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 26216,
+                  "src": "2072:4:91",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 26206,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2072:4:91",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2071:6:91"
+            },
+            "scope": 26217,
+            "src": "2005:135:91",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "public"
+          }
+        ],
+        "scope": 26218,
+        "src": "428:1715:91",
+        "usedErrors": [],
+        "usedEvents": []
+      }
+    ],
+    "src": "33:2112:91"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.8.20+commit.a1b79de6.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.16",
+  "updatedAt": "2026-04-24T10:38:31.196Z",
+  "devdoc": {
+    "details": "Base contract for role-based access control pointing to a central registry. Supports EIP-2771 Meta-transactions and is Proxy-compatible.",
+    "kind": "dev",
+    "methods": {
+      "isTrustedForwarder(address)": {
+        "details": "Indicates whether any particular address is the trusted forwarder."
+      },
+      "trustedForwarder()": {
+        "details": "Returns the address of the trusted forwarder."
+      }
+    },
+    "title": "MediSecureAuth",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}

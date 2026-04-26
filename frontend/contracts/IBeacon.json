@@ -1,0 +1,164 @@
+{
+  "contractName": "IBeacon",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "implementation",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.8.20+commit.a1b79de6\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"implementation\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"This is the interface that {BeaconProxy} expects of its beacon.\",\"kind\":\"dev\",\"methods\":{\"implementation()\":{\"details\":\"Must return an address that can be used as a delegate call target. {UpgradeableBeacon} will check that this address is a contract.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"@openzeppelin/contracts/proxy/beacon/IBeacon.sol\":\"IBeacon\"},\"evmVersion\":\"shanghai\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/proxy/beacon/IBeacon.sol\":{\"keccak256\":\"0xc59a78b07b44b2cf2e8ab4175fca91e8eca1eee2df7357b8d2a8833e5ea1f64c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5aa4f07e65444784c29cd7bfcc2341b34381e4e5b5da9f0c5bd00d7f430e66fa\",\"dweb:/ipfs/QmWRMh4Q9DpaU9GvsiXmDdoNYMyyece9if7hnfLz7uqzWM\"]}},\"version\":1}",
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "// SPDX-License-Identifier: MIT\n// OpenZeppelin Contracts (last updated v5.0.0) (proxy/beacon/IBeacon.sol)\n\npragma solidity ^0.8.20;\n\n/**\n * @dev This is the interface that {BeaconProxy} expects of its beacon.\n */\ninterface IBeacon {\n    /**\n     * @dev Must return an address that can be used as a delegate call target.\n     *\n     * {UpgradeableBeacon} will check that this address is a contract.\n     */\n    function implementation() external view returns (address);\n}\n",
+  "sourcePath": "@openzeppelin\\contracts\\proxy\\beacon\\IBeacon.sol",
+  "ast": {
+    "absolutePath": "@openzeppelin/contracts/proxy/beacon/IBeacon.sol",
+    "exportedSymbols": {
+      "IBeacon": [
+        5735
+      ]
+    },
+    "id": 5736,
+    "license": "MIT",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 5727,
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".20"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "108:24:31"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IBeacon",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": {
+          "id": 5728,
+          "nodeType": "StructuredDocumentation",
+          "src": "134:79:31",
+          "text": " @dev This is the interface that {BeaconProxy} expects of its beacon."
+        },
+        "fullyImplemented": false,
+        "id": 5735,
+        "linearizedBaseContracts": [
+          5735
+        ],
+        "name": "IBeacon",
+        "nameLocation": "224:7:31",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "documentation": {
+              "id": 5729,
+              "nodeType": "StructuredDocumentation",
+              "src": "238:168:31",
+              "text": " @dev Must return an address that can be used as a delegate call target.\n {UpgradeableBeacon} will check that this address is a contract."
+            },
+            "functionSelector": "5c60da1b",
+            "id": 5734,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "implementation",
+            "nameLocation": "420:14:31",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 5730,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "434:2:31"
+            },
+            "returnParameters": {
+              "id": 5733,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 5732,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5734,
+                  "src": "460:7:31",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 5731,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "460:7:31",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "459:9:31"
+            },
+            "scope": 5735,
+            "src": "411:58:31",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "scope": 5736,
+        "src": "214:257:31",
+        "usedErrors": [],
+        "usedEvents": []
+      }
+    ],
+    "src": "108:364:31"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.8.20+commit.a1b79de6.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.16",
+  "updatedAt": "2026-04-24T10:38:30.929Z",
+  "devdoc": {
+    "details": "This is the interface that {BeaconProxy} expects of its beacon.",
+    "kind": "dev",
+    "methods": {
+      "implementation()": {
+        "details": "Must return an address that can be used as a delegate call target. {UpgradeableBeacon} will check that this address is a contract."
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}

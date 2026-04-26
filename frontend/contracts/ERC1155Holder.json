@@ -1,0 +1,1135 @@
+{
+  "contractName": "ERC1155Holder",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "bytes4",
+          "name": "interfaceId",
+          "type": "bytes4"
+        }
+      ],
+      "name": "supportsInterface",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "onERC1155Received",
+      "outputs": [
+        {
+          "internalType": "bytes4",
+          "name": "",
+          "type": "bytes4"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "onERC1155BatchReceived",
+      "outputs": [
+        {
+          "internalType": "bytes4",
+          "name": "",
+          "type": "bytes4"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.8.20+commit.a1b79de6\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256[]\",\"name\":\"\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"\",\"type\":\"uint256[]\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"onERC1155BatchReceived\",\"outputs\":[{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"onERC1155Received\",\"outputs\":[{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"interfaceId\",\"type\":\"bytes4\"}],\"name\":\"supportsInterface\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Simple implementation of `IERC1155Receiver` that will allow a contract to hold ERC1155 tokens. IMPORTANT: When inheriting this contract, you must include a way to use the received tokens, otherwise they will be stuck.\",\"kind\":\"dev\",\"methods\":{\"supportsInterface(bytes4)\":{\"details\":\"See {IERC165-supportsInterface}.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol\":\"ERC1155Holder\"},\"evmVersion\":\"shanghai\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol\":{\"keccak256\":\"0xb69597a63b202e28401128bed6a6d259e8730191274471af7303eafb247881a3\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://25addbda49a578b3318130585601344c5149a5549d749adf88e9685349a46b23\",\"dweb:/ipfs/Qme2DuD8gpsve1ZvaSMQpBwMdpU7yAtekDwr7gUp8dX4zX\"]},\"@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol\":{\"keccak256\":\"0xc26cd2e2bcf59b87c986fc653545b35010db9c585a3f3312fe61d7b1b3805735\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://46fe54b0ac3ee60bdff012fae7d13c1171dff433aa4fdd356fd06ce46fbe711b\",\"dweb:/ipfs/QmTTm6jBY6jQ6fx1cnCT4YepEV2aQvqLme5TSxuidfpf2q\"]},\"@openzeppelin/contracts/utils/introspection/ERC165.sol\":{\"keccak256\":\"0x9e8778b14317ba9e256c30a76fd6c32b960af621987f56069e1e819c77c6a133\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://1777404f1dcd0fac188e55a288724ec3c67b45288e49cc64723e95e702b49ab8\",\"dweb:/ipfs/QmZFdC626GButBApwDUvvTnUzdinevC3B24d7yyh57XkiA\"]},\"@openzeppelin/contracts/utils/introspection/IERC165.sol\":{\"keccak256\":\"0x4296879f55019b23e135000eb36896057e7101fb7fb859c5ef690cf14643757b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://87b3541437c8c443ccd36795e56a338ed12855eec17f8da624511b8d1a7e14df\",\"dweb:/ipfs/QmeJQCtZrQjtJLr6u7ZHWeH3pBnjtLWzvRrKViAi7UZqxL\"]}},\"version\":1}",
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "// SPDX-License-Identifier: MIT\n// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC1155/utils/ERC1155Holder.sol)\n\npragma solidity ^0.8.20;\n\nimport {IERC165, ERC165} from \"../../../utils/introspection/ERC165.sol\";\nimport {IERC1155Receiver} from \"../IERC1155Receiver.sol\";\n\n/**\n * @dev Simple implementation of `IERC1155Receiver` that will allow a contract to hold ERC1155 tokens.\n *\n * IMPORTANT: When inheriting this contract, you must include a way to use the received tokens, otherwise they will be\n * stuck.\n */\nabstract contract ERC1155Holder is ERC165, IERC1155Receiver {\n    /**\n     * @dev See {IERC165-supportsInterface}.\n     */\n    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {\n        return interfaceId == type(IERC1155Receiver).interfaceId || super.supportsInterface(interfaceId);\n    }\n\n    function onERC1155Received(\n        address,\n        address,\n        uint256,\n        uint256,\n        bytes memory\n    ) public virtual override returns (bytes4) {\n        return this.onERC1155Received.selector;\n    }\n\n    function onERC1155BatchReceived(\n        address,\n        address,\n        uint256[] memory,\n        uint256[] memory,\n        bytes memory\n    ) public virtual override returns (bytes4) {\n        return this.onERC1155BatchReceived.selector;\n    }\n}\n",
+  "sourcePath": "@openzeppelin\\contracts\\token\\ERC1155\\utils\\ERC1155Holder.sol",
+  "ast": {
+    "absolutePath": "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol",
+    "exportedSymbols": {
+      "ERC1155Holder": [
+        5858
+      ],
+      "ERC165": [
+        9966
+      ],
+      "IERC1155Receiver": [
+        5777
+      ],
+      "IERC165": [
+        9978
+      ]
+    },
+    "id": 5859,
+    "license": "MIT",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 5779,
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".20"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "121:24:33"
+      },
+      {
+        "absolutePath": "@openzeppelin/contracts/utils/introspection/ERC165.sol",
+        "file": "../../../utils/introspection/ERC165.sol",
+        "id": 5782,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 5859,
+        "sourceUnit": 9967,
+        "src": "147:72:33",
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 5780,
+              "name": "IERC165",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 9978,
+              "src": "155:7:33",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          },
+          {
+            "foreign": {
+              "id": 5781,
+              "name": "ERC165",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 9966,
+              "src": "164:6:33",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol",
+        "file": "../IERC1155Receiver.sol",
+        "id": 5784,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 5859,
+        "sourceUnit": 5778,
+        "src": "220:57:33",
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 5783,
+              "name": "IERC1155Receiver",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 5777,
+              "src": "228:16:33",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "abstract": true,
+        "baseContracts": [
+          {
+            "baseName": {
+              "id": 5786,
+              "name": "ERC165",
+              "nameLocations": [
+                "557:6:33"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 9966,
+              "src": "557:6:33"
+            },
+            "id": 5787,
+            "nodeType": "InheritanceSpecifier",
+            "src": "557:6:33"
+          },
+          {
+            "baseName": {
+              "id": 5788,
+              "name": "IERC1155Receiver",
+              "nameLocations": [
+                "565:16:33"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 5777,
+              "src": "565:16:33"
+            },
+            "id": 5789,
+            "nodeType": "InheritanceSpecifier",
+            "src": "565:16:33"
+          }
+        ],
+        "canonicalName": "ERC1155Holder",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": {
+          "id": 5785,
+          "nodeType": "StructuredDocumentation",
+          "src": "279:242:33",
+          "text": " @dev Simple implementation of `IERC1155Receiver` that will allow a contract to hold ERC1155 tokens.\n IMPORTANT: When inheriting this contract, you must include a way to use the received tokens, otherwise they will be\n stuck."
+        },
+        "fullyImplemented": true,
+        "id": 5858,
+        "linearizedBaseContracts": [
+          5858,
+          5777,
+          9966,
+          9978
+        ],
+        "name": "ERC1155Holder",
+        "nameLocation": "540:13:33",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "baseFunctions": [
+              9965,
+              9977
+            ],
+            "body": {
+              "id": 5812,
+              "nodeType": "Block",
+              "src": "757:113:33",
+              "statements": [
+                {
+                  "expression": {
+                    "commonType": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    },
+                    "id": 5810,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftExpression": {
+                      "commonType": {
+                        "typeIdentifier": "t_bytes4",
+                        "typeString": "bytes4"
+                      },
+                      "id": 5805,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "leftExpression": {
+                        "id": 5800,
+                        "name": "interfaceId",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 5792,
+                        "src": "774:11:33",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes4",
+                          "typeString": "bytes4"
+                        }
+                      },
+                      "nodeType": "BinaryOperation",
+                      "operator": "==",
+                      "rightExpression": {
+                        "expression": {
+                          "arguments": [
+                            {
+                              "id": 5802,
+                              "name": "IERC1155Receiver",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 5777,
+                              "src": "794:16:33",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_type$_t_contract$_IERC1155Receiver_$5777_$",
+                                "typeString": "type(contract IERC1155Receiver)"
+                              }
+                            }
+                          ],
+                          "expression": {
+                            "argumentTypes": [
+                              {
+                                "typeIdentifier": "t_type$_t_contract$_IERC1155Receiver_$5777_$",
+                                "typeString": "type(contract IERC1155Receiver)"
+                              }
+                            ],
+                            "id": 5801,
+                            "name": "type",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 4294967269,
+                            "src": "789:4:33",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_function_metatype_pure$__$returns$__$",
+                              "typeString": "function () pure"
+                            }
+                          },
+                          "id": 5803,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "kind": "functionCall",
+                          "lValueRequested": false,
+                          "nameLocations": [],
+                          "names": [],
+                          "nodeType": "FunctionCall",
+                          "src": "789:22:33",
+                          "tryCall": false,
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_magic_meta_type_t_contract$_IERC1155Receiver_$5777",
+                            "typeString": "type(contract IERC1155Receiver)"
+                          }
+                        },
+                        "id": 5804,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "lValueRequested": false,
+                        "memberLocation": "812:11:33",
+                        "memberName": "interfaceId",
+                        "nodeType": "MemberAccess",
+                        "src": "789:34:33",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes4",
+                          "typeString": "bytes4"
+                        }
+                      },
+                      "src": "774:49:33",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "nodeType": "BinaryOperation",
+                    "operator": "||",
+                    "rightExpression": {
+                      "arguments": [
+                        {
+                          "id": 5808,
+                          "name": "interfaceId",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 5792,
+                          "src": "851:11:33",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bytes4",
+                            "typeString": "bytes4"
+                          }
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": [
+                          {
+                            "typeIdentifier": "t_bytes4",
+                            "typeString": "bytes4"
+                          }
+                        ],
+                        "expression": {
+                          "id": 5806,
+                          "name": "super",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 4294967271,
+                          "src": "827:5:33",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_type$_t_super$_ERC1155Holder_$5858_$",
+                            "typeString": "type(contract super ERC1155Holder)"
+                          }
+                        },
+                        "id": 5807,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberLocation": "833:17:33",
+                        "memberName": "supportsInterface",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 9965,
+                        "src": "827:23:33",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_function_internal_view$_t_bytes4_$returns$_t_bool_$",
+                          "typeString": "function (bytes4) view returns (bool)"
+                        }
+                      },
+                      "id": 5809,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "functionCall",
+                      "lValueRequested": false,
+                      "nameLocations": [],
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "827:36:33",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "src": "774:89:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "functionReturnParameters": 5799,
+                  "id": 5811,
+                  "nodeType": "Return",
+                  "src": "767:96:33"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 5790,
+              "nodeType": "StructuredDocumentation",
+              "src": "588:56:33",
+              "text": " @dev See {IERC165-supportsInterface}."
+            },
+            "functionSelector": "01ffc9a7",
+            "id": 5813,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "supportsInterface",
+            "nameLocation": "658:17:33",
+            "nodeType": "FunctionDefinition",
+            "overrides": {
+              "id": 5796,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [
+                {
+                  "id": 5794,
+                  "name": "ERC165",
+                  "nameLocations": [
+                    "725:6:33"
+                  ],
+                  "nodeType": "IdentifierPath",
+                  "referencedDeclaration": 9966,
+                  "src": "725:6:33"
+                },
+                {
+                  "id": 5795,
+                  "name": "IERC165",
+                  "nameLocations": [
+                    "733:7:33"
+                  ],
+                  "nodeType": "IdentifierPath",
+                  "referencedDeclaration": 9978,
+                  "src": "733:7:33"
+                }
+              ],
+              "src": "716:25:33"
+            },
+            "parameters": {
+              "id": 5793,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 5792,
+                  "mutability": "mutable",
+                  "name": "interfaceId",
+                  "nameLocation": "683:11:33",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5813,
+                  "src": "676:18:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes4",
+                    "typeString": "bytes4"
+                  },
+                  "typeName": {
+                    "id": 5791,
+                    "name": "bytes4",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "676:6:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes4",
+                      "typeString": "bytes4"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "675:20:33"
+            },
+            "returnParameters": {
+              "id": 5799,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 5798,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5813,
+                  "src": "751:4:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 5797,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "751:4:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "750:6:33"
+            },
+            "scope": 5858,
+            "src": "649:221:33",
+            "stateMutability": "view",
+            "virtual": true,
+            "visibility": "public"
+          },
+          {
+            "baseFunctions": [
+              5758
+            ],
+            "body": {
+              "id": 5833,
+              "nodeType": "Block",
+              "src": "1040:55:33",
+              "statements": [
+                {
+                  "expression": {
+                    "expression": {
+                      "expression": {
+                        "id": 5829,
+                        "name": "this",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 4294967268,
+                        "src": "1057:4:33",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_contract$_ERC1155Holder_$5858",
+                          "typeString": "contract ERC1155Holder"
+                        }
+                      },
+                      "id": 5830,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberLocation": "1062:17:33",
+                      "memberName": "onERC1155Received",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 5834,
+                      "src": "1057:22:33",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_address_$_t_uint256_$_t_uint256_$_t_bytes_memory_ptr_$returns$_t_bytes4_$",
+                        "typeString": "function (address,address,uint256,uint256,bytes memory) external returns (bytes4)"
+                      }
+                    },
+                    "id": 5831,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "lValueRequested": false,
+                    "memberLocation": "1080:8:33",
+                    "memberName": "selector",
+                    "nodeType": "MemberAccess",
+                    "src": "1057:31:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes4",
+                      "typeString": "bytes4"
+                    }
+                  },
+                  "functionReturnParameters": 5828,
+                  "id": 5832,
+                  "nodeType": "Return",
+                  "src": "1050:38:33"
+                }
+              ]
+            },
+            "functionSelector": "f23a6e61",
+            "id": 5834,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "onERC1155Received",
+            "nameLocation": "885:17:33",
+            "nodeType": "FunctionDefinition",
+            "overrides": {
+              "id": 5825,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "1014:8:33"
+            },
+            "parameters": {
+              "id": 5824,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 5815,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5834,
+                  "src": "912:7:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 5814,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "912:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 5817,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5834,
+                  "src": "929:7:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 5816,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "929:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 5819,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5834,
+                  "src": "946:7:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 5818,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "946:7:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 5821,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5834,
+                  "src": "963:7:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 5820,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "963:7:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 5823,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5834,
+                  "src": "980:12:33",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_memory_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 5822,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "980:5:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "902:96:33"
+            },
+            "returnParameters": {
+              "id": 5828,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 5827,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5834,
+                  "src": "1032:6:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes4",
+                    "typeString": "bytes4"
+                  },
+                  "typeName": {
+                    "id": 5826,
+                    "name": "bytes4",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1032:6:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes4",
+                      "typeString": "bytes4"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1031:8:33"
+            },
+            "scope": 5858,
+            "src": "876:219:33",
+            "stateMutability": "nonpayable",
+            "virtual": true,
+            "visibility": "public"
+          },
+          {
+            "baseFunctions": [
+              5776
+            ],
+            "body": {
+              "id": 5856,
+              "nodeType": "Block",
+              "src": "1288:60:33",
+              "statements": [
+                {
+                  "expression": {
+                    "expression": {
+                      "expression": {
+                        "id": 5852,
+                        "name": "this",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 4294967268,
+                        "src": "1305:4:33",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_contract$_ERC1155Holder_$5858",
+                          "typeString": "contract ERC1155Holder"
+                        }
+                      },
+                      "id": 5853,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberLocation": "1310:22:33",
+                      "memberName": "onERC1155BatchReceived",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 5857,
+                      "src": "1305:27:33",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_external_nonpayable$_t_address_$_t_address_$_t_array$_t_uint256_$dyn_memory_ptr_$_t_array$_t_uint256_$dyn_memory_ptr_$_t_bytes_memory_ptr_$returns$_t_bytes4_$",
+                        "typeString": "function (address,address,uint256[] memory,uint256[] memory,bytes memory) external returns (bytes4)"
+                      }
+                    },
+                    "id": 5854,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "lValueRequested": false,
+                    "memberLocation": "1333:8:33",
+                    "memberName": "selector",
+                    "nodeType": "MemberAccess",
+                    "src": "1305:36:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes4",
+                      "typeString": "bytes4"
+                    }
+                  },
+                  "functionReturnParameters": 5851,
+                  "id": 5855,
+                  "nodeType": "Return",
+                  "src": "1298:43:33"
+                }
+              ]
+            },
+            "functionSelector": "bc197c81",
+            "id": 5857,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "onERC1155BatchReceived",
+            "nameLocation": "1110:22:33",
+            "nodeType": "FunctionDefinition",
+            "overrides": {
+              "id": 5848,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "1262:8:33"
+            },
+            "parameters": {
+              "id": 5847,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 5836,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5857,
+                  "src": "1142:7:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 5835,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1142:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 5838,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5857,
+                  "src": "1159:7:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 5837,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1159:7:33",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 5841,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5857,
+                  "src": "1176:16:33",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_uint256_$dyn_memory_ptr",
+                    "typeString": "uint256[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 5839,
+                      "name": "uint256",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "1176:7:33",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "id": 5840,
+                    "nodeType": "ArrayTypeName",
+                    "src": "1176:9:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_uint256_$dyn_storage_ptr",
+                      "typeString": "uint256[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 5844,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5857,
+                  "src": "1202:16:33",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_uint256_$dyn_memory_ptr",
+                    "typeString": "uint256[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 5842,
+                      "name": "uint256",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "1202:7:33",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "id": 5843,
+                    "nodeType": "ArrayTypeName",
+                    "src": "1202:9:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_uint256_$dyn_storage_ptr",
+                      "typeString": "uint256[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 5846,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5857,
+                  "src": "1228:12:33",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_memory_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 5845,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1228:5:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1132:114:33"
+            },
+            "returnParameters": {
+              "id": 5851,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 5850,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 5857,
+                  "src": "1280:6:33",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes4",
+                    "typeString": "bytes4"
+                  },
+                  "typeName": {
+                    "id": 5849,
+                    "name": "bytes4",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1280:6:33",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes4",
+                      "typeString": "bytes4"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1279:8:33"
+            },
+            "scope": 5858,
+            "src": "1101:247:33",
+            "stateMutability": "nonpayable",
+            "virtual": true,
+            "visibility": "public"
+          }
+        ],
+        "scope": 5859,
+        "src": "522:828:33",
+        "usedErrors": [],
+        "usedEvents": []
+      }
+    ],
+    "src": "121:1230:33"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.8.20+commit.a1b79de6.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.16",
+  "updatedAt": "2026-04-24T10:38:30.931Z",
+  "devdoc": {
+    "details": "Simple implementation of `IERC1155Receiver` that will allow a contract to hold ERC1155 tokens. IMPORTANT: When inheriting this contract, you must include a way to use the received tokens, otherwise they will be stuck.",
+    "kind": "dev",
+    "methods": {
+      "supportsInterface(bytes4)": {
+        "details": "See {IERC165-supportsInterface}."
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}

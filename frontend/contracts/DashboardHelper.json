@@ -1,0 +1,2152 @@
+{
+  "contractName": "DashboardHelper",
+  "abi": [],
+  "metadata": "{\"compiler\":{\"version\":\"0.8.20+commit.a1b79de6\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/helpers/DashboardHelper.sol\":\"DashboardHelper\"},\"evmVersion\":\"shanghai\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/helpers/DashboardHelper.sol\":{\"keccak256\":\"0x416ff65cd26a53d9b7eed174a1814eecfa855978a85505777b090d8b1b44f298\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://c3f17a747eb043ee5f0d5ddf3ff57cfbf9208d5ce65b39acd1a9a088008334d6\",\"dweb:/ipfs/QmTw3RcgzLeph2rRWHnJPNC94E4tFgCmhJNJLbcX5AqWw4\"]},\"project:/contracts/interfaces/IHospital.sol\":{\"keccak256\":\"0x1db2c43afbd5e87bd4316114a3df5def3979cd1fea431cf8ece9d334a815a792\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://42b6911c7529796d21d540b46d9722274c0b73d8adbb8413201da42d22e9442d\",\"dweb:/ipfs/Qmd4DMCw4fW59T2Xh4krJXiQPyLBhiYqNqyUhRYkS9E5Sn\"]},\"project:/contracts/interfaces/IInsurance.sol\":{\"keccak256\":\"0x2f5c802222fb2697f93eadbb70918af801bb800308a9018b38bb55b539e43a8a\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://37c45d6e3167c3fcb32db7a44cca67dbe9a0fb062765c432ec54eb517c8b0674\",\"dweb:/ipfs/QmNvVa3txuJMoJpUbEhcxvj5MFs7K8ygXuKKjiTbR6NgM2\"]},\"project:/contracts/libraries/StringUtils.sol\":{\"keccak256\":\"0x59fe8802970e5e8a74e7783d5c3631380edf5290d1900107cb3103bafe0ca5f8\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://9f14e78f34f6cd53e36bcb056ba52bc61f7d666480e57e46bc07f55e80ec77d6\",\"dweb:/ipfs/QmRWG8NoP9M3ydCD46d5bGkFFMGkTkvjhe8Jf6cEP48Stv\"]}},\"version\":1}",
+  "bytecode": "0x60556032600b8282823980515f1a607314602657634e487b7160e01b5f525f60045260245ffd5b305f52607381538281f3fe730000000000000000000000000000000000000000301460806040525f80fdfea26469706673582212205f30842607eea6b1b67617fbbcfcfe7e900c60936d4cf06297fe332628004e8c64736f6c63430008140033",
+  "deployedBytecode": "0x730000000000000000000000000000000000000000301460806040525f80fdfea26469706673582212205f30842607eea6b1b67617fbbcfcfe7e900c60936d4cf06297fe332628004e8c64736f6c63430008140033",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "186:2443:98:-:0;;;;;;;;;;;;;;;-1:-1:-1;;;186:2443:98;;;;;;;;;;;;;;;;;",
+  "deployedSourceMap": "186:2443:98:-:0;;;;;;;;",
+  "source": "// SPDX-License-Identifier: MIT\r\npragma solidity 0.8.20;\r\n\r\nimport {StringUtils} from \"../libraries/StringUtils.sol\";\r\nimport {IDoctor, IPatient} from \"../interfaces/IInsurance.sol\";\r\n\r\nlibrary DashboardHelper {\r\n    struct PatientDashboard {\r\n        uint256 patientId;\r\n        string name;\r\n        uint256 recordCount;\r\n        uint256 nomineeCount;\r\n        bool isRegistered;\r\n        string status;\r\n    }\r\n\r\n    struct DoctorDashboard {\r\n        uint256 doctorId;\r\n        string name;\r\n        string specialization;\r\n        uint256 patientCount;\r\n        uint256 accessCount;\r\n        bool isRegistered;\r\n        string status;\r\n    }\r\n\r\n    struct InsuranceDashboard {\r\n        uint256 totalPolicies;\r\n        uint256 activePolicies;\r\n        uint256 pendingClaims;\r\n        uint256 totalClaims;\r\n    }\r\n\r\n    function getPatientStatus(\r\n        address _wallet,\r\n        IPatient _patientContract\r\n    ) internal view returns (PatientDashboard memory) {\r\n        bool exists = _wallet != address(0) &&\r\n            _patientContract.userExists(_wallet);\r\n\r\n        if (!exists) {\r\n            return\r\n                PatientDashboard({\r\n                    patientId: 0,\r\n                    name: \"\",\r\n                    recordCount: 0,\r\n                    nomineeCount: 0,\r\n                    isRegistered: false,\r\n                    status: \"NOT_REGISTERED\"\r\n                });\r\n        }\r\n\r\n        return\r\n            PatientDashboard({\r\n                patientId: 0,\r\n                name: \"Patient\",\r\n                recordCount: 0,\r\n                nomineeCount: 0,\r\n                isRegistered: true,\r\n                status: \"ACTIVE\"\r\n            });\r\n    }\r\n\r\n    function getDoctorStatus(\r\n        address _wallet,\r\n        IDoctor _doctorContract\r\n    ) internal view returns (DoctorDashboard memory) {\r\n        bool exists = _wallet != address(0) &&\r\n            _doctorContract.doctorExists(_wallet);\r\n\r\n        if (!exists) {\r\n            return\r\n                DoctorDashboard({\r\n                    doctorId: 0,\r\n                    name: \"\",\r\n                    specialization: \"\",\r\n                    patientCount: 0,\r\n                    accessCount: 0,\r\n                    isRegistered: false,\r\n                    status: \"NOT_REGISTERED\"\r\n                });\r\n        }\r\n\r\n        return\r\n            DoctorDashboard({\r\n                doctorId: 0,\r\n                name: \"Doctor\",\r\n                specialization: \"\",\r\n                patientCount: 0,\r\n                accessCount: 0,\r\n                isRegistered: true,\r\n                status: \"ACTIVE\"\r\n            });\r\n    }\r\n}\r\n",
+  "sourcePath": "C:\\Users\\night\\Downloads\\team-rocket-medi-secure\\team-rocket-medi-secure\\contracts\\contracts\\helpers\\DashboardHelper.sol",
+  "ast": {
+    "absolutePath": "project:/contracts/helpers/DashboardHelper.sol",
+    "exportedSymbols": {
+      "DashboardHelper": [
+        27081
+      ],
+      "IDoctor": [
+        27145
+      ],
+      "IPatient": [
+        27172
+      ],
+      "StringUtils": [
+        27418
+      ]
+    },
+    "id": 27082,
+    "license": "MIT",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 26940,
+        "literals": [
+          "solidity",
+          "0.8",
+          ".20"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "33:23:98"
+      },
+      {
+        "absolutePath": "project:/contracts/libraries/StringUtils.sol",
+        "file": "../libraries/StringUtils.sol",
+        "id": 26942,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 27082,
+        "sourceUnit": 27419,
+        "src": "60:57:98",
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 26941,
+              "name": "StringUtils",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 27418,
+              "src": "68:11:98",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "project:/contracts/interfaces/IInsurance.sol",
+        "file": "../interfaces/IInsurance.sol",
+        "id": 26945,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 27082,
+        "sourceUnit": 27198,
+        "src": "119:63:98",
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 26943,
+              "name": "IDoctor",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 27145,
+              "src": "127:7:98",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          },
+          {
+            "foreign": {
+              "id": 26944,
+              "name": "IPatient",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 27172,
+              "src": "136:8:98",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "DashboardHelper",
+        "contractDependencies": [],
+        "contractKind": "library",
+        "fullyImplemented": true,
+        "id": 27081,
+        "linearizedBaseContracts": [
+          27081
+        ],
+        "name": "DashboardHelper",
+        "nameLocation": "194:15:98",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "canonicalName": "DashboardHelper.PatientDashboard",
+            "id": 26958,
+            "members": [
+              {
+                "constant": false,
+                "id": 26947,
+                "mutability": "mutable",
+                "name": "patientId",
+                "nameLocation": "260:9:98",
+                "nodeType": "VariableDeclaration",
+                "scope": 26958,
+                "src": "252:17:98",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 26946,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "252:7:98",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 26949,
+                "mutability": "mutable",
+                "name": "name",
+                "nameLocation": "287:4:98",
+                "nodeType": "VariableDeclaration",
+                "scope": 26958,
+                "src": "280:11:98",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 26948,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "280:6:98",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 26951,
+                "mutability": "mutable",
+                "name": "recordCount",
+                "nameLocation": "310:11:98",
+                "nodeType": "VariableDeclaration",
+                "scope": 26958,
+                "src": "302:19:98",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 26950,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "302:7:98",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 26953,
+                "mutability": "mutable",
+                "name": "nomineeCount",
+                "nameLocation": "340:12:98",
+                "nodeType": "VariableDeclaration",
+                "scope": 26958,
+                "src": "332:20:98",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 26952,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "332:7:98",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 26955,
+                "mutability": "mutable",
+                "name": "isRegistered",
+                "nameLocation": "368:12:98",
+                "nodeType": "VariableDeclaration",
+                "scope": 26958,
+                "src": "363:17:98",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bool",
+                  "typeString": "bool"
+                },
+                "typeName": {
+                  "id": 26954,
+                  "name": "bool",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "363:4:98",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 26957,
+                "mutability": "mutable",
+                "name": "status",
+                "nameLocation": "398:6:98",
+                "nodeType": "VariableDeclaration",
+                "scope": 26958,
+                "src": "391:13:98",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 26956,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "391:6:98",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "PatientDashboard",
+            "nameLocation": "224:16:98",
+            "nodeType": "StructDefinition",
+            "scope": 27081,
+            "src": "217:195:98",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "DashboardHelper.DoctorDashboard",
+            "id": 26973,
+            "members": [
+              {
+                "constant": false,
+                "id": 26960,
+                "mutability": "mutable",
+                "name": "doctorId",
+                "nameLocation": "462:8:98",
+                "nodeType": "VariableDeclaration",
+                "scope": 26973,
+                "src": "454:16:98",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 26959,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "454:7:98",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 26962,
+                "mutability": "mutable",
+                "name": "name",
+                "nameLocation": "488:4:98",
+                "nodeType": "VariableDeclaration",
+                "scope": 26973,
+                "src": "481:11:98",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 26961,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "481:6:98",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 26964,
+                "mutability": "mutable",
+                "name": "specialization",
+                "nameLocation": "510:14:98",
+                "nodeType": "VariableDeclaration",
+                "scope": 26973,
+                "src": "503:21:98",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 26963,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "503:6:98",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 26966,
+                "mutability": "mutable",
+                "name": "patientCount",
+                "nameLocation": "543:12:98",
+                "nodeType": "VariableDeclaration",
+                "scope": 26973,
+                "src": "535:20:98",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 26965,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "535:7:98",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 26968,
+                "mutability": "mutable",
+                "name": "accessCount",
+                "nameLocation": "574:11:98",
+                "nodeType": "VariableDeclaration",
+                "scope": 26973,
+                "src": "566:19:98",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 26967,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "566:7:98",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 26970,
+                "mutability": "mutable",
+                "name": "isRegistered",
+                "nameLocation": "601:12:98",
+                "nodeType": "VariableDeclaration",
+                "scope": 26973,
+                "src": "596:17:98",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bool",
+                  "typeString": "bool"
+                },
+                "typeName": {
+                  "id": 26969,
+                  "name": "bool",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "596:4:98",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 26972,
+                "mutability": "mutable",
+                "name": "status",
+                "nameLocation": "631:6:98",
+                "nodeType": "VariableDeclaration",
+                "scope": 26973,
+                "src": "624:13:98",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 26971,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "624:6:98",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "DoctorDashboard",
+            "nameLocation": "427:15:98",
+            "nodeType": "StructDefinition",
+            "scope": 27081,
+            "src": "420:225:98",
+            "visibility": "public"
+          },
+          {
+            "canonicalName": "DashboardHelper.InsuranceDashboard",
+            "id": 26982,
+            "members": [
+              {
+                "constant": false,
+                "id": 26975,
+                "mutability": "mutable",
+                "name": "totalPolicies",
+                "nameLocation": "698:13:98",
+                "nodeType": "VariableDeclaration",
+                "scope": 26982,
+                "src": "690:21:98",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 26974,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "690:7:98",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 26977,
+                "mutability": "mutable",
+                "name": "activePolicies",
+                "nameLocation": "730:14:98",
+                "nodeType": "VariableDeclaration",
+                "scope": 26982,
+                "src": "722:22:98",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 26976,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "722:7:98",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 26979,
+                "mutability": "mutable",
+                "name": "pendingClaims",
+                "nameLocation": "763:13:98",
+                "nodeType": "VariableDeclaration",
+                "scope": 26982,
+                "src": "755:21:98",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 26978,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "755:7:98",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 26981,
+                "mutability": "mutable",
+                "name": "totalClaims",
+                "nameLocation": "795:11:98",
+                "nodeType": "VariableDeclaration",
+                "scope": 26982,
+                "src": "787:19:98",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 26980,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "787:7:98",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "InsuranceDashboard",
+            "nameLocation": "660:18:98",
+            "nodeType": "StructDefinition",
+            "scope": 27081,
+            "src": "653:161:98",
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 27029,
+              "nodeType": "Block",
+              "src": "965:720:98",
+              "statements": [
+                {
+                  "assignments": [
+                    26994
+                  ],
+                  "declarations": [
+                    {
+                      "constant": false,
+                      "id": 26994,
+                      "mutability": "mutable",
+                      "name": "exists",
+                      "nameLocation": "981:6:98",
+                      "nodeType": "VariableDeclaration",
+                      "scope": 27029,
+                      "src": "976:11:98",
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      },
+                      "typeName": {
+                        "id": 26993,
+                        "name": "bool",
+                        "nodeType": "ElementaryTypeName",
+                        "src": "976:4:98",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        }
+                      },
+                      "visibility": "internal"
+                    }
+                  ],
+                  "id": 27006,
+                  "initialValue": {
+                    "commonType": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    },
+                    "id": 27005,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftExpression": {
+                      "commonType": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      },
+                      "id": 27000,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "leftExpression": {
+                        "id": 26995,
+                        "name": "_wallet",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 26984,
+                        "src": "990:7:98",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      },
+                      "nodeType": "BinaryOperation",
+                      "operator": "!=",
+                      "rightExpression": {
+                        "arguments": [
+                          {
+                            "hexValue": "30",
+                            "id": 26998,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": true,
+                            "kind": "number",
+                            "lValueRequested": false,
+                            "nodeType": "Literal",
+                            "src": "1009:1:98",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_rational_0_by_1",
+                              "typeString": "int_const 0"
+                            },
+                            "value": "0"
+                          }
+                        ],
+                        "expression": {
+                          "argumentTypes": [
+                            {
+                              "typeIdentifier": "t_rational_0_by_1",
+                              "typeString": "int_const 0"
+                            }
+                          ],
+                          "id": 26997,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "lValueRequested": false,
+                          "nodeType": "ElementaryTypeNameExpression",
+                          "src": "1001:7:98",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_type$_t_address_$",
+                            "typeString": "type(address)"
+                          },
+                          "typeName": {
+                            "id": 26996,
+                            "name": "address",
+                            "nodeType": "ElementaryTypeName",
+                            "src": "1001:7:98",
+                            "typeDescriptions": {}
+                          }
+                        },
+                        "id": 26999,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "typeConversion",
+                        "lValueRequested": false,
+                        "nameLocations": [],
+                        "names": [],
+                        "nodeType": "FunctionCall",
+                        "src": "1001:10:98",
+                        "tryCall": false,
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      },
+                      "src": "990:21:98",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "nodeType": "BinaryOperation",
+                    "operator": "&&",
+                    "rightExpression": {
+                      "arguments": [
+                        {
+                          "id": 27003,
+                          "name": "_wallet",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 26984,
+                          "src": "1056:7:98",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": [
+                          {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        ],
+                        "expression": {
+                          "id": 27001,
+                          "name": "_patientContract",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 26987,
+                          "src": "1028:16:98",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_contract$_IPatient_$27172",
+                            "typeString": "contract IPatient"
+                          }
+                        },
+                        "id": 27002,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberLocation": "1045:10:98",
+                        "memberName": "userExists",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 27152,
+                        "src": "1028:27:98",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_function_external_view$_t_address_$returns$_t_bool_$",
+                          "typeString": "function (address) view external returns (bool)"
+                        }
+                      },
+                      "id": 27004,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "functionCall",
+                      "lValueRequested": false,
+                      "nameLocations": [],
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "1028:36:98",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "src": "990:74:98",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "nodeType": "VariableDeclarationStatement",
+                  "src": "976:88:98"
+                },
+                {
+                  "condition": {
+                    "id": 27008,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "nodeType": "UnaryOperation",
+                    "operator": "!",
+                    "prefix": true,
+                    "src": "1081:7:98",
+                    "subExpression": {
+                      "id": 27007,
+                      "name": "exists",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 26994,
+                      "src": "1082:6:98",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 27019,
+                  "nodeType": "IfStatement",
+                  "src": "1077:331:98",
+                  "trueBody": {
+                    "id": 27018,
+                    "nodeType": "Block",
+                    "src": "1090:318:98",
+                    "statements": [
+                      {
+                        "expression": {
+                          "arguments": [
+                            {
+                              "hexValue": "30",
+                              "id": 27010,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "kind": "number",
+                              "lValueRequested": false,
+                              "nodeType": "Literal",
+                              "src": "1180:1:98",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_rational_0_by_1",
+                                "typeString": "int_const 0"
+                              },
+                              "value": "0"
+                            },
+                            {
+                              "hexValue": "",
+                              "id": 27011,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "kind": "string",
+                              "lValueRequested": false,
+                              "nodeType": "Literal",
+                              "src": "1210:2:98",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_stringliteral_c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+                                "typeString": "literal_string \"\""
+                              },
+                              "value": ""
+                            },
+                            {
+                              "hexValue": "30",
+                              "id": 27012,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "kind": "number",
+                              "lValueRequested": false,
+                              "nodeType": "Literal",
+                              "src": "1248:1:98",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_rational_0_by_1",
+                                "typeString": "int_const 0"
+                              },
+                              "value": "0"
+                            },
+                            {
+                              "hexValue": "30",
+                              "id": 27013,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "kind": "number",
+                              "lValueRequested": false,
+                              "nodeType": "Literal",
+                              "src": "1286:1:98",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_rational_0_by_1",
+                                "typeString": "int_const 0"
+                              },
+                              "value": "0"
+                            },
+                            {
+                              "hexValue": "66616c7365",
+                              "id": 27014,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "kind": "bool",
+                              "lValueRequested": false,
+                              "nodeType": "Literal",
+                              "src": "1324:5:98",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_bool",
+                                "typeString": "bool"
+                              },
+                              "value": "false"
+                            },
+                            {
+                              "hexValue": "4e4f545f52454749535445524544",
+                              "id": 27015,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "kind": "string",
+                              "lValueRequested": false,
+                              "nodeType": "Literal",
+                              "src": "1360:16:98",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_stringliteral_34588bb260d83b0520ca9f10d888ad46325ec5beb2f3aa6226caa78292eebe8a",
+                                "typeString": "literal_string \"NOT_REGISTERED\""
+                              },
+                              "value": "NOT_REGISTERED"
+                            }
+                          ],
+                          "expression": {
+                            "argumentTypes": [
+                              {
+                                "typeIdentifier": "t_rational_0_by_1",
+                                "typeString": "int_const 0"
+                              },
+                              {
+                                "typeIdentifier": "t_stringliteral_c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+                                "typeString": "literal_string \"\""
+                              },
+                              {
+                                "typeIdentifier": "t_rational_0_by_1",
+                                "typeString": "int_const 0"
+                              },
+                              {
+                                "typeIdentifier": "t_rational_0_by_1",
+                                "typeString": "int_const 0"
+                              },
+                              {
+                                "typeIdentifier": "t_bool",
+                                "typeString": "bool"
+                              },
+                              {
+                                "typeIdentifier": "t_stringliteral_34588bb260d83b0520ca9f10d888ad46325ec5beb2f3aa6226caa78292eebe8a",
+                                "typeString": "literal_string \"NOT_REGISTERED\""
+                              }
+                            ],
+                            "id": 27009,
+                            "name": "PatientDashboard",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 26958,
+                            "src": "1129:16:98",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_type$_t_struct$_PatientDashboard_$26958_storage_ptr_$",
+                              "typeString": "type(struct DashboardHelper.PatientDashboard storage pointer)"
+                            }
+                          },
+                          "id": 27016,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "kind": "structConstructorCall",
+                          "lValueRequested": false,
+                          "nameLocations": [
+                            "1169:9:98",
+                            "1204:4:98",
+                            "1235:11:98",
+                            "1272:12:98",
+                            "1310:12:98",
+                            "1352:6:98"
+                          ],
+                          "names": [
+                            "patientId",
+                            "name",
+                            "recordCount",
+                            "nomineeCount",
+                            "isRegistered",
+                            "status"
+                          ],
+                          "nodeType": "FunctionCall",
+                          "src": "1129:267:98",
+                          "tryCall": false,
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_struct$_PatientDashboard_$26958_memory_ptr",
+                            "typeString": "struct DashboardHelper.PatientDashboard memory"
+                          }
+                        },
+                        "functionReturnParameters": 26992,
+                        "id": 27017,
+                        "nodeType": "Return",
+                        "src": "1105:291:98"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "expression": {
+                    "arguments": [
+                      {
+                        "hexValue": "30",
+                        "id": 27021,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "number",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "1487:1:98",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_rational_0_by_1",
+                          "typeString": "int_const 0"
+                        },
+                        "value": "0"
+                      },
+                      {
+                        "hexValue": "50617469656e74",
+                        "id": 27022,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "string",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "1513:9:98",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_stringliteral_675bc9802ff0994bbcafe826bffd0f15ec0a3ec17fd0cfbe035a08cbededf8a3",
+                          "typeString": "literal_string \"Patient\""
+                        },
+                        "value": "Patient"
+                      },
+                      {
+                        "hexValue": "30",
+                        "id": 27023,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "number",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "1554:1:98",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_rational_0_by_1",
+                          "typeString": "int_const 0"
+                        },
+                        "value": "0"
+                      },
+                      {
+                        "hexValue": "30",
+                        "id": 27024,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "number",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "1588:1:98",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_rational_0_by_1",
+                          "typeString": "int_const 0"
+                        },
+                        "value": "0"
+                      },
+                      {
+                        "hexValue": "74727565",
+                        "id": 27025,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "bool",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "1622:4:98",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        },
+                        "value": "true"
+                      },
+                      {
+                        "hexValue": "414354495645",
+                        "id": 27026,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "string",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "1653:8:98",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_stringliteral_db6d55a48c634fdfe68da24c01559762c293198f8322e1fed7ca8976fc4ed260",
+                          "typeString": "literal_string \"ACTIVE\""
+                        },
+                        "value": "ACTIVE"
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_rational_0_by_1",
+                          "typeString": "int_const 0"
+                        },
+                        {
+                          "typeIdentifier": "t_stringliteral_675bc9802ff0994bbcafe826bffd0f15ec0a3ec17fd0cfbe035a08cbededf8a3",
+                          "typeString": "literal_string \"Patient\""
+                        },
+                        {
+                          "typeIdentifier": "t_rational_0_by_1",
+                          "typeString": "int_const 0"
+                        },
+                        {
+                          "typeIdentifier": "t_rational_0_by_1",
+                          "typeString": "int_const 0"
+                        },
+                        {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        },
+                        {
+                          "typeIdentifier": "t_stringliteral_db6d55a48c634fdfe68da24c01559762c293198f8322e1fed7ca8976fc4ed260",
+                          "typeString": "literal_string \"ACTIVE\""
+                        }
+                      ],
+                      "id": 27020,
+                      "name": "PatientDashboard",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 26958,
+                      "src": "1440:16:98",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_type$_t_struct$_PatientDashboard_$26958_storage_ptr_$",
+                        "typeString": "type(struct DashboardHelper.PatientDashboard storage pointer)"
+                      }
+                    },
+                    "id": 27027,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "structConstructorCall",
+                    "lValueRequested": false,
+                    "nameLocations": [
+                      "1476:9:98",
+                      "1507:4:98",
+                      "1541:11:98",
+                      "1574:12:98",
+                      "1608:12:98",
+                      "1645:6:98"
+                    ],
+                    "names": [
+                      "patientId",
+                      "name",
+                      "recordCount",
+                      "nomineeCount",
+                      "isRegistered",
+                      "status"
+                    ],
+                    "nodeType": "FunctionCall",
+                    "src": "1440:237:98",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_PatientDashboard_$26958_memory_ptr",
+                      "typeString": "struct DashboardHelper.PatientDashboard memory"
+                    }
+                  },
+                  "functionReturnParameters": 26992,
+                  "id": 27028,
+                  "nodeType": "Return",
+                  "src": "1420:257:98"
+                }
+              ]
+            },
+            "id": 27030,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getPatientStatus",
+            "nameLocation": "831:16:98",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 26988,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 26984,
+                  "mutability": "mutable",
+                  "name": "_wallet",
+                  "nameLocation": "866:7:98",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27030,
+                  "src": "858:15:98",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 26983,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "858:7:98",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 26987,
+                  "mutability": "mutable",
+                  "name": "_patientContract",
+                  "nameLocation": "893:16:98",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27030,
+                  "src": "884:25:98",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_contract$_IPatient_$27172",
+                    "typeString": "contract IPatient"
+                  },
+                  "typeName": {
+                    "id": 26986,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 26985,
+                      "name": "IPatient",
+                      "nameLocations": [
+                        "884:8:98"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 27172,
+                      "src": "884:8:98"
+                    },
+                    "referencedDeclaration": 27172,
+                    "src": "884:8:98",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_IPatient_$27172",
+                      "typeString": "contract IPatient"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "847:69:98"
+            },
+            "returnParameters": {
+              "id": 26992,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 26991,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27030,
+                  "src": "940:23:98",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_PatientDashboard_$26958_memory_ptr",
+                    "typeString": "struct DashboardHelper.PatientDashboard"
+                  },
+                  "typeName": {
+                    "id": 26990,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 26989,
+                      "name": "PatientDashboard",
+                      "nameLocations": [
+                        "940:16:98"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 26958,
+                      "src": "940:16:98"
+                    },
+                    "referencedDeclaration": 26958,
+                    "src": "940:16:98",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_PatientDashboard_$26958_storage_ptr",
+                      "typeString": "struct DashboardHelper.PatientDashboard"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "939:25:98"
+            },
+            "scope": 27081,
+            "src": "822:863:98",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 27079,
+              "nodeType": "Block",
+              "src": "1832:794:98",
+              "statements": [
+                {
+                  "assignments": [
+                    27042
+                  ],
+                  "declarations": [
+                    {
+                      "constant": false,
+                      "id": 27042,
+                      "mutability": "mutable",
+                      "name": "exists",
+                      "nameLocation": "1848:6:98",
+                      "nodeType": "VariableDeclaration",
+                      "scope": 27079,
+                      "src": "1843:11:98",
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      },
+                      "typeName": {
+                        "id": 27041,
+                        "name": "bool",
+                        "nodeType": "ElementaryTypeName",
+                        "src": "1843:4:98",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        }
+                      },
+                      "visibility": "internal"
+                    }
+                  ],
+                  "id": 27054,
+                  "initialValue": {
+                    "commonType": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    },
+                    "id": 27053,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftExpression": {
+                      "commonType": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      },
+                      "id": 27048,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "leftExpression": {
+                        "id": 27043,
+                        "name": "_wallet",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 27032,
+                        "src": "1857:7:98",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      },
+                      "nodeType": "BinaryOperation",
+                      "operator": "!=",
+                      "rightExpression": {
+                        "arguments": [
+                          {
+                            "hexValue": "30",
+                            "id": 27046,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": true,
+                            "kind": "number",
+                            "lValueRequested": false,
+                            "nodeType": "Literal",
+                            "src": "1876:1:98",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_rational_0_by_1",
+                              "typeString": "int_const 0"
+                            },
+                            "value": "0"
+                          }
+                        ],
+                        "expression": {
+                          "argumentTypes": [
+                            {
+                              "typeIdentifier": "t_rational_0_by_1",
+                              "typeString": "int_const 0"
+                            }
+                          ],
+                          "id": 27045,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "lValueRequested": false,
+                          "nodeType": "ElementaryTypeNameExpression",
+                          "src": "1868:7:98",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_type$_t_address_$",
+                            "typeString": "type(address)"
+                          },
+                          "typeName": {
+                            "id": 27044,
+                            "name": "address",
+                            "nodeType": "ElementaryTypeName",
+                            "src": "1868:7:98",
+                            "typeDescriptions": {}
+                          }
+                        },
+                        "id": 27047,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "typeConversion",
+                        "lValueRequested": false,
+                        "nameLocations": [],
+                        "names": [],
+                        "nodeType": "FunctionCall",
+                        "src": "1868:10:98",
+                        "tryCall": false,
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      },
+                      "src": "1857:21:98",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "nodeType": "BinaryOperation",
+                    "operator": "&&",
+                    "rightExpression": {
+                      "arguments": [
+                        {
+                          "id": 27051,
+                          "name": "_wallet",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 27032,
+                          "src": "1924:7:98",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": [
+                          {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        ],
+                        "expression": {
+                          "id": 27049,
+                          "name": "_doctorContract",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 27035,
+                          "src": "1895:15:98",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_contract$_IDoctor_$27145",
+                            "typeString": "contract IDoctor"
+                          }
+                        },
+                        "id": 27050,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberLocation": "1911:12:98",
+                        "memberName": "doctorExists",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 27128,
+                        "src": "1895:28:98",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_function_external_view$_t_address_$returns$_t_bool_$",
+                          "typeString": "function (address) view external returns (bool)"
+                        }
+                      },
+                      "id": 27052,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "functionCall",
+                      "lValueRequested": false,
+                      "nameLocations": [],
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "1895:37:98",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "src": "1857:75:98",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "nodeType": "VariableDeclarationStatement",
+                  "src": "1843:89:98"
+                },
+                {
+                  "condition": {
+                    "id": 27056,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "nodeType": "UnaryOperation",
+                    "operator": "!",
+                    "prefix": true,
+                    "src": "1949:7:98",
+                    "subExpression": {
+                      "id": 27055,
+                      "name": "exists",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 27042,
+                      "src": "1950:6:98",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 27068,
+                  "nodeType": "IfStatement",
+                  "src": "1945:370:98",
+                  "trueBody": {
+                    "id": 27067,
+                    "nodeType": "Block",
+                    "src": "1958:357:98",
+                    "statements": [
+                      {
+                        "expression": {
+                          "arguments": [
+                            {
+                              "hexValue": "30",
+                              "id": 27058,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "kind": "number",
+                              "lValueRequested": false,
+                              "nodeType": "Literal",
+                              "src": "2046:1:98",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_rational_0_by_1",
+                                "typeString": "int_const 0"
+                              },
+                              "value": "0"
+                            },
+                            {
+                              "hexValue": "",
+                              "id": 27059,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "kind": "string",
+                              "lValueRequested": false,
+                              "nodeType": "Literal",
+                              "src": "2076:2:98",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_stringliteral_c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+                                "typeString": "literal_string \"\""
+                              },
+                              "value": ""
+                            },
+                            {
+                              "hexValue": "",
+                              "id": 27060,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "kind": "string",
+                              "lValueRequested": false,
+                              "nodeType": "Literal",
+                              "src": "2117:2:98",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_stringliteral_c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+                                "typeString": "literal_string \"\""
+                              },
+                              "value": ""
+                            },
+                            {
+                              "hexValue": "30",
+                              "id": 27061,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "kind": "number",
+                              "lValueRequested": false,
+                              "nodeType": "Literal",
+                              "src": "2156:1:98",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_rational_0_by_1",
+                                "typeString": "int_const 0"
+                              },
+                              "value": "0"
+                            },
+                            {
+                              "hexValue": "30",
+                              "id": 27062,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "kind": "number",
+                              "lValueRequested": false,
+                              "nodeType": "Literal",
+                              "src": "2193:1:98",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_rational_0_by_1",
+                                "typeString": "int_const 0"
+                              },
+                              "value": "0"
+                            },
+                            {
+                              "hexValue": "66616c7365",
+                              "id": 27063,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "kind": "bool",
+                              "lValueRequested": false,
+                              "nodeType": "Literal",
+                              "src": "2231:5:98",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_bool",
+                                "typeString": "bool"
+                              },
+                              "value": "false"
+                            },
+                            {
+                              "hexValue": "4e4f545f52454749535445524544",
+                              "id": 27064,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "kind": "string",
+                              "lValueRequested": false,
+                              "nodeType": "Literal",
+                              "src": "2267:16:98",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_stringliteral_34588bb260d83b0520ca9f10d888ad46325ec5beb2f3aa6226caa78292eebe8a",
+                                "typeString": "literal_string \"NOT_REGISTERED\""
+                              },
+                              "value": "NOT_REGISTERED"
+                            }
+                          ],
+                          "expression": {
+                            "argumentTypes": [
+                              {
+                                "typeIdentifier": "t_rational_0_by_1",
+                                "typeString": "int_const 0"
+                              },
+                              {
+                                "typeIdentifier": "t_stringliteral_c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+                                "typeString": "literal_string \"\""
+                              },
+                              {
+                                "typeIdentifier": "t_stringliteral_c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+                                "typeString": "literal_string \"\""
+                              },
+                              {
+                                "typeIdentifier": "t_rational_0_by_1",
+                                "typeString": "int_const 0"
+                              },
+                              {
+                                "typeIdentifier": "t_rational_0_by_1",
+                                "typeString": "int_const 0"
+                              },
+                              {
+                                "typeIdentifier": "t_bool",
+                                "typeString": "bool"
+                              },
+                              {
+                                "typeIdentifier": "t_stringliteral_34588bb260d83b0520ca9f10d888ad46325ec5beb2f3aa6226caa78292eebe8a",
+                                "typeString": "literal_string \"NOT_REGISTERED\""
+                              }
+                            ],
+                            "id": 27057,
+                            "name": "DoctorDashboard",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 26973,
+                            "src": "1997:15:98",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_type$_t_struct$_DoctorDashboard_$26973_storage_ptr_$",
+                              "typeString": "type(struct DashboardHelper.DoctorDashboard storage pointer)"
+                            }
+                          },
+                          "id": 27065,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "kind": "structConstructorCall",
+                          "lValueRequested": false,
+                          "nameLocations": [
+                            "2036:8:98",
+                            "2070:4:98",
+                            "2101:14:98",
+                            "2142:12:98",
+                            "2180:11:98",
+                            "2217:12:98",
+                            "2259:6:98"
+                          ],
+                          "names": [
+                            "doctorId",
+                            "name",
+                            "specialization",
+                            "patientCount",
+                            "accessCount",
+                            "isRegistered",
+                            "status"
+                          ],
+                          "nodeType": "FunctionCall",
+                          "src": "1997:306:98",
+                          "tryCall": false,
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_struct$_DoctorDashboard_$26973_memory_ptr",
+                            "typeString": "struct DashboardHelper.DoctorDashboard memory"
+                          }
+                        },
+                        "functionReturnParameters": 27040,
+                        "id": 27066,
+                        "nodeType": "Return",
+                        "src": "1973:330:98"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "expression": {
+                    "arguments": [
+                      {
+                        "hexValue": "30",
+                        "id": 27070,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "number",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "2392:1:98",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_rational_0_by_1",
+                          "typeString": "int_const 0"
+                        },
+                        "value": "0"
+                      },
+                      {
+                        "hexValue": "446f63746f72",
+                        "id": 27071,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "string",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "2418:8:98",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_stringliteral_81801538196f6575c6900044ae3429ef092e7ad29a7f4da69ed7f897d69f5759",
+                          "typeString": "literal_string \"Doctor\""
+                        },
+                        "value": "Doctor"
+                      },
+                      {
+                        "hexValue": "",
+                        "id": 27072,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "string",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "2461:2:98",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_stringliteral_c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+                          "typeString": "literal_string \"\""
+                        },
+                        "value": ""
+                      },
+                      {
+                        "hexValue": "30",
+                        "id": 27073,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "number",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "2496:1:98",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_rational_0_by_1",
+                          "typeString": "int_const 0"
+                        },
+                        "value": "0"
+                      },
+                      {
+                        "hexValue": "30",
+                        "id": 27074,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "number",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "2529:1:98",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_rational_0_by_1",
+                          "typeString": "int_const 0"
+                        },
+                        "value": "0"
+                      },
+                      {
+                        "hexValue": "74727565",
+                        "id": 27075,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "bool",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "2563:4:98",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        },
+                        "value": "true"
+                      },
+                      {
+                        "hexValue": "414354495645",
+                        "id": 27076,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "string",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "2594:8:98",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_stringliteral_db6d55a48c634fdfe68da24c01559762c293198f8322e1fed7ca8976fc4ed260",
+                          "typeString": "literal_string \"ACTIVE\""
+                        },
+                        "value": "ACTIVE"
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_rational_0_by_1",
+                          "typeString": "int_const 0"
+                        },
+                        {
+                          "typeIdentifier": "t_stringliteral_81801538196f6575c6900044ae3429ef092e7ad29a7f4da69ed7f897d69f5759",
+                          "typeString": "literal_string \"Doctor\""
+                        },
+                        {
+                          "typeIdentifier": "t_stringliteral_c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+                          "typeString": "literal_string \"\""
+                        },
+                        {
+                          "typeIdentifier": "t_rational_0_by_1",
+                          "typeString": "int_const 0"
+                        },
+                        {
+                          "typeIdentifier": "t_rational_0_by_1",
+                          "typeString": "int_const 0"
+                        },
+                        {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        },
+                        {
+                          "typeIdentifier": "t_stringliteral_db6d55a48c634fdfe68da24c01559762c293198f8322e1fed7ca8976fc4ed260",
+                          "typeString": "literal_string \"ACTIVE\""
+                        }
+                      ],
+                      "id": 27069,
+                      "name": "DoctorDashboard",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 26973,
+                      "src": "2347:15:98",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_type$_t_struct$_DoctorDashboard_$26973_storage_ptr_$",
+                        "typeString": "type(struct DashboardHelper.DoctorDashboard storage pointer)"
+                      }
+                    },
+                    "id": 27077,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "structConstructorCall",
+                    "lValueRequested": false,
+                    "nameLocations": [
+                      "2382:8:98",
+                      "2412:4:98",
+                      "2445:14:98",
+                      "2482:12:98",
+                      "2516:11:98",
+                      "2549:12:98",
+                      "2586:6:98"
+                    ],
+                    "names": [
+                      "doctorId",
+                      "name",
+                      "specialization",
+                      "patientCount",
+                      "accessCount",
+                      "isRegistered",
+                      "status"
+                    ],
+                    "nodeType": "FunctionCall",
+                    "src": "2347:271:98",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_DoctorDashboard_$26973_memory_ptr",
+                      "typeString": "struct DashboardHelper.DoctorDashboard memory"
+                    }
+                  },
+                  "functionReturnParameters": 27040,
+                  "id": 27078,
+                  "nodeType": "Return",
+                  "src": "2327:291:98"
+                }
+              ]
+            },
+            "id": 27080,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getDoctorStatus",
+            "nameLocation": "1702:15:98",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 27036,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 27032,
+                  "mutability": "mutable",
+                  "name": "_wallet",
+                  "nameLocation": "1736:7:98",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27080,
+                  "src": "1728:15:98",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 27031,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1728:7:98",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 27035,
+                  "mutability": "mutable",
+                  "name": "_doctorContract",
+                  "nameLocation": "1762:15:98",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27080,
+                  "src": "1754:23:98",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_contract$_IDoctor_$27145",
+                    "typeString": "contract IDoctor"
+                  },
+                  "typeName": {
+                    "id": 27034,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 27033,
+                      "name": "IDoctor",
+                      "nameLocations": [
+                        "1754:7:98"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 27145,
+                      "src": "1754:7:98"
+                    },
+                    "referencedDeclaration": 27145,
+                    "src": "1754:7:98",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_IDoctor_$27145",
+                      "typeString": "contract IDoctor"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1717:67:98"
+            },
+            "returnParameters": {
+              "id": 27040,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 27039,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27080,
+                  "src": "1808:22:98",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_DoctorDashboard_$26973_memory_ptr",
+                    "typeString": "struct DashboardHelper.DoctorDashboard"
+                  },
+                  "typeName": {
+                    "id": 27038,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 27037,
+                      "name": "DoctorDashboard",
+                      "nameLocations": [
+                        "1808:15:98"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 26973,
+                      "src": "1808:15:98"
+                    },
+                    "referencedDeclaration": 26973,
+                    "src": "1808:15:98",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_DoctorDashboard_$26973_storage_ptr",
+                      "typeString": "struct DashboardHelper.DoctorDashboard"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1807:24:98"
+            },
+            "scope": 27081,
+            "src": "1693:933:98",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "internal"
+          }
+        ],
+        "scope": 27082,
+        "src": "186:2443:98",
+        "usedErrors": [],
+        "usedEvents": []
+      }
+    ],
+    "src": "33:2598:98"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.8.20+commit.a1b79de6.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.16",
+  "updatedAt": "2026-04-24T10:38:31.215Z",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}
